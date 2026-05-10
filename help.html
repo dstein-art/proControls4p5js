@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AnalogControls — Documentation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #ffffff;
+      --surface:   #f4f4f6;
+      --surface2:  #ebebee;
+      --border:    #e0e0e6;
+      --accent:    #0077cc;
+      --accent2:   #cc5500;
+      --text:      #1a1a22;
+      --muted:     #666680;
+      --code-bg:   #1a1a22;
+      --code-text: #d4d4d8;
+      --nav-bg:    #ffffffee;
+      --nav-h:     52px;
+      --max-w:     860px;
+      --radius:    6px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.7 'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      gap: 4px;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+      flex-shrink: 0;
+    }
+
+    nav a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    nav .demo-link {
+      color: var(--accent2);
+      border-color: transparent;
+      margin-left: 6px;
+    }
+    nav .demo-link:hover {
+      color: var(--accent2);
+      border-color: #cc550044;
+      background: #cc55000a;
+    }
+
+    nav .sep { color: var(--border); margin: 0 2px; user-select: none; }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #0f1923 0%, #1a2840 50%, #0f2030 100%);
+      padding: 80px 32px 72px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* subtle grid overlay */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    /* glow blob */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -60px; left: 40%;
+      width: 500px; height: 400px;
+      background: radial-gradient(ellipse, #0077cc28 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: #0099ee;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      letter-spacing: -.02em;
+    }
+
+    .hero h1 .accent { color: #00aaff; }
+    .hero h1 .dim    { color: #6699bb; font-weight: 400; }
+
+    .hero-desc {
+      font-size: 17px;
+      line-height: 1.6;
+      color: #8aaccc;
+      max-width: 540px;
+      margin-bottom: 32px;
+    }
+
+    .hero-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chip {
+      font-size: 12px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid #ffffff22;
+      color: #aaccee;
+      background: #ffffff0a;
+    }
+
+    .chip-demo {
+      background: #0077cc22;
+      border-color: #0077cc66;
+      color: #66bbff;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .chip-demo:hover { background: #0077cc44; }
+
+    /* ── Page layout ── */
+    .page { max-width: var(--max-w); margin: 0 auto; padding: 56px 32px 100px; }
+
+    /* ── Sections ── */
+    section { margin-bottom: 72px; scroll-margin-top: calc(var(--nav-h) + 20px); }
+
+    section h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    section h2 .tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc12;
+      border: 1px solid #0077cc33;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    section h2 .tag.ext {
+      color: var(--accent2);
+      background: #cc550012;
+      border-color: #cc550033;
+    }
+
+    .desc { color: var(--muted); margin-bottom: 20px; line-height: 1.65; }
+
+    section h3 {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #9999b0;
+      margin: 32px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Option tables ── */
+    .opts {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .opts thead th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 14px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .opts tbody tr:nth-child(even) td { background: #f9f9fc; }
+    .opts tbody tr:hover td { background: #f0f0f8; }
+
+    .opts td {
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+    .opts tbody tr:last-child td { border-bottom: none; }
+
+    .opts td:first-child  { font-family: monospace; color: var(--accent); white-space: nowrap; font-size: 13px; }
+    .opts td:nth-child(2) { font-family: monospace; color: #8888aa; white-space: nowrap; font-size: 13px; }
+    .opts td:nth-child(3) { font-family: monospace; color: var(--accent2); white-space: nowrap; font-size: 13px; }
+    .opts td:last-child   { color: var(--muted); }
+
+    /* ── Code blocks ── */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid #2a2a38;
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      font: 13px/1.65 'Fira Code', 'Cascadia Code', monospace;
+      overflow-x: auto;
+      margin: 10px 0 0;
+      color: var(--code-text);
+    }
+
+    code {
+      font: 13px/1 'Fira Code', 'Cascadia Code', monospace;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent);
+    }
+
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: inherit;
+    }
+
+    .kw  { color: #c792ea; }
+    .fn  { color: #82aaff; }
+    .str { color: #c3e88d; }
+    .num { color: #f78c6c; }
+    .cmt { color: #546e7a; font-style: italic; }
+    .prop{ color: #89ddff; }
+
+    /* ── Callouts ── */
+    .note {
+      background: #0077cc0a;
+      border-left: 3px solid var(--accent);
+      padding: 11px 16px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 14px;
+      color: #446688;
+      margin: 16px 0 0;
+    }
+    .note strong { color: var(--accent); }
+
+    .warn {
+      background: #cc55000a;
+      border-left: 3px solid var(--accent2);
+      padding: 11px 16px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 14px;
+      color: #885533;
+      margin: 16px 0 0;
+    }
+    .warn strong { color: var(--accent2); }
+
+    /* ── Theme swatches ── */
+    .swatches { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+
+    .swatch {
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      font-size: 13px;
+      min-width: 130px;
+      background: var(--bg);
+    }
+
+    .swatch .name { font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--text); }
+
+    .swatch .bg-chip {
+      width: 100%;
+      height: 22px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(0,0,0,.12);
+    }
+
+    .swatch .accent-chip {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+
+    .swatch .label { color: var(--muted); font-size: 12px; }
+
+    /* ── Signature ── */
+    .sig {
+      font: 13px/1.6 'Fira Code', 'Cascadia Code', monospace;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 16px;
+      color: var(--text);
+    }
+
+    hr { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+  </style>
+</head>
+<body>
+
+<!-- ── Nav ── -->
+<nav>
+  <a href="#getting-started">Getting Started</a>
+  <span class="sep">·</span>
+  <a href="#slider">AnalogSlider</a>
+  <span class="sep">·</span>
+  <a href="#dial">Dial</a>
+  <span class="sep">·</span>
+  <a href="#switch">AnalogSwitch</a>
+  <span class="sep">·</span>
+  <a href="#vumeter">VUMeter</a>
+  <span class="sep">·</span>
+  <a href="#vudial">VUDial</a>
+  <span class="sep">·</span>
+  <a href="#xypad">XYPad</a>
+  <span class="sep">·</span>
+  <a href="#ledmeter">LEDMeter</a>
+  <span class="sep">·</span>
+  <a href="#rotaryselector">RotarySelector</a>
+  <span class="sep">·</span>
+  <a href="#themes">Themes &amp; Styles</a>
+  <span class="sep">·</span>
+  <a href="#touch">Events</a>
+  <a href="demo.html" class="demo-link" target="_blank">↗ Live Demo</a>
+</nav>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">p5.js Component Library</div>
+    <h1>
+      <span class="accent">Analog</span><span class="dim">Controls</span>
+    </h1>
+    <p class="hero-desc">
+      Hardware-style UI components for p5.js — sliders, knobs, VU meters, XY pads, LED displays, and switches. Four built-in visual styles, touch-ready, zero event boilerplate.
+    </p>
+    <div class="hero-chips">
+      <span class="chip">AnalogControls.js</span>
+      <span class="chip">CustomControls.js</span>
+      <span class="chip">p5.js 1.9+</span>
+      <a href="demo.html" class="chip chip-demo" target="_blank">↗ Live Demo</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Content ── -->
+<div class="page">
+
+  <!-- Getting Started -->
+  <section id="getting-started">
+    <h2>Getting Started</h2>
+    <p class="desc">Load both script files after p5.js, set <code>AnalogStyle</code>, create controls in <code>setup()</code>, and call <code>.draw()</code> in <code>draw()</code>. Mouse, wheel, and touch events are wired automatically — no event handlers needed.</p>
+
+    <h3>HTML setup</h3>
+    <pre><code><span class="kw">&lt;script</span> src=<span class="str">"p5.min.js"</span><span class="kw">&gt;&lt;/script&gt;</span>
+<span class="kw">&lt;script</span> src=<span class="str">"AnalogControls.js"</span><span class="kw">&gt;&lt;/script&gt;</span>
+<span class="kw">&lt;script</span> src=<span class="str">"CustomControls.js"</span><span class="kw">&gt;&lt;/script&gt;</span>
+<span class="kw">&lt;script</span> src=<span class="str">"sketch.js"</span><span class="kw">&gt;&lt;/script&gt;</span></code></pre>
+
+    <h3>Minimal sketch</h3>
+    <pre><code><span class="prop">AnalogStyle</span> = <span class="str">'black'</span>;  <span class="cmt">// set before creating controls</span>
+
+<span class="kw">let</span> vol, pan, pwr;
+
+<span class="kw">function</span> <span class="fn">setup</span>() {
+  <span class="fn">createCanvas</span>(<span class="num">600</span>, <span class="num">300</span>);
+  vol = <span class="kw">new</span> <span class="fn">AnalogSlider</span>({ x: <span class="num">40</span>,  y: <span class="num">50</span>, label: <span class="str">'VOL'</span> });
+  pan = <span class="kw">new</span> <span class="fn">Dial</span>({         x: <span class="num">120</span>, y: <span class="num">60</span>, label: <span class="str">'PAN'</span> });
+  pwr = <span class="kw">new</span> <span class="fn">AnalogSwitch</span>({ x: <span class="num">220</span>, y: <span class="num">80</span>, label: <span class="str">'PWR'</span>, states: [<span class="str">'OFF'</span>, <span class="str">'ON'</span>] });
+}
+
+<span class="kw">function</span> <span class="fn">draw</span>() {
+  <span class="fn">analogBackground</span>();  <span class="cmt">// style-matched background</span>
+  vol.<span class="fn">draw</span>();
+  pan.<span class="fn">draw</span>();
+  pwr.<span class="fn">draw</span>();
+}
+
+<span class="cmt">// No mouseMoved / mousePressed / mouseWheel / touch handlers needed.</span></code></pre>
+
+    <h3>Rebuilding controls at runtime</h3>
+    <p class="desc">When recreating all controls (e.g. on a style switch), call <code>analogReset()</code> first to clear stale registrations. Read current values before rebuilding to preserve them.</p>
+    <pre><code><span class="kw">function</span> <span class="fn">buildControls</span>() {
+  <span class="fn">analogReset</span>();              <span class="cmt">// clear old registrations</span>
+  AnalogStyle = currentStyle;
+  mySlider = <span class="kw">new</span> <span class="fn">AnalogSlider</span>({ value: mySlider?.value ?? <span class="num">0.5</span> });
+}</code></pre>
+
+    <h3>Removing a single control</h3>
+    <pre><code>mySlider.<span class="fn">remove</span>(); <span class="cmt">// deregisters from events; stop calling .draw() to remove visually</span></code></pre>
+
+    <h3>Common options (all controls)</h3>
+    <p class="desc">Every control inherits these from the <code>AnalogControl</code> base class.</p>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x</td><td>number</td><td>20</td><td>Left edge of the control panel in canvas pixels.</td></tr>
+        <tr><td>y</td><td>number</td><td>20</td><td>Top edge of the control panel in canvas pixels.</td></tr>
+        <tr><td>min</td><td>number</td><td>0</td><td>Minimum value of the range.</td></tr>
+        <tr><td>max</td><td>number</td><td>1</td><td>Maximum value of the range.</td></tr>
+        <tr><td>value</td><td>number</td><td>min</td><td>Initial value. Writable at any time via <code>ctrl.value = v</code>.</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Text label drawn on the control panel.</td></tr>
+        <tr><td>scale</td><td>string</td><td>'linear'</td><td><code>'linear'</code> or <code>'log'</code>. Log requires <code>min &gt; 0</code>. Affects dragging, scrolling, and tick labels.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Draws a translucent overlay and blocks all interaction.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with the new value whenever it changes during interaction.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Called once with the final value on mouse/touch release.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override merged on top of the active style. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr>
+
+  <!-- AnalogSlider -->
+  <section id="slider">
+    <h2>AnalogSlider <span class="tag">Input</span></h2>
+    <p class="desc">A vertical fader with a draggable cap, optional scale ticks, and a live readout. Drag the cap or scroll the mouse wheel to change value.</p>
+
+    <div class="note"><strong>Previously called <code>Slider</code>.</strong> The old name still works as a backward-compatible alias.</div>
+
+    <div class="sig" style="margin-top:14px">new AnalogSlider(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>width</td><td>number</td><td>auto</td><td>Panel width in pixels. When omitted and <code>showScale</code> is true, the width is automatically sized to fit the widest tick label (based on <code>min</code>/<code>max</code>). Omit <code>width</code> when using large value ranges to avoid label overflow.</td></tr>
+        <tr><td>height</td><td>number</td><td>180</td><td>Panel height in pixels.</td></tr>
+        <tr><td>readout</td><td>string</td><td>'raw'</td><td><code>'raw'</code> — numeric value · <code>'percent'</code> — 0–100% · <code>'db'</code> — dB relative to max (shows <code>-∞</code> at min).</td></tr>
+        <tr><td>decimals</td><td>number</td><td>2</td><td>Decimal places for the <code>'raw'</code> readout.</td></tr>
+        <tr><td>showScale</td><td>boolean</td><td>true</td><td>Draw tick marks and numeric labels along the track.</td></tr>
+        <tr><td>showFader</td><td>boolean</td><td>true</td><td>Show or hide the draggable cap. <code>false</code> = display-only meter.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <pre><code><span class="kw">const</span> vol = <span class="kw">new</span> <span class="fn">AnalogSlider</span>({
+  x: <span class="num">40</span>, y: <span class="num">50</span>,
+  width: <span class="num">44</span>, height: <span class="num">200</span>,
+  min: <span class="num">0</span>, max: <span class="num">1</span>, value: <span class="num">0.8</span>,
+  label: <span class="str">'VOLUME'</span>,
+  readout: <span class="str">'db'</span>,
+  <span class="fn">onChange</span>: v => console.<span class="fn">log</span>(v),
+});</code></pre>
+
+    <div class="note"><strong>Log scale:</strong> Set <code>scale: 'log'</code> with a small positive <code>min</code> (e.g. <code>0.001</code>) for a perceptually even frequency fader.</div>
+  </section>
+
+  <hr>
+
+  <!-- Dial -->
+  <section id="dial">
+    <h2>Dial <span class="tag">Input</span></h2>
+    <p class="desc">A rotary knob with a 270° arc sweep. Drag up/down or scroll the mouse wheel to turn it. A tooltip shows the live value while dragging.</p>
+
+    <div class="sig">new Dial(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>size</td><td>number</td><td>70</td><td>Square panel size in pixels. Knob, arc, and scale all scale proportionally.</td></tr>
+        <tr><td>readout</td><td>string</td><td>'raw'</td><td>Same as AnalogSlider: <code>'raw'</code>, <code>'percent'</code>, <code>'db'</code>.</td></tr>
+        <tr><td>decimals</td><td>number</td><td>2</td><td>Decimal places for the <code>'raw'</code> readout.</td></tr>
+        <tr><td>showScale</td><td>boolean</td><td>false</td><td>Draw tick marks and labels around the arc. Increase <code>size</code> if labels clip.</td></tr>
+        <tr><td>showKnob</td><td>boolean</td><td>true</td><td>Show or hide the knob body. <code>false</code> = arc-only display (used by VUDial).</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <pre><code><span class="kw">const</span> freq = <span class="kw">new</span> <span class="fn">Dial</span>({
+  x: <span class="num">120</span>, y: <span class="num">60</span>,
+  size: <span class="num">80</span>,
+  min: <span class="num">20</span>, max: <span class="num">20000</span>, value: <span class="num">440</span>,
+  scale: <span class="str">'log'</span>,
+  label: <span class="str">'FREQ'</span>,
+  readout: <span class="str">'raw'</span>,
+  decimals: <span class="num">0</span>,
+  showScale: <span class="kw">true</span>,
+  <span class="fn">onChange</span>: v => osc.<span class="fn">freq</span>(v),
+});</code></pre>
+  </section>
+
+  <hr>
+
+  <!-- AnalogSwitch -->
+  <section id="switch">
+    <h2>AnalogSwitch <span class="tag">Input</span></h2>
+    <p class="desc">An illuminated discrete selector. Two states renders as a rocker toggle — click to flip. Three or more states renders as a vertical button stack — click any slot to select it. The active slot glows with the style's accent color.</p>
+
+    <div class="sig">new AnalogSwitch(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>states</td><td>string[]</td><td>['OFF','ON']</td><td>Array of state labels. 2 entries = rocker. 3+ entries = selector stack.</td></tr>
+        <tr><td>state</td><td>number</td><td>0</td><td>Index of the initially active state.</td></tr>
+        <tr><td>width</td><td>number</td><td>48</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>auto</td><td>Defaults to <code>70</code> for 2-state; <code>states.length × 26 + 20</code> for N-state.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(stateIndex, stateLabel)</code> on every click.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Reading state</h3>
+    <pre><code>sw.state           <span class="cmt">// active index (readable/writable)</span>
+sw.states[sw.state] <span class="cmt">// active label string</span></code></pre>
+
+    <h3>Examples</h3>
+    <pre><code><span class="cmt">// Two-state rocker</span>
+<span class="kw">const</span> pwr = <span class="kw">new</span> <span class="fn">AnalogSwitch</span>({
+  x: <span class="num">40</span>, y: <span class="num">80</span>,
+  states: [<span class="str">'OFF'</span>, <span class="str">'ON'</span>],
+  label: <span class="str">'POWER'</span>,
+  <span class="fn">onChange</span>: (i, s) => console.<span class="fn">log</span>(s),
+});
+
+<span class="cmt">// N-state style selector (see Live Demo)</span>
+<span class="kw">const</span> style = <span class="kw">new</span> <span class="fn">AnalogSwitch</span>({
+  x: <span class="num">100</span>, y: <span class="num">60</span>,
+  width: <span class="num">52</span>,
+  states: [<span class="str">'BLACK'</span>, <span class="str">'STEEL'</span>, <span class="str">'WHITE'</span>, <span class="str">'BRUSH'</span>],
+  state: <span class="num">0</span>,
+  label: <span class="str">'STYLE'</span>,
+  <span class="fn">onChange</span>: i => { currentStyle = STYLES[i]; <span class="fn">buildControls</span>(); },
+});</code></pre>
+  </section>
+
+  <hr>
+
+  <!-- VUMeter -->
+  <section id="vumeter">
+    <h2>VUMeter <span class="tag ext">Display</span></h2>
+    <p class="desc">Extends <strong>AnalogSlider</strong>. Overlays a segmented LED column (green → yellow → red) with peak hold on top of the fader track. Drive it each frame by assigning <code>.value</code> from audio analysis.</p>
+
+    <div class="sig">new VUMeter(opts)</div>
+
+    <div class="note"><strong>Inherits all AnalogSlider options.</strong> Defaults overridden: <code>readout: 'db'</code>, <code>showScale: false</code>, <code>min: 0</code>, <code>max: 1</code>.</div>
+
+    <h3>Additional options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>segCount</td><td>number</td><td>20</td><td>Number of LED segments.</td></tr>
+        <tr><td>meterWidth</td><td>number</td><td>8</td><td>Pixel width of the LED column.</td></tr>
+        <tr><td>colorLow</td><td>string</td><td>'#00cc44'</td><td>Segment color for the lower 60%.</td></tr>
+        <tr><td>colorMid</td><td>string</td><td>'#cccc00'</td><td>Segment color for 60–85%.</td></tr>
+        <tr><td>colorHigh</td><td>string</td><td>'#cc2200'</td><td>Segment color for the top 15%.</td></tr>
+        <tr><td>showFader</td><td>boolean</td><td>true</td><td><code>false</code> = hide the fader cap entirely for a pure display meter.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <pre><code><span class="kw">const</span> vu = <span class="kw">new</span> <span class="fn">VUMeter</span>({
+  x: <span class="num">200</span>, y: <span class="num">50</span>, width: <span class="num">44</span>, height: <span class="num">200</span>,
+  label: <span class="str">'L'</span>,
+  showFader: <span class="kw">false</span>,
+  segCount: <span class="num">24</span>, meterWidth: <span class="num">12</span>,
+});
+
+<span class="cmt">// In draw():</span>
+vu.value = <span class="fn">getAudioLevel</span>(); <span class="cmt">// 0–1</span></code></pre>
+  </section>
+
+  <hr>
+
+  <!-- VUDial -->
+  <section id="vudial">
+    <h2>VUDial <span class="tag ext">Display</span></h2>
+    <p class="desc">Extends <strong>Dial</strong>. Replaces the filled arc with a ring of segmented LEDs with peak hold. Use <code>showKnob: false</code> for a pure meter ring, or <code>true</code> to show both the set position and the live level.</p>
+
+    <div class="sig">new VUDial(opts)</div>
+
+    <div class="note"><strong>Inherits all Dial options.</strong> Defaults overridden: <code>readout: 'db'</code>, <code>showScale: false</code>, <code>min: 0</code>, <code>max: 1</code>.</div>
+
+    <h3>Additional options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>segCount</td><td>number</td><td>24</td><td>Number of LED arc segments.</td></tr>
+        <tr><td>colorLow</td><td>string</td><td>'#00cc44'</td><td>Color for the lower 60%.</td></tr>
+        <tr><td>colorMid</td><td>string</td><td>'#cccc00'</td><td>Color for 60–85%.</td></tr>
+        <tr><td>colorHigh</td><td>string</td><td>'#cc2200'</td><td>Color for the top 15%.</td></tr>
+        <tr><td>showKnob</td><td>boolean</td><td>true</td><td><code>false</code> = pure LED ring with no knob body.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <pre><code><span class="kw">const</span> vuDial = <span class="kw">new</span> <span class="fn">VUDial</span>({
+  x: <span class="num">300</span>, y: <span class="num">80</span>, size: <span class="num">80</span>,
+  label: <span class="str">'VU'</span>,
+  showKnob: <span class="kw">false</span>,
+  segCount: <span class="num">30</span>,
+});
+
+vuDial.value = <span class="fn">getAudioLevel</span>();</code></pre>
+  </section>
+
+  <hr>
+
+  <!-- XYPad -->
+  <section id="xypad">
+    <h2>XYPad <span class="tag">Input</span></h2>
+    <p class="desc">A two-axis drag surface. Click or drag to set X and Y values independently. Fires separate callbacks per axis. Y increases upward to match musical convention.</p>
+
+    <div class="sig">new XYPad(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>width</td><td>number</td><td>160</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>160</td><td>Panel height in pixels.</td></tr>
+        <tr><td>minX / maxX</td><td>number</td><td>0 / 1</td><td>Value range for the horizontal axis.</td></tr>
+        <tr><td>minY / maxY</td><td>number</td><td>0 / 1</td><td>Value range for the vertical axis.</td></tr>
+        <tr><td>valueX / valueY</td><td>number</td><td>center</td><td>Initial position.</td></tr>
+        <tr><td>scaleX</td><td>string</td><td>'linear'</td><td><code>'linear'</code> or <code>'log'</code>. Log requires <code>minX &gt; 0</code>.</td></tr>
+        <tr><td>scaleY</td><td>string</td><td>'linear'</td><td><code>'linear'</code> or <code>'log'</code>. Log requires <code>minY &gt; 0</code>.</td></tr>
+        <tr><td>crosshairColor</td><td>string</td><td>theme accent</td><td>Color of the crosshair dot and lines.</td></tr>
+        <tr><td>onChangeX</td><td>function</td><td>null</td><td>Called with the new X value when it changes.</td></tr>
+        <tr><td>onChangeY</td><td>function</td><td>null</td><td>Called with the new Y value when it changes.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(valueX, valueY)</code> when either axis changes.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with <code>(valueX, valueY)</code> on release.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <pre><code><span class="kw">const</span> pad = <span class="kw">new</span> <span class="fn">XYPad</span>({
+  x: <span class="num">260</span>, y: <span class="num">50</span>, width: <span class="num">220</span>, height: <span class="num">200</span>,
+  minX: <span class="num">-1</span>, maxX: <span class="num">1</span>,
+  minY: <span class="num">-1</span>, maxY: <span class="num">1</span>,
+  valueX: <span class="num">0</span>, valueY: <span class="num">0</span>,
+  label: <span class="str">'XY'</span>,
+  <span class="fn">onChange</span>: (vx, vy) => synth.<span class="fn">setModulation</span>(vx, vy),
+});</code></pre>
+  </section>
+
+  <hr>
+
+  <!-- LEDMeter -->
+  <section id="ledmeter">
+    <h2>LEDMeter <span class="tag ext">Display</span></h2>
+    <p class="desc">A 7-segment numeric display. Segments are drawn as beveled hexagons with a canvas glow. Values are right-aligned; if the number is too wide for the digit slots, all segments show <code>-----</code>. Assign <code>.value</code> each frame.</p>
+
+    <div class="sig">new LEDMeter(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>digits</td><td>number</td><td>5</td><td>Number of digit positions (including sign).</td></tr>
+        <tr><td>readout</td><td>string</td><td>'raw'</td><td><code>'raw'</code>, <code>'percent'</code>, or <code>'db'</code>. dB clamps at −99 at min.</td></tr>
+        <tr><td>decimals</td><td>number</td><td>2</td><td>Decimal places. The dot is drawn in the gap between digits — no extra slot needed.</td></tr>
+        <tr><td>digitW</td><td>number</td><td>14</td><td>Width of each digit character in pixels.</td></tr>
+        <tr><td>digitH</td><td>number</td><td>26</td><td>Height of each digit. Segment thickness scales with this.</td></tr>
+        <tr><td>digitGap</td><td>number</td><td>4</td><td>Gap between digits. Decimal point is centered here.</td></tr>
+        <tr><td>ledColor</td><td>string</td><td>null</td><td>LED color. <code>null</code> uses <code>theme.capIndicator</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <pre><code><span class="kw">const</span> display = <span class="kw">new</span> <span class="fn">LEDMeter</span>({
+  x: <span class="num">40</span>, y: <span class="num">200</span>,
+  min: <span class="num">0</span>, max: <span class="num">1</span>,
+  readout: <span class="str">'db'</span>, decimals: <span class="num">1</span>, digits: <span class="num">5</span>,
+  label: <span class="str">'dB'</span>,
+  ledColor: <span class="str">'#00ff88'</span>,
+});
+
+display.value = masterFader.value; <span class="cmt">// in draw()</span></code></pre>
+
+    <div class="note"><strong>Panel width</strong> = <code>padding×2 + digits×digitW + (digits−1)×digitGap</code>. With defaults a 5-digit meter is <strong>106 px</strong> wide.</div>
+  </section>
+
+  <hr>
+
+  <!-- RotarySelector -->
+  <section id="rotaryselector">
+    <h2>RotarySelector <span class="tag ext">Input</span></h2>
+    <p class="desc">A mechanical drum-style selector inspired by vintage rotary counters. A display window shows the selected option; the drum's serrated edge is exposed on the right — horizontal ridges scroll as the drum rotates, giving a tactile feel. Adjacent options are visible in the drum window while scrolling. Drag up/down, scroll wheel, or touch.</p>
+
+    <div class="sig">new RotarySelector(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>options</td><td>string[]</td><td>['A','B','C']</td><td>Array of option labels shown in the drum.</td></tr>
+        <tr><td>state</td><td>number</td><td>0</td><td>Initial selected index into <code>options</code>.</td></tr>
+        <tr><td>width</td><td>number</td><td>140</td><td>Total panel width in pixels (drum window + teeth column).</td></tr>
+        <tr><td>height</td><td>number</td><td>40</td><td>Panel height in pixels. Also controls the teeth column width.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(index, label)</code> whenever the selection changes.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with <code>(index, label)</code> when the mouse/touch is released.</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Caption drawn below the panel.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.state</code></td><td>Current selected index (read/write).</td></tr>
+        <tr><td><code>.options</code></td><td>Array of option labels (read/write — rebuild control after changing).</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <pre><code><span class="kw">const</span> waveform = <span class="kw">new</span> <span class="fn">RotarySelector</span>({
+  x: <span class="num">40</span>, y: <span class="num">60</span>,
+  options: [<span class="str">'SINE'</span>, <span class="str">'SQUARE'</span>, <span class="str">'SAW'</span>, <span class="str">'TRI'</span>, <span class="str">'NOISE'</span>],
+  state: <span class="num">0</span>,
+  label: <span class="str">'WAVE'</span>,
+  onChange: (i, lbl) =&gt; console.<span class="fn">log</span>(lbl),
+});
+
+<span class="cmt">// In draw() — no extra work needed; just call draw()</span>
+waveform.<span class="fn">draw</span>();</code></pre>
+
+    <div class="note"><strong>Teeth column sizing:</strong> the exposed drum-edge column width is <code>max(14, round(height × 0.28))</code> px. The display window occupies the remaining panel width to the left of the teeth.</div>
+  </section>
+
+  <hr>
+
+  <!-- Themes -->
+  <section id="themes">
+    <h2>Themes &amp; Styles</h2>
+    <p class="desc">Set <code>AnalogStyle</code> before creating controls. The style is captured at construction time, so controls built before a change keep their original look.</p>
+
+    <pre><code>AnalogStyle = <span class="str">'brushed'</span>; <span class="cmt">// before any new controls</span></code></pre>
+
+    <h3>Built-in styles</h3>
+    <div class="swatches">
+      <div class="swatch">
+        <div class="bg-chip" style="background:#1a1a1a"></div>
+        <div class="name">black</div>
+        <div class="label"><span class="accent-chip" style="background:#00ccff"></span>cyan accent</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:linear-gradient(180deg,#d8dfe6 0%,#f0f4f8 22%,#c8d0d8 100%)"></div>
+        <div class="name">stainless</div>
+        <div class="label"><span class="accent-chip" style="background:#005fa3"></span>navy accent · polished chrome texture</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:#e8e8e8;border-color:#ccc"></div>
+        <div class="name">white</div>
+        <div class="label"><span class="accent-chip" style="background:#cc2200"></span>red accent</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:linear-gradient(180deg,#8e9099 0%,#aab0b8 40%,#8e9099 100%)"></div>
+        <div class="name">brushed</div>
+        <div class="label"><span class="accent-chip" style="background:#ff8800"></span>orange accent · sine-wave grain</div>
+      </div>
+    </div>
+
+    <h3>analogBackground()</h3>
+    <p class="desc">Use instead of p5's <code>background()</code>. Fills the canvas with the style color. <code>'brushed'</code> and <code>'stainless'</code> also draw per-row texture overlays via the native Canvas 2D API.</p>
+
+    <table class="opts" style="margin-top:10px">
+      <thead><tr><th>Style</th><th>Texture</th></tr></thead>
+      <tbody>
+        <tr><td>black</td><td>Flat fill — <code>#1a1a1a</code>.</td></tr>
+        <tr><td>stainless</td><td>Gaussian highlight profile: sharp specular band near the top third, soft secondary reflection below center, edge darkening, and a thin pure-white specular line at the peak.</td></tr>
+        <tr><td>white</td><td>Flat fill — <code>#e8e8e8</code>.</td></tr>
+        <tr><td>brushed</td><td>Three layered sine-wave frequencies (fine grain, visible stroke bands, slow tonal drift) plus a directional sheen band — simulates brushed aluminum.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Runtime style switching</h3>
+    <p class="desc">Rebuild controls with <code>analogReset()</code> when switching styles. The <a href="demo.html" target="_blank">Live Demo</a> uses an <code>AnalogSwitch</code> to cycle all four styles.</p>
+    <pre><code><span class="kw">const</span> STYLES = [<span class="str">'black'</span>, <span class="str">'stainless'</span>, <span class="str">'white'</span>, <span class="str">'brushed'</span>];
+<span class="kw">let</span> currentStyle = <span class="str">'black'</span>;
+
+<span class="kw">function</span> <span class="fn">buildControls</span>() {
+  <span class="fn">analogReset</span>();
+  AnalogStyle = currentStyle;
+  mySlider    = <span class="kw">new</span> <span class="fn">AnalogSlider</span>({ value: mySlider?.value ?? <span class="num">0.5</span> });
+  styleSwitch = <span class="kw">new</span> <span class="fn">AnalogSwitch</span>({
+    states: [<span class="str">'BLACK'</span>, <span class="str">'STEEL'</span>, <span class="str">'WHITE'</span>, <span class="str">'BRUSH'</span>],
+    state:  STYLES.<span class="fn">indexOf</span>(currentStyle),
+    label:  <span class="str">'STYLE'</span>,
+    <span class="fn">onChange</span>: i => { currentStyle = STYLES[i]; <span class="fn">buildControls</span>(); },
+  });
+}</code></pre>
+
+    <h3>Per-control theme overrides</h3>
+    <p class="desc">Pass a partial <code>theme</code> object to override individual color keys while keeping the rest of the active style.</p>
+    <table class="opts">
+      <thead><tr><th>Key</th><th>Affects</th></tr></thead>
+      <tbody>
+        <tr><td>panel</td><td>Panel background fill.</td></tr>
+        <tr><td>panelStroke</td><td>Panel border and knob outline.</td></tr>
+        <tr><td>track</td><td>Slider groove / dial arc background.</td></tr>
+        <tr><td>capHighlight</td><td>Top gradient color of the fader cap or knob.</td></tr>
+        <tr><td>capShadow</td><td>Bottom gradient color of the fader cap or knob.</td></tr>
+        <tr><td>capIndicator</td><td>Accent line / filled arc color / LED glow color.</td></tr>
+        <tr><td>scaleText</td><td>Scale label text color.</td></tr>
+        <tr><td>scaleTick</td><td>Scale tick mark color.</td></tr>
+        <tr><td>label</td><td>Control label text color.</td></tr>
+        <tr><td>readout</td><td>Readout value text color.</td></tr>
+        <tr><td>readoutBg</td><td>Readout pill background.</td></tr>
+        <tr><td>hoverGlow</td><td>Hover highlight fill (include alpha).</td></tr>
+        <tr><td>disabledOverlay</td><td>Overlay when <code>disabled: true</code>.</td></tr>
+        <tr><td>font</td><td>p5 font object from <code>loadFont()</code>. <code>null</code> = canvas default.</td></tr>
+      </tbody>
+    </table>
+    <pre><code><span class="kw">new</span> <span class="fn">Dial</span>({ label: <span class="str">'MASTER'</span>, theme: { capIndicator: <span class="str">'#ffcc00'</span> } });</code></pre>
+  </section>
+
+  <hr>
+
+  <!-- Events -->
+  <section id="touch">
+    <h2>Touch &amp; Events</h2>
+    <p class="desc">All mouse, wheel, and touch events are handled automatically by the library using <code>p5.prototype.registerMethod</code>. No event functions are needed in your sketch. <code>touch-action: none</code> is applied to the canvas automatically to prevent iOS scroll conflicts.</p>
+
+    <div class="note"><strong>Nothing to wire up.</strong> Just create controls — they start receiving events immediately. Call <code>.remove()</code> when done.</div>
+
+    <h3>How it works</h3>
+    <p class="desc">Each control self-registers on construction into a shared array. The library uses a single <code>p5.prototype.registerMethod('pre', …)</code> hook that fires at the start of every frame, after p5 has already updated <code>mouseX</code>, <code>mouseY</code>, and <code>mouseIsPressed</code> from DOM events. Press and release transitions are detected by comparing <code>mouseIsPressed</code> to its previous value. The wheel event is captured via a native <code>addEventListener</code> attached to the canvas on the first frame. <code>touch-action: none</code> is set on the canvas automatically.</p>
+
+    <h3>Coexisting with your own handlers</h3>
+    <p class="desc">Registered library methods and sketch-level event functions both fire independently — they don't conflict. You can still define <code>mousePressed()</code> in your sketch for other logic.</p>
+
+    <div class="note"><strong>Multi-touch:</strong> p5.js maps only the first touch to <code>mouseX/mouseY</code>, so only one control can be manipulated at a time. Two-finger gestures are unaffected.</div>
+  </section>
+
+</div>
+</body>
+</html>
