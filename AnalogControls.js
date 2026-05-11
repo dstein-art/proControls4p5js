@@ -354,35 +354,40 @@ class AnalogControl {
 class AnalogSlider extends AnalogControl {
   constructor(opts = {}) {
     super(opts);
-    this.height    = opts.height   ?? 180;
-    this.readout   = opts.readout  ?? 'raw';  // 'raw' | 'percent' | 'db'
-    this.decimals  = opts.decimals ?? 2;
-    this.showScale = opts.showScale ?? true;
-    this.showFader = opts.showFader ?? true;
-
-    if (opts.width !== undefined) {
-      this.width = opts.width;
-    } else if (this.showScale) {
-      // Auto-size width so scale labels fit inside the panel.
-      // Labels are drawn right of the track centre:
-      //   cx + trackW/2 + gap + tickLen + gap = cx + 12  (text start)
-      // So the right half of the panel must be >= 12 + labelWidth + margin.
-      const charPx   = 4;   // empirical px per char at textSize(7)
-      const txtOff   = 12;  // distance from track centre to first text pixel
-      const rPad     = 4;   // right margin
-      const maxChars = Math.max(
-        (this.min).toFixed(1).length,
-        (this.max).toFixed(1).length
-      );
-      this.width = Math.max(44, Math.ceil((txtOff + maxChars * charPx + rPad) * 2));
-    } else {
-      this.width = 40;
-    }
+    this.readout    = opts.readout    ?? 'raw';  // 'raw' | 'percent' | 'db'
+    this.decimals   = opts.decimals   ?? 2;
+    this.horizontal = opts.horizontal ?? false;
 
     // internal
     this._capH      = 24;
     this._trackPad  = this._capH / 2 + 2;
-    this._dragStart = null; // { my, value }
+    this._dragStart = null;
+
+    if (this.horizontal) {
+      this.showScale = opts.showScale ?? false;
+      this.showFader = opts.showFader ?? true;
+      this.width     = opts.width  ?? 180;
+      this.height    = opts.height ?? 44;
+    } else {
+      this.showScale = opts.showScale ?? true;
+      this.showFader = opts.showFader ?? true;
+      this.height    = opts.height ?? 180;
+      if (opts.width !== undefined) {
+        this.width = opts.width;
+      } else if (this.showScale) {
+        // Auto-size width so scale labels fit inside the panel.
+        const charPx   = 4;
+        const txtOff   = 12;
+        const rPad     = 4;
+        const maxChars = Math.max(
+          (this.min).toFixed(1).length,
+          (this.max).toFixed(1).length
+        );
+        this.width = Math.max(44, Math.ceil((txtOff + maxChars * charPx + rPad) * 2));
+      } else {
+        this.width = 40;
+      }
+    }
   }
 
   // ── geometry helpers ──────────────────────────────────────────────────────
@@ -396,6 +401,13 @@ class AnalogSlider extends AnalogControl {
   _capY() {
     return this._trackBottom() - this._norm() * this._trackLen();
   }
+
+  // horizontal geometry
+  _hTrackY()    { return this.y + this.height / 2; }
+  _hTrackLeft() { return this.x + this._trackPad; }
+  _hTrackRight(){ return this.x + this.width - this._trackPad; }
+  _hTrackLen()  { return this._hTrackRight() - this._hTrackLeft(); }
+  _hCapX()      { return this._hTrackLeft() + this._norm() * this._hTrackLen(); }
 
   // ── readout formatting ────────────────────────────────────────────────────
 
@@ -418,13 +430,15 @@ class AnalogSlider extends AnalogControl {
 
   draw() {
     this._markDrawn();
+    if (this.horizontal) { this._drawHorizontal(); } else { this._drawVertical(); }
+  }
+
+  _drawVertical() {
     const cx = this._trackX();
     const { x, y, width: w, height: h } = this;
 
-    // panel
     this._drawPanel(x, y, w, h);
 
-    // hover glow
     if (this._hovered && !this.disabled) {
       push();
       noStroke();
@@ -433,9 +447,8 @@ class AnalogSlider extends AnalogControl {
       pop();
     }
 
-    // track groove
-    const trackW  = 6;
-    const trackX  = cx - trackW / 2;
+    const trackW = 6;
+    const trackX = cx - trackW / 2;
     push();
     fill(this.theme.track);
     stroke(this.theme.trackStroke);
@@ -443,25 +456,104 @@ class AnalogSlider extends AnalogControl {
     rect(trackX, this._trackTop(), trackW, this._trackLen(), 2);
     pop();
 
-    // scale marks
     if (this.showScale) this._drawScale(cx, trackW);
-
-    // fader cap
     if (this.showFader) this._drawCap(cx, this._capY());
 
-    // readout
     this._drawReadout(cx, y + h - 12, this._formatReadout());
-
-    // label
     this._drawLabel(cx, y + 2);
 
-    // tooltip while dragging
-    if (this._active) {
-      this._drawTooltip(cx, this._capY(), this._formatReadout());
+    if (this._active) this._drawTooltip(cx, this._capY(), this._formatReadout());
+    if (this.disabled) this._drawDisabled(x, y, w, h);
+  }
+
+  _drawHorizontal() {
+    const ty = this._hTrackY();
+    const { x, y, width: w, height: h } = this;
+
+    this._drawPanel(x, y, w, h);
+
+    if (this._hovered && !this.disabled) {
+      push();
+      noStroke();
+      fill(this.theme.hoverGlow);
+      rect(x, y, w, h, 4);
+      pop();
     }
 
-    // disabled overlay
+    const trackH = 6;
+    push();
+    fill(this.theme.track);
+    stroke(this.theme.trackStroke);
+    strokeWeight(1);
+    rect(this._hTrackLeft(), ty - trackH / 2, this._hTrackLen(), trackH, 2);
+    pop();
+
+    if (this.showScale) this._drawHScale(ty, trackH);
+
+    const capX = this._hCapX();
+    if (this.showFader) this._drawHCap(capX, ty);
+
+    // label top-left, readout bottom-right
+    if (this.label) {
+      push();
+      noStroke();
+      fill(this.theme.label);
+      textSize(9);
+      textAlign(LEFT, TOP);
+      if (this.theme.font) textFont(this.theme.font);
+      text(this.label, x + 4, y + 2);
+      pop();
+    }
+    this._drawReadout(x + w - 22, y + h - 13, this._formatReadout());
+
+    if (this._active) this._drawTooltip(capX, y - 2, this._formatReadout());
     if (this.disabled) this._drawDisabled(x, y, w, h);
+  }
+
+  _drawHCap(cx, cy) {
+    const capW = this._capH;
+    const capH = this.height - 10;
+    const capX = cx - capW / 2;
+    const capY = cy - capH / 2;
+
+    push();
+    noStroke();
+    for (let i = 0; i < capW; i++) {
+      const t   = i / capW;
+      const col = lerpColor(color(this.theme.capHighlight), color(this.theme.capShadow), t);
+      fill(col);
+      rect(capX + i, capY, 1, capH);
+    }
+    stroke(this.theme.panelStroke);
+    strokeWeight(1);
+    noFill();
+    rect(capX, capY, capW, capH, 3);
+    stroke(this.theme.capIndicator);
+    strokeWeight(1.5);
+    line(cx, capY + 4, cx, capY + capH - 4);
+    pop();
+  }
+
+  _drawHScale(ty, trackH) {
+    const steps   = 5;
+    const tickLen = 4;
+    push();
+    stroke(this.theme.scaleTick);
+    strokeWeight(1);
+    fill(this.theme.scaleText);
+    textSize(7);
+    textAlign(CENTER, TOP);
+    if (this.theme.font) textFont(this.theme.font);
+    for (let i = 0; i <= steps; i++) {
+      const n  = i / steps;
+      const tx = this._hTrackLeft() + n * this._hTrackLen();
+      const by = ty + trackH / 2 + 2;
+      line(tx, by, tx, by + tickLen);
+      noStroke();
+      text(nf(this._fromNorm(n), 1, 1), tx, by + tickLen + 1);
+      stroke(this.theme.scaleTick);
+    }
+    pop();
   }
 
   _drawScale(cx, trackW) {
@@ -524,6 +616,11 @@ class AnalogSlider extends AnalogControl {
   }
 
   _capHit(mx, my) {
+    if (this.horizontal) {
+      const cx = this._hCapX();
+      return abs(mx - cx) <= this._capH / 2 &&
+             my >= this.y && my <= this.y + this.height;
+    }
     const cy = this._capY();
     return abs(my - cy) <= this._capH / 2 &&
            mx >= this.x && mx <= this.x + this.width;
@@ -533,7 +630,9 @@ class AnalogSlider extends AnalogControl {
     if (this.disabled) return;
     if (this._capHit(mouseX, mouseY)) {
       this._active    = true;
-      this._dragStart = { my: mouseY, value: this.value };
+      this._dragStart = this.horizontal
+        ? { mx: mouseX, value: this.value }
+        : { my: mouseY, value: this.value };
     }
   }
 
@@ -550,8 +649,12 @@ class AnalogSlider extends AnalogControl {
     this._hovered = this._containsPoint(mouseX, mouseY);
 
     if (this._active && this._dragStart) {
-      const dy        = this._dragStart.my - mouseY;
-      const normDelta = dy / this._trackLen();
+      let normDelta;
+      if (this.horizontal) {
+        normDelta = (mouseX - this._dragStart.mx) / this._hTrackLen();
+      } else {
+        normDelta = (this._dragStart.my - mouseY) / this._trackLen();
+      }
       const startNorm = this._norm(this._dragStart.value);
       const prev      = this.value;
       this.value      = this._fromNorm(startNorm + normDelta);
@@ -579,6 +682,7 @@ class Dial extends AnalogControl {
     this.decimals  = opts.decimals  ?? 2;
     this.showScale = opts.showScale ?? false;
     this.showKnob  = opts.showKnob  ?? true;
+    this.dialStyle = opts.dialStyle ?? 'classic'; // 'classic' | 'rubber' | 'grooved' | 'pointer'
 
     this._startAngle = 3 * Math.PI / 4;  // 7:30 o'clock (min)
     this._sweepAngle = 3 * Math.PI / 2;  // 270° clockwise sweep
@@ -630,7 +734,14 @@ class Dial extends AnalogControl {
     if (this.showScale) this._drawDialScale(cx, cy);
     this._drawArcTrack(cx, cy);
     this._drawExtra(cx, cy);  // hook called between arc and knob
-    if (this.showKnob) this._drawKnob(cx, cy);
+    if (this.showKnob) {
+      switch (this.dialStyle) {
+        case 'rubber':  this._drawRubberKnob(cx, cy);  break;
+        case 'grooved': this._drawGroovedKnob(cx, cy); break;
+        case 'pointer': this._drawPointerKnob(cx, cy); break;
+        default:        this._drawKnob(cx, cy);
+      }
+    }
 
     this._drawLabel(cx, y + s + 2);
     this._drawReadout(cx, y + ph - 13, this._formatReadout());
@@ -679,6 +790,170 @@ class Dial extends AnalogControl {
     strokeWeight(2);
     line(cx + ca * (r * 0.35), cy + sa * (r * 0.35),
          cx + ca * (r * 0.82), cy + sa * (r * 0.82));
+    pop();
+  }
+
+  // Rubber-rimmed knob: dark tactile ring around a metallic centre
+  _drawRubberKnob(cx, cy) {
+    const kr = this._knobR();
+    const rr = kr + 4;  // rubber outer radius (fills gap to arc track)
+    const a  = this._valueAngle();
+
+    push();
+    angleMode(RADIANS);
+    // Dark rubber ring
+    const rubberCol = lerpColor(color(this.theme.panelStroke), color(0, 0, 0), 0.72);
+    noStroke();
+    fill(rubberCol);
+    ellipse(cx, cy, rr * 2, rr * 2);
+
+    // Grip bumps — small rectangles at regular intervals around the rim
+    const nBumps = 18;
+    const bumpCol = lerpColor(rubberCol, color(0, 0, 0), 0.55);
+    fill(bumpCol);
+    for (let i = 0; i < nBumps; i++) {
+      const ba  = (i / nBumps) * Math.PI * 2;
+      const bca = Math.cos(ba), bsa = Math.sin(ba);
+      const bx  = cx + bca * (rr - 2);
+      const by  = cy + bsa * (rr - 2);
+      push();
+      translate(bx, by);
+      rotate(ba);
+      noStroke();
+      fill(bumpCol);
+      rect(-1.5, -3, 3, 6, 1);
+      pop();
+    }
+
+    // Inner metallic knob
+    noStroke();
+    const ir = kr - 2;
+    for (let i = 0; i < ir * 2; i++) {
+      const t   = i / (ir * 2);
+      const col = lerpColor(color(this.theme.capHighlight), color(this.theme.capShadow), t);
+      fill(col);
+      const hw = Math.sqrt(Math.max(0, ir * ir - (i - ir) * (i - ir)));
+      rect(cx - hw, cy - ir + i, hw * 2, 1);
+    }
+    stroke(lerpColor(color(this.theme.panelStroke), color(0, 0, 0), 0.4));
+    strokeWeight(1);
+    noFill();
+    ellipse(cx, cy, ir * 2, ir * 2);
+
+    // Indicator
+    stroke(this.theme.capIndicator);
+    strokeWeight(2);
+    line(cx + Math.cos(a) * ir * 0.32, cy + Math.sin(a) * ir * 0.32,
+         cx + Math.cos(a) * ir * 0.84, cy + Math.sin(a) * ir * 0.84);
+    pop();
+  }
+
+  // Grooved/knurled knob: machined radial grooves over a gradient sphere
+  _drawGroovedKnob(cx, cy) {
+    const kr = this._knobR();
+    const a  = this._valueAngle();
+
+    push();
+    // Base gradient sphere
+    noStroke();
+    for (let i = 0; i < kr * 2; i++) {
+      const t   = i / (kr * 2);
+      fill(lerpColor(color(this.theme.capHighlight), color(this.theme.capShadow), t));
+      const hw = Math.sqrt(Math.max(0, kr * kr - (i - kr) * (i - kr)));
+      rect(cx - hw, cy - kr + i, hw * 2, 1);
+    }
+
+    // Radial grooves — alternating shadow/highlight lines clipped to knob circle
+    const gc = drawingContext;
+    gc.save();
+    gc.beginPath();
+    gc.arc(cx, cy, kr, 0, Math.PI * 2);
+    gc.clip();
+    const nG = 26;
+    for (let i = 0; i < nG; i++) {
+      const ga  = (i / nG) * Math.PI * 2;
+      const gr  = kr * 0.42; // grooves start at this radius from center
+      gc.beginPath();
+      gc.moveTo(cx + Math.cos(ga) * gr, cy + Math.sin(ga) * gr);
+      gc.lineTo(cx + Math.cos(ga) * kr, cy + Math.sin(ga) * kr);
+      gc.strokeStyle = i % 2 === 0 ? 'rgba(0,0,0,0.28)' : 'rgba(255,255,255,0.20)';
+      gc.lineWidth = 1.6;
+      gc.stroke();
+    }
+    gc.restore();
+
+    // Smooth centre hub drawn over groove area
+    const hr = kr * 0.48;
+    noStroke();
+    for (let i = 0; i < hr * 2; i++) {
+      const t   = i / (hr * 2);
+      fill(lerpColor(color(this.theme.capHighlight), color(this.theme.capShadow), t * 0.65 + 0.18));
+      const hw = Math.sqrt(Math.max(0, hr * hr - (i - hr) * (i - hr)));
+      rect(cx - hw, cy - hr + i, hw * 2, 1);
+    }
+
+    // Knob border
+    stroke(this.theme.panelStroke);
+    strokeWeight(1);
+    noFill();
+    ellipse(cx, cy, kr * 2, kr * 2);
+
+    // Indicator line through grooves
+    stroke(this.theme.capIndicator);
+    strokeWeight(2);
+    line(cx + Math.cos(a) * hr * 0.3, cy + Math.sin(a) * hr * 0.3,
+         cx + Math.cos(a) * kr * 0.88, cy + Math.sin(a) * kr * 0.88);
+    pop();
+  }
+
+  // Pointer/needle knob: no sphere — a large tapered pointer sweeps the arc
+  _drawPointerKnob(cx, cy) {
+    const kr  = this._knobR();
+    const a   = this._valueAngle();
+    const ca  = Math.cos(a), sa = Math.sin(a);
+    // Perpendicular axis for pointer width
+    const pca = Math.cos(a + Math.PI / 2), psa = Math.sin(a + Math.PI / 2);
+
+    const tipX  = cx + ca * (kr * 0.92);
+    const tipY  = cy + sa * (kr * 0.92);
+    const baseX = cx - ca * (kr * 0.38);
+    const baseY = cy - sa * (kr * 0.38);
+
+    push();
+    // Pointer body — tapered quadrilateral
+    const tipW  = 1.5;
+    const baseW = 5.5;
+    fill(lerpColor(color(this.theme.capHighlight), color(this.theme.capShadow), 0.32));
+    stroke(this.theme.panelStroke);
+    strokeWeight(0.75);
+    beginShape();
+    vertex(tipX  + pca * tipW,  tipY  + psa * tipW);
+    vertex(tipX  - pca * tipW,  tipY  - psa * tipW);
+    vertex(baseX - pca * baseW, baseY - psa * baseW);
+    vertex(baseX + pca * baseW, baseY + psa * baseW);
+    endShape(CLOSE);
+
+    // Highlight sheen along one edge of the pointer
+    stroke(lerpColor(color(this.theme.capHighlight), color(this.theme.panel), 0.28));
+    strokeWeight(0.75);
+    noFill();
+    line(tipX + pca * 0.6,         tipY  + psa * 0.6,
+         baseX + pca * (baseW * 0.35), baseY + psa * (baseW * 0.35));
+
+    // Indicator accent on pointer tip
+    noStroke();
+    fill(this.theme.capIndicator);
+    const dotR = 2.5;
+    ellipse(tipX - ca * 4, tipY - sa * 4, dotR * 2, dotR * 2);
+
+    // Centre pivot — layered discs
+    noStroke();
+    fill(lerpColor(color(this.theme.capShadow), color(0, 0, 0), 0.4));
+    ellipse(cx, cy, 12, 12);
+    fill(lerpColor(color(this.theme.capHighlight), color(this.theme.capShadow), 0.25));
+    ellipse(cx, cy, 8, 8);
+    fill(this.theme.capIndicator);
+    ellipse(cx, cy, 4, 4);
     pop();
   }
 

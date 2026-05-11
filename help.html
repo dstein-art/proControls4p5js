@@ -450,6 +450,10 @@
   <span class="sep">·</span>
   <a href="#rotaryselector">RotarySelector</a>
   <span class="sep">·</span>
+  <a href="#multislider">MultiSlider</a>
+  <span class="sep">·</span>
+  <a href="#multidial">MultiDial</a>
+  <span class="sep">·</span>
   <a href="#themes">Themes &amp; Styles</a>
   <span class="sep">·</span>
   <a href="#touch">Events</a>
@@ -554,11 +558,12 @@
     <table class="opts">
       <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
       <tbody>
-        <tr><td>width</td><td>number</td><td>auto</td><td>Panel width in pixels. When omitted and <code>showScale</code> is true, the width is automatically sized to fit the widest tick label (based on <code>min</code>/<code>max</code>). Omit <code>width</code> when using large value ranges to avoid label overflow.</td></tr>
-        <tr><td>height</td><td>number</td><td>180</td><td>Panel height in pixels.</td></tr>
+        <tr><td>horizontal</td><td>boolean</td><td>false</td><td>When <code>true</code>, the fader runs left-to-right instead of bottom-to-top. Default <code>width</code> becomes 180 and default <code>height</code> becomes 44. <code>showScale</code> defaults to <code>false</code> in horizontal mode.</td></tr>
+        <tr><td>width</td><td>number</td><td>auto / 180</td><td>Panel width. Vertical: auto-sized to fit tick labels when <code>showScale</code> is true. Horizontal: defaults to 180.</td></tr>
+        <tr><td>height</td><td>number</td><td>180 / 44</td><td>Panel height. Vertical default 180, horizontal default 44.</td></tr>
         <tr><td>readout</td><td>string</td><td>'raw'</td><td><code>'raw'</code> — numeric value · <code>'percent'</code> — 0–100% · <code>'db'</code> — dB relative to max (shows <code>-∞</code> at min).</td></tr>
         <tr><td>decimals</td><td>number</td><td>2</td><td>Decimal places for the <code>'raw'</code> readout.</td></tr>
-        <tr><td>showScale</td><td>boolean</td><td>true</td><td>Draw tick marks and numeric labels along the track.</td></tr>
+        <tr><td>showScale</td><td>boolean</td><td>true / false</td><td>Draw tick marks and numeric labels along the track. Defaults <code>true</code> vertical, <code>false</code> horizontal.</td></tr>
         <tr><td>showFader</td><td>boolean</td><td>true</td><td>Show or hide the draggable cap. <code>false</code> = display-only meter.</td></tr>
       </tbody>
     </table>
@@ -600,6 +605,7 @@
         <tr><td>decimals</td><td>number</td><td>2</td><td>Decimal places for the <code>'raw'</code> readout.</td></tr>
         <tr><td>showScale</td><td>boolean</td><td>false</td><td>Draw tick marks and labels around the arc. Increase <code>size</code> if labels clip.</td></tr>
         <tr><td>showKnob</td><td>boolean</td><td>true</td><td>Show or hide the knob body. <code>false</code> = arc-only display (used by VUDial).</td></tr>
+        <tr><td>dialStyle</td><td>string</td><td>'classic'</td><td>Knob visual style — <code>'classic'</code> · <code>'rubber'</code> · <code>'grooved'</code> · <code>'pointer'</code>. See dial styles below.</td></tr>
       </tbody>
     </table>
 
@@ -620,6 +626,27 @@
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=dial" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="Dial live example"></iframe>
+    </div>
+
+    <h3>Dial styles</h3>
+    <p class="desc">Set <code>dialStyle</code> to choose a knob visual. All styles share the same interaction and arc track — only the knob body rendering changes.</p>
+    <div class="themes-frames">
+      <div style="text-align:center">
+        <iframe class="example-frame" src="example.html?c=dial&lbl=CLASSIC" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="classic dial"></iframe>
+        <div style="font-size:11px;color:#888;margin-top:4px">classic (default)</div>
+      </div>
+      <div style="text-align:center">
+        <iframe class="example-frame" src="example.html?c=dialrubber" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="rubber dial"></iframe>
+        <div style="font-size:11px;color:#888;margin-top:4px">rubber</div>
+      </div>
+      <div style="text-align:center">
+        <iframe class="example-frame" src="example.html?c=dialgrooved" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="grooved dial"></iframe>
+        <div style="font-size:11px;color:#888;margin-top:4px">grooved</div>
+      </div>
+      <div style="text-align:center">
+        <iframe class="example-frame" src="example.html?c=dialpointer" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="pointer dial"></iframe>
+        <div style="font-size:11px;color:#888;margin-top:4px">pointer</div>
+      </div>
     </div>
   </section>
 
@@ -901,6 +928,194 @@ sw.states[sw.state] <span class="cmt">// active label string</span></code></pre>
     </div>
 
     <div class="note"><strong>Teeth column sizing:</strong> the exposed drum-edge column width is <code>max(14, round(height × 0.28))</code> px. The display window occupies the remaining panel width to the left of the teeth.</div>
+  </section>
+
+  <hr>
+
+  <!-- MultiSlider -->
+  <section id="multislider">
+    <h2>MultiSlider <span class="tag ext">Input</span></h2>
+    <p class="desc">Several <code>AnalogSlider</code> faders arranged side-by-side in a single unit — useful for equalizers, mixer channel strips, or any bank of related faders. A single <code>onChange</code>/<code>onRelease</code> fires whenever any child slider changes, receiving a <code>name → value</code> object covering all sliders at once.</p>
+
+    <div class="sig">new MultiSlider(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>sliders</td><td>object</td><td>{}</td><td>Each key is a slider name/label. The value is either a number (initial value) or an object with per-slider overrides (<code>value</code>, <code>min</code>, <code>max</code>, <code>readout</code>, …).</td></tr>
+        <tr><td>x</td><td>number</td><td>20</td><td>Left edge of the first slider.</td></tr>
+        <tr><td>y</td><td>number</td><td>20</td><td>Top edge of all sliders.</td></tr>
+        <tr><td>height</td><td>number</td><td>180</td><td>Slider height in pixels (shared by all children unless overridden per-slider).</td></tr>
+        <tr><td>min</td><td>number</td><td>0</td><td>Shared minimum (overridable per-slider).</td></tr>
+        <tr><td>max</td><td>number</td><td>1</td><td>Shared maximum (overridable per-slider).</td></tr>
+        <tr><td>readout</td><td>string</td><td>'raw'</td><td>Shared readout format — <code>'raw'</code>, <code>'db'</code>, or <code>'pct'</code> (overridable per-slider).</td></tr>
+        <tr><td>decimals</td><td>number</td><td>2</td><td>Shared decimal places (overridable per-slider).</td></tr>
+        <tr><td>scale</td><td>string</td><td>'linear'</td><td>Shared scale — <code>'linear'</code> or <code>'log'</code> (overridable per-slider).</td></tr>
+        <tr><td>horizontal</td><td>boolean</td><td>false</td><td>When <code>true</code>, each child is a horizontal slider and the group stacks them vertically. Default <code>width</code> becomes 180 and default <code>height</code> becomes 44 per slider.</td></tr>
+        <tr><td>gap</td><td>number</td><td>4</td><td>Pixel gap between adjacent sliders.</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Group label (not drawn — available for identification).</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with a <code>{ name: value, … }</code> object when any slider changes.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with a <code>{ name: value, … }</code> object on mouse/touch release.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Shared theme override applied to all children. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties &amp; methods</h3>
+    <table class="opts">
+      <thead><tr><th>Property / method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.values</code></td><td>Getter — returns <code>{ name: value, … }</code> for all sliders. Setter accepts the same format to update any subset.</td></tr>
+        <tr><td><code>.slider(name)</code></td><td>Returns the named child <code>AnalogSlider</code> for direct access (e.g. <code>.value</code>, <code>.disabled</code>).</td></tr>
+        <tr><td><code>.disabled</code></td><td>Getter/setter — propagates to all child sliders.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Per-slider overrides</h3>
+    <p class="desc">Pass an object instead of a plain number for any slider to override shared options for that specific channel.</p>
+    <pre><code><span class="kw">const</span> eq = <span class="kw">new</span> <span class="fn">MultiSlider</span>({
+  x: <span class="num">20</span>, y: <span class="num">40</span>, height: <span class="num">180</span>,
+  min: <span class="num">-12</span>, max: <span class="num">12</span>, readout: <span class="str">'raw'</span>, decimals: <span class="num">1</span>,
+  sliders: {
+    <span class="str">'60Hz'</span>:  <span class="num">0</span>,           <span class="cmt">// plain number → uses shared min/max</span>
+    <span class="str">'250Hz'</span>: <span class="num">0</span>,
+    <span class="str">'2kHz'</span>:  { value: <span class="num">3</span>, theme: { capIndicator: <span class="str">'#ff6600'</span> } }, <span class="cmt">// object → per-slider overrides</span>
+    <span class="str">'8kHz'</span>:  <span class="num">0</span>,
+  },
+  <span class="fn">onChange</span>:  v => console.<span class="fn">log</span>(<span class="str">'eq changed'</span>, v),
+  <span class="fn">onRelease</span>: v => console.<span class="fn">log</span>(<span class="str">'eq released'</span>, v),
+});</code></pre>
+
+    <h3>Example — vertical (default)</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const eq = new MultiSlider({
+  x: 20, y: 35,
+  height: 180,
+  min: -12, max: 12,
+  readout: 'raw', decimals: 1,
+  label: 'EQ',
+  sliders: {
+    '60Hz':  0,
+    '250Hz': 0,
+    '2kHz':  0,
+    '8kHz':  0,
+  },
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=multislider" width="350" height="265" scrolling="no" frameborder="0" loading="lazy" title="MultiSlider vertical live example"></iframe>
+    </div>
+
+    <h3>Example — horizontal</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const eq = new MultiSlider({
+  x: 20, y: 22,
+  width: 180, height: 44,
+  horizontal: true,
+  min: -12, max: 12,
+  readout: 'raw', decimals: 1,
+  label: 'EQ',
+  sliders: {
+    '60Hz':  0,
+    '250Hz': 0,
+    '2kHz':  0,
+    '8kHz':  0,
+  },
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=multislider_h" width="220" height="230" scrolling="no" frameborder="0" loading="lazy" title="MultiSlider horizontal live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- MultiDial -->
+  <section id="multidial">
+    <h2>MultiDial <span class="tag ext">Input</span></h2>
+    <p class="desc">Several <code>Dial</code> knobs arranged side-by-side in a single unit. A single <code>onChange</code>/<code>onRelease</code> fires whenever any dial changes, receiving a <code>name → value</code> object. A raised bevel panel frames the group. All dials share options by default; individual dials can override with per-dial objects.</p>
+
+    <div class="sig">new MultiDial(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>dials</td><td>object</td><td>{}</td><td>Each key is a dial name/label. Value is a number (initial value) or an object with per-dial overrides (<code>value</code>, <code>min</code>, <code>max</code>, <code>dialStyle</code>, …).</td></tr>
+        <tr><td>x</td><td>number</td><td>20</td><td>Left edge of the first dial.</td></tr>
+        <tr><td>y</td><td>number</td><td>20</td><td>Top edge of all dials.</td></tr>
+        <tr><td>size</td><td>number</td><td>70</td><td>Shared dial panel size in pixels (overridable per-dial).</td></tr>
+        <tr><td>min</td><td>number</td><td>0</td><td>Shared minimum (overridable per-dial).</td></tr>
+        <tr><td>max</td><td>number</td><td>1</td><td>Shared maximum (overridable per-dial).</td></tr>
+        <tr><td>readout</td><td>string</td><td>'raw'</td><td>Shared readout format (overridable per-dial).</td></tr>
+        <tr><td>decimals</td><td>number</td><td>2</td><td>Shared decimal places (overridable per-dial).</td></tr>
+        <tr><td>horizontal</td><td>boolean</td><td>true</td><td>When <code>true</code> (default), dials are arranged in a horizontal row. When <code>false</code>, dials are stacked in a vertical column.</td></tr>
+        <tr><td>dialStyle</td><td>string</td><td>'classic'</td><td>Shared knob style — <code>'classic'</code>, <code>'rubber'</code>, <code>'grooved'</code>, <code>'pointer'</code> (overridable per-dial).</td></tr>
+        <tr><td>gap</td><td>number</td><td>4</td><td>Pixel gap between adjacent dials.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>{ name: value, … }</code> when any dial changes.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with <code>{ name: value, … }</code> on mouse/touch release.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Shared theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties &amp; methods</h3>
+    <table class="opts">
+      <thead><tr><th>Property / method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.values</code></td><td>Getter — returns <code>{ name: value, … }</code>. Setter accepts same format.</td></tr>
+        <tr><td><code>.dial(name)</code></td><td>Returns the named child <code>Dial</code> for direct access.</td></tr>
+        <tr><td><code>.disabled</code></td><td>Getter/setter — propagates to all child dials.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example — horizontal row (default)</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const tone = new MultiDial({
+  x: 20, y: 20,
+  size: 70,
+  min: 0, max: 100,
+  readout: 'raw', decimals: 0,
+  label: 'TONE',
+  dials: {
+    'BASS':   50,
+    'MID':    50,
+    'TREBLE': 50,
+  },
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=multidial" width="280" height="150" scrolling="no" frameborder="0" loading="lazy" title="MultiDial horizontal live example"></iframe>
+    </div>
+
+    <h3>Example — vertical column with an individual dial override</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const tone = new MultiDial({
+  x: 20, y: 20,
+  size: 70,
+  horizontal: false,
+  min: 0, max: 100,
+  readout: 'raw', decimals: 0,
+  label: 'TONE',
+  dials: {
+    'BASS':   50,
+    'MID':    50,
+    // TREBLE overrides range, decimals, and style
+    'TREBLE': { value: 8000, min: 20, max: 20000,
+                decimals: 0, dialStyle: 'pointer' },
+  },
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=multidial_v" width="150" height="340" scrolling="no" frameborder="0" loading="lazy" title="MultiDial vertical live example"></iframe>
+    </div>
   </section>
 
   <hr>

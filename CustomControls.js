@@ -1,5 +1,34 @@
 // CustomControls.js — example extensions (load after AnalogControls.js)
 
+// ─── Shared utility ──────────────────────────────────────────────────────────
+// Draw a raised-bevel panel around a group of controls (used by Multi- classes).
+function _drawBevelGroup(theme, x, y, w, h) {
+  const pad = 6;
+  const bx = x - pad, by = y - pad;
+  const bw = w + pad * 2, bh = h + pad * 2;
+  const r  = 8;
+  const hi = lerpColor(color(theme.panel), color(theme.capHighlight), 0.50);
+  const sh = lerpColor(color(theme.panel), color(theme.panelStroke),  0.65);
+
+  push();
+  // Group background
+  fill(lerpColor(color(theme.panel), color(theme.track), 0.18));
+  stroke(theme.panelStroke);
+  strokeWeight(1);
+  rect(bx, by, bw, bh, r);
+  // Top + left inner highlight
+  stroke(hi);
+  strokeWeight(1.5);
+  noFill();
+  line(bx + 3, by + bh - 3, bx + 3, by + 3);
+  line(bx + 3, by + 3, bx + bw - 3, by + 3);
+  // Bottom + right inner shadow
+  stroke(sh);
+  line(bx + bw - 3, by + 3, bx + bw - 3, by + bh - 3);
+  line(bx + bw - 3, by + bh - 3, bx + 3, by + bh - 3);
+  pop();
+}
+
 // ─── VUMeter ─────────────────────────────────────────────────────────────────
 // Extends Slider: draws the full fader, then overlays a segmented LED column.
 // The LED column reflects `this.value` directly; drive it from audio analysis.
@@ -752,3 +781,252 @@ window.XYPad          = XYPad;
 window.VUDial         = VUDial;
 window.LEDMeter       = LEDMeter;
 window.RotarySelector = RotarySelector;
+
+// ─── MultiSlider ──────────────────────────────────────────────────────────────
+// A row of AnalogSliders sharing a single onChange / onRelease callback.
+//
+// `sliders` is an object whose keys are slider names and values are defaults:
+//   sliders: { kick: 0.9, snare: 0.7, bass: 0.8 }
+//
+// For per-slider option overrides, pass an object instead of a number:
+//   sliders: { kick: 0.9, bass: { value: 0.5, min: -20, max: 20, readout: 'db' } }
+//
+// Both callbacks receive the same shape as `sliders` with current values:
+//   onChange: v => console.log(v)  // { kick: 0.9, snare: 0.7, bass: 0.8 }
+
+class MultiSlider extends AnalogControl {
+  constructor(opts = {}) {
+    super({ x: opts.x, y: opts.y, label: opts.label ?? '', theme: opts.theme });
+
+    this.onChange   = opts.onChange  ?? null;
+    this.onRelease  = opts.onRelease ?? null;
+    this.horizontal = opts.horizontal ?? false;
+
+    const sliders = opts.sliders ?? {};
+    const keys    = Object.keys(sliders);
+    const gap     = opts.gap ?? 4;
+
+    this._names    = keys;
+    this._children = [];
+
+    // Shared defaults applied to every child slider
+    const base = {
+      horizontal: this.horizontal,
+      height:     opts.height    ?? (this.horizontal ? 44 : 180),
+      width:      opts.width,   // undefined → AnalogSlider auto-sizes
+      min:        opts.min      ?? 0,
+      max:        opts.max      ?? 1,
+      readout:    opts.readout  ?? 'raw',
+      decimals:   opts.decimals ?? 2,
+      scale:      opts.scale    ?? 'linear',
+      showScale:  opts.showScale ?? !this.horizontal,
+      theme:      opts.theme    ?? {},
+    };
+
+    let curX = this.x;
+    let curY = this.y;
+    for (const name of keys) {
+      const raw   = sliders[name];
+      const isObj = (typeof raw === 'object' && raw !== null);
+      const val   = isObj ? (raw.value ?? base.min) : raw;
+      const over  = isObj ? raw : {};
+
+      const s = new AnalogSlider({
+        ...base,
+        ...over,
+        x:         this.horizontal ? this.x : curX,
+        y:         this.horizontal ? curY   : this.y,
+        value:     val,
+        label:     name,
+        onChange:  () => { if (this.onChange)  this.onChange(this._values()); },
+        onRelease: () => { if (this.onRelease) this.onRelease(this._values()); },
+      });
+      // Children stay in _analogRegistry — they handle their own events
+      // independently, just like standalone sliders.
+      this._children.push(s);
+      if (this.horizontal) {
+        curY += s.height + gap;
+      } else {
+        curX += s.width + gap;
+      }
+    }
+  }
+
+  // ── Public API ────────────────────────────────────────────────────────────
+
+  _values() {
+    const v = {};
+    this._names.forEach((n, i) => { v[n] = this._children[i].value; });
+    return v;
+  }
+
+  get values() { return this._values(); }
+
+  set values(obj) {
+    for (const [n, val] of Object.entries(obj)) {
+      const i = this._names.indexOf(n);
+      if (i !== -1) this._children[i].value = val;
+    }
+  }
+
+  slider(name) {
+    const i = this._names.indexOf(name);
+    return i !== -1 ? this._children[i] : null;
+  }
+
+  set disabled(v) {
+    this._disabled = v;
+    for (const s of (this._children ?? [])) s.disabled = v;
+  }
+  get disabled() { return this._disabled ?? false; }
+
+  // ── Rendering ─────────────────────────────────────────────────────────────
+
+  _bb() {
+    if (!this._children.length) return null;
+    let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
+    for (const s of this._children) {
+      x1 = Math.min(x1, s.x);      y1 = Math.min(y1, s.y);
+      x2 = Math.max(x2, s.x + s.width); y2 = Math.max(y2, s.y + s.height);
+    }
+    return { x: x1, y: y1, w: x2 - x1, h: y2 - y1 };
+  }
+
+  draw() {
+    this._markDrawn();
+    const bb = this._bb();
+    if (bb) _drawBevelGroup(this.theme, bb.x, bb.y, bb.w, bb.h);
+    for (const s of this._children) s.draw();
+  }
+
+  remove() {
+    super.remove();
+    for (const s of this._children) s.remove();
+    this._children = [];
+  }
+}
+
+window.MultiSlider = MultiSlider;
+
+// ─── MultiDial ────────────────────────────────────────────────────────────────
+// A row of Dials sharing a single onChange / onRelease callback.
+//
+// `dials` is an object whose keys are dial names and values are defaults:
+//   dials: { freq: 440, q: 0.7, gain: 0 }
+//
+// For per-dial option overrides, pass an object instead of a number:
+//   dials: { freq: { value: 440, min: 20, max: 20000 }, gain: 0 }
+//
+// Both callbacks receive a name→value object: { freq: 440, q: 0.7, gain: 0 }
+
+class MultiDial extends AnalogControl {
+  constructor(opts = {}) {
+    super({ x: opts.x, y: opts.y, label: opts.label ?? '', theme: opts.theme });
+
+    this.onChange   = opts.onChange   ?? null;
+    this.onRelease  = opts.onRelease  ?? null;
+    this.horizontal = opts.horizontal ?? true; // true = row, false = column
+
+    const dials = opts.dials ?? {};
+    const keys  = Object.keys(dials);
+    const gap   = opts.gap ?? 4;
+
+    this._names    = keys;
+    this._children = [];
+
+    const base = {
+      size:      opts.size      ?? 70,
+      min:       opts.min       ?? 0,
+      max:       opts.max       ?? 1,
+      readout:   opts.readout   ?? 'raw',
+      decimals:  opts.decimals  ?? 2,
+      scale:     opts.scale     ?? 'linear',
+      showScale: opts.showScale ?? false,
+      showKnob:  opts.showKnob  ?? true,
+      dialStyle: opts.dialStyle ?? 'classic',
+      theme:     opts.theme     ?? {},
+    };
+
+    let curX = this.x;
+    let curY = this.y;
+    for (const name of keys) {
+      const raw   = dials[name];
+      const isObj = (typeof raw === 'object' && raw !== null);
+      const val   = isObj ? (raw.value ?? base.min) : raw;
+      const over  = isObj ? raw : {};
+
+      const d = new Dial({
+        ...base,
+        ...over,
+        x:         this.horizontal ? curX   : this.x,
+        y:         this.horizontal ? this.y : curY,
+        value:     val,
+        label:     name,
+        onChange:  () => { if (this.onChange)  this.onChange(this._values()); },
+        onRelease: () => { if (this.onRelease) this.onRelease(this._values()); },
+      });
+      // Children stay in _analogRegistry — they handle their own events.
+      this._children.push(d);
+      if (this.horizontal) {
+        curX += d.size + gap;
+      } else {
+        curY += d._panelH() + gap;
+      }
+    }
+  }
+
+  // ── Public API ────────────────────────────────────────────────────────────
+
+  _values() {
+    const v = {};
+    this._names.forEach((n, i) => { v[n] = this._children[i].value; });
+    return v;
+  }
+
+  get values() { return this._values(); }
+
+  set values(obj) {
+    for (const [n, val] of Object.entries(obj)) {
+      const i = this._names.indexOf(n);
+      if (i !== -1) this._children[i].value = val;
+    }
+  }
+
+  dial(name) {
+    const i = this._names.indexOf(name);
+    return i !== -1 ? this._children[i] : null;
+  }
+
+  set disabled(v) {
+    this._disabled = v;
+    for (const d of (this._children ?? [])) d.disabled = v;
+  }
+  get disabled() { return this._disabled ?? false; }
+
+  // ── Rendering ─────────────────────────────────────────────────────────────
+
+  _bb() {
+    if (!this._children.length) return null;
+    let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
+    for (const d of this._children) {
+      x1 = Math.min(x1, d.x);          y1 = Math.min(y1, d.y);
+      x2 = Math.max(x2, d.x + d.size); y2 = Math.max(y2, d.y + d._panelH());
+    }
+    return { x: x1, y: y1, w: x2 - x1, h: y2 - y1 };
+  }
+
+  draw() {
+    this._markDrawn();
+    const bb = this._bb();
+    if (bb) _drawBevelGroup(this.theme, bb.x, bb.y, bb.w, bb.h);
+    for (const d of this._children) d.draw();
+  }
+
+  remove() {
+    super.remove();
+    for (const d of this._children) d.remove();
+    this._children = [];
+  }
+}
+
+window.MultiDial = MultiDial;

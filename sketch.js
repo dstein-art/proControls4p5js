@@ -1,6 +1,7 @@
 // sketch.js — demo for AnalogControls
 
-let gainSlider, masterSlider, vuMeter, xyPad, gainDial, vuDial, ledMeter, styleSwitch, effectSelector;
+let gainSlider, masterSlider, vuMeter, xyPad, gainDial, vuDial, ledMeter, styleSwitch, effectSelector, multiSlider, multiDial;
+let rubberDial, groovedDial, pointerDial;
 let controls  = [];
 let vuLevel   = 0;
 
@@ -106,11 +107,65 @@ function buildControls() {
     },
   });
 
-  controls = [gainSlider, masterSlider, vuMeter, xyPad, gainDial, vuDial, ledMeter, effectSelector, styleSwitch];
+  multiSlider = new MultiSlider({
+    x: 20, y: 310,
+    height: 150,
+    min: -12, max: 12,
+    readout: 'raw', decimals: 1,
+    label: 'EQ',
+    sliders: {
+      '60Hz':  multiSlider ? multiSlider.slider('60Hz').value  : 0,
+      '250Hz': multiSlider ? multiSlider.slider('250Hz').value : 0,
+      '2kHz':  multiSlider ? multiSlider.slider('2kHz').value  : 0,
+      '8kHz':  multiSlider ? multiSlider.slider('8kHz').value  : 0,
+    },
+    onChange: v => console.log('eq', v),
+  });
+
+  multiDial = new MultiDial({
+    x: 510, y: 310,
+    size: 60,
+    min: 0, max: 100,
+    readout: 'raw', decimals: 0,
+    dials: {
+      'BASS':   multiDial ? multiDial.dial('BASS').value   : 50,
+      'MID':    multiDial ? multiDial.dial('MID').value    : 50,
+      'TREBLE': multiDial ? multiDial.dial('TREBLE').value : 50,
+    },
+    onChange: v => console.log('tone', v),
+  });
+
+  rubberDial = new Dial({
+    x: 730, y: 320,
+    size: 60,
+    min: 0, max: 1, value: rubberDial ? rubberDial.value : 0.6,
+    label: 'RUBBER', readout: 'raw', decimals: 2,
+    dialStyle: 'rubber',
+  });
+
+  groovedDial = new Dial({
+    x: 800, y: 320,
+    size: 60,
+    min: 0, max: 1, value: groovedDial ? groovedDial.value : 0.4,
+    label: 'GROOVED', readout: 'raw', decimals: 2,
+    dialStyle: 'grooved',
+  });
+
+  pointerDial = new Dial({
+    x: 870, y: 320,
+    size: 60,
+    min: 0, max: 1, value: pointerDial ? pointerDial.value : 0.75,
+    label: 'POINTER', readout: 'raw', decimals: 2,
+    dialStyle: 'pointer',
+  });
+
+  controls = [gainSlider, masterSlider, vuMeter, xyPad, gainDial, vuDial, ledMeter,
+              effectSelector, styleSwitch, multiSlider, multiDial,
+              rubberDial, groovedDial, pointerDial];
 }
 
 function setup() {
-  createCanvas(970, 300);
+  createCanvas(970, 510);
   buildControls();
 }
 

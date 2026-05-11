@@ -28,7 +28,14 @@ const SIZES = {
   vudial:    [165, 165],
   xypad:     [260, 260],
   ledmeter:  [200, 110],
-  rotary:    [220, 100],
+  rotary:      [220, 100],
+  multislider:   [350, 265],
+  multislider_h: [220, 230],
+  multidial:     [280, 150],
+  multidial_v:   [150, 340],
+  dialrubber:    [170, 170],
+  dialgrooved:   [170, 170],
+  dialpointer:   [170, 170],
 };
 
 const [W, H] = SIZES[CTRL] || [300, 200];
@@ -166,6 +173,103 @@ const waveform = new RotarySelector({
   state: 0,
   label: ${label || "'WAVE'"},
   onChange: (i, lbl) => console.log(lbl),
+});`,
+
+  multislider: `\
+const eq = new MultiSlider({
+  x: 20, y: 35,
+  height: 180,
+  min: -12, max: 12,
+  readout: 'raw', decimals: 1,
+  label: ${label || "'EQ'"},
+  sliders: {
+    '60Hz':  0,
+    '250Hz': 0,
+    '2kHz':  0,
+    '8kHz':  0,
+  },
+  onChange: v => console.log(v),
+});`,
+
+  multislider_h: `\
+const eq = new MultiSlider({
+  x: 20, y: 22,
+  width: 180, height: 44,
+  horizontal: true,
+  min: -12, max: 12,
+  readout: 'raw', decimals: 1,
+  label: ${label || "'EQ'"},
+  sliders: {
+    '60Hz':  0,
+    '250Hz': 0,
+    '2kHz':  0,
+    '8kHz':  0,
+  },
+  onChange: v => console.log(v),
+});`,
+
+  multidial: `\
+const tone = new MultiDial({
+  x: 20, y: 20,
+  size: 70,
+  min: 0, max: 100,
+  readout: 'raw', decimals: 0,
+  label: ${label || "'TONE'"},
+  dials: {
+    'BASS':   50,
+    'MID':    50,
+    'TREBLE': 50,
+  },
+  onChange: v => console.log(v),
+});`,
+
+  multidial_v: `\
+const tone = new MultiDial({
+  x: 20, y: 20,
+  size: 70,
+  horizontal: false,
+  min: 0, max: 100,
+  readout: 'raw', decimals: 0,
+  label: ${label || "'TONE'"},
+  dials: {
+    'BASS':   50,
+    'MID':    50,
+    'TREBLE': { value: 8000, min: 20, max: 20000, decimals: 0, dialStyle: 'pointer' },
+  },
+  onChange: v => console.log(v),
+});`,
+
+  dialrubber: `\
+const vol = new Dial({
+  x: 45, y: 35,
+  size: 80,
+  min: 0, max: 1, value: 0.65,
+  label: ${label || "'VOLUME'"},
+  readout: 'raw', decimals: 2,
+  dialStyle: 'rubber',
+  onChange: v => console.log(v),
+});`,
+
+  dialgrooved: `\
+const freq = new Dial({
+  x: 45, y: 35,
+  size: 80,
+  min: 0, max: 20000, value: 1000,
+  label: ${label || "'FREQ'"},
+  readout: 'raw', decimals: 0,
+  dialStyle: 'grooved',
+  onChange: v => console.log(v),
+});`,
+
+  dialpointer: `\
+const pan = new Dial({
+  x: 45, y: 35,
+  size: 80,
+  min: -1, max: 1, value: 0,
+  label: ${label || "'PAN'"},
+  readout: 'raw', decimals: 2,
+  dialStyle: 'pointer',
+  onChange: v => console.log(v),
 });`,
 };
 
