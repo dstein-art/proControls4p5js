@@ -31,108 +31,151 @@ const SIZES = {
   rotary:    [220, 100],
 };
 
-let ctrl, lvl = 0;
+const [W, H] = SIZES[CTRL] || [300, 200];
+let _inst = null;
+let _lvl  = 0;
 
-function setup() {
-  const [w, h] = SIZES[CTRL] || [300, 200];
-  createCanvas(w, h);
-  analogReset();
-  AnalogStyle = STYLE;
+function runCode(code) {
+  if (_inst) { _inst.remove(); _inst = null; }
+  analogFullReset();
+  _lvl = 0;
 
-  if (CTRL === 'slider') {
-    ctrl = new AnalogSlider({
-      x: 28, y: 35,
-      width: 44, height: 180,
-      min: 0, max: 1, value: 0.75,
-      label: LBL || 'GAIN',
-      readout: 'db',
-    });
-  } else if (CTRL === 'dial') {
-    ctrl = new Dial({
-      x: 45, y: 35,
-      size: 80,
-      min: 0, max: 100, value: 65,
-      label: LBL || 'LEVEL',
-      readout: 'raw', decimals: 0,
-    });
-  } else if (CTRL === 'dialtheme') {
-    ctrl = new Dial({
-      x: 35, y: 27,
-      size: 70,
-      min: 0, max: 1, value: 0.65,
-      label: LBL || STYLE.toUpperCase().substring(0, 5),
-      readout: 'raw', decimals: 2,
-    });
-  } else if (CTRL === 'switch2') {
-    ctrl = new AnalogSwitch({
-      x: 36, y: 22,
-      width: 48,
-      states: ['OFF', 'ON'],
-      label: LBL || 'POWER',
-      state: 1,
-    });
-  } else if (CTRL === 'switchn') {
-    ctrl = new AnalogSwitch({
-      x: 39, y: 18,
-      width: 52,
-      states: ['A', 'B', 'C', 'D'],
-      label: LBL || 'MODE',
-      state: 1,
-    });
-  } else if (CTRL === 'vumeter') {
-    ctrl = new VUMeter({
-      x: 23, y: 35,
-      width: 44, height: 180,
-      showFader: false,
-      label: LBL || 'VU',
-      meterWidth: 12,
-    });
-  } else if (CTRL === 'vudial') {
-    ctrl = new VUDial({
-      x: 43, y: 35,
-      size: 80,
-      label: LBL || 'VU',
-      showKnob: false,
-    });
-  } else if (CTRL === 'xypad') {
-    ctrl = new XYPad({
-      x: 20, y: 22,
-      width: 220, height: 200,
-      minX: -1, maxX: 1,
-      minY: -1, maxY: 1,
-      valueX: 0, valueY: 0,
-      label: LBL || 'XY',
-      crosshairColor: '#ff6600',
-    });
-  } else if (CTRL === 'ledmeter') {
-    ctrl = new LEDMeter({
-      x: 20, y: 25,
-      min: 0, max: 1,
-      readout: 'db', decimals: 1, digits: 5,
-      label: LBL || 'dB',
-    });
-  } else if (CTRL === 'rotary') {
-    ctrl = new RotarySelector({
-      x: 40, y: 22,
-      options: ['SINE', 'SQUARE', 'SAW', 'TRI'],
-      label: LBL || 'WAVE',
-    });
-  }
+  window.setup = function () {
+    createCanvas(W, H);
+    AnalogStyle = STYLE;
+    try { (new Function(code))(); }
+    catch (e) { console.warn('[example]', e.message); }
+  };
+
+  window.draw = function () {
+    analogBackground();
+    const ctrls = analogControls();
+    if (!ctrls.length) return;
+    _lvl = lerp(_lvl, 0.5 + 0.4 * sin(frameCount * 0.035), 0.1);
+    _lvl += random(-0.025, 0.025);
+    _lvl = constrain(_lvl, 0, 1);
+    for (const c of ctrls) {
+      const n = c.constructor.name;
+      if (n === 'VUMeter' || n === 'VUDial' || n === 'LEDMeter') c.value = _lvl;
+      c.draw();
+    }
+  };
+
+  _inst = new p5();
 }
 
-function draw() {
-  analogBackground();
-  if (!ctrl) return;
+// Default code per control type — must assign to any variable; the library
+// self-registers each control so the draw loop finds it via analogControls().
+const label = LBL ? `'${LBL}'` : null;
 
-  if (CTRL === 'vumeter' || CTRL === 'vudial' || CTRL === 'ledmeter') {
-    lvl = lerp(lvl, 0.5 + 0.4 * sin(frameCount * 0.035), 0.1);
-    lvl += random(-0.025, 0.025);
-    lvl = constrain(lvl, 0, 1);
-    ctrl.value = lvl;
-  }
+const DEFAULTS = {
+  slider: `\
+const vol = new AnalogSlider({
+  x: 28, y: 35,
+  width: 44, height: 180,
+  min: 0, max: 1, value: 0.8,
+  label: ${label || "'VOLUME'"},
+  readout: 'db',
+  onChange: v => console.log(v),
+});`,
 
-  ctrl.draw();
-}
+  dial: `\
+const freq = new Dial({
+  x: 45, y: 35,
+  size: 80,
+  min: 0, max: 100, value: 65,
+  label: ${label || "'LEVEL'"},
+  readout: 'raw', decimals: 0,
+  onChange: v => console.log(v),
+});`,
+
+  dialtheme: `\
+const d = new Dial({
+  x: 35, y: 27,
+  size: 70,
+  min: 0, max: 1, value: 0.65,
+  label: ${label || `'${STYLE.toUpperCase().slice(0,5)}'`},
+  readout: 'raw', decimals: 2,
+});`,
+
+  switch2: `\
+const pwr = new AnalogSwitch({
+  x: 36, y: 22,
+  width: 48,
+  states: ['OFF', 'ON'],
+  label: ${label || "'POWER'"},
+  state: 1,
+  onChange: (i, s) => console.log(s),
+});`,
+
+  switchn: `\
+const sel = new AnalogSwitch({
+  x: 39, y: 18,
+  width: 52,
+  states: ['BLACK', 'STEEL', 'WHITE', 'BRUSH'],
+  state: 0,
+  label: ${label || "'STYLE'"},
+  onChange: (i, s) => console.log(s),
+});`,
+
+  vumeter: `\
+const vu = new VUMeter({
+  x: 23, y: 35,
+  width: 44, height: 180,
+  label: ${label || "'L'"},
+  showFader: false,
+  segCount: 24, meterWidth: 12,
+});
+// .value is driven automatically in this preview`,
+
+  vudial: `\
+const vuDial = new VUDial({
+  x: 43, y: 35,
+  size: 80,
+  label: ${label || "'VU'"},
+  showKnob: false,
+  segCount: 30,
+});
+// .value is driven automatically in this preview`,
+
+  xypad: `\
+const pad = new XYPad({
+  x: 20, y: 22,
+  width: 220, height: 200,
+  minX: -1, maxX: 1,
+  minY: -1, maxY: 1,
+  valueX: 0, valueY: 0,
+  label: ${label || "'XY'"},
+  crosshairColor: '#ff6600',
+  onChange: (vx, vy) => console.log(vx, vy),
+});`,
+
+  ledmeter: `\
+const display = new LEDMeter({
+  x: 20, y: 25,
+  min: 0, max: 1,
+  readout: 'db', decimals: 1, digits: 5,
+  label: ${label || "'dB'"},
+  ledColor: '#00ff88',
+});
+// .value is driven automatically in this preview`,
+
+  rotary: `\
+const waveform = new RotarySelector({
+  x: 40, y: 22,
+  options: ['SINE', 'SQUARE', 'SAW', 'TRI', 'NOISE'],
+  state: 0,
+  label: ${label || "'WAVE'"},
+  onChange: (i, lbl) => console.log(lbl),
+});`,
+};
+
+runCode(DEFAULTS[CTRL] || '');
+
+// Accept code updates from the parent doc
+window.addEventListener('message', e => {
+  if (e.data && e.data.type === 'run') runCode(e.data.code);
+});
 </script>
 </body>
 </html>

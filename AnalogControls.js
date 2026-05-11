@@ -888,6 +888,8 @@ window.AnalogThemes      = AnalogThemes;
 window.AnalogTheme       = AnalogTheme;   // backward compat (black preset)
 window.analogBackground  = analogBackground;
 window.analogReset       = analogReset;
+window.analogControls    = function() { return [..._analogRegistry]; };
+window.analogFullReset   = function() { _analogRegistry.length = 0; _analogWasPressed = false; _analogWired = false; };
 window.AnalogControl     = AnalogControl;
 window.AnalogSlider      = AnalogSlider;
 window.Slider            = AnalogSlider;  // backward-compat alias

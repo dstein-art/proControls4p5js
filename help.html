@@ -366,7 +366,49 @@
       align-items: flex-start;
       margin: 10px 0 0;
     }
-    .example-row > pre { flex: 1 1 0; min-width: 0; margin: 0; }
+
+    .live-editor {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .live-hint {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc0d;
+      border: 1px solid #0077cc33;
+      border-bottom: none;
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: 4px 10px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    .live-code {
+      background: var(--code-bg);
+      border: 1px solid #2a2a38;
+      border-radius: 0 0 var(--radius) var(--radius);
+      padding: 18px 20px;
+      font: 13px/1.65 'Fira Code', 'Cascadia Code', monospace;
+      color: var(--code-text);
+      resize: none;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: pre;
+      field-sizing: content;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .live-code:focus {
+      border-color: #0077cc88;
+    }
+
     .example-frame {
       flex-shrink: 0;
       border-radius: var(--radius);
@@ -525,14 +567,17 @@
 
     <h3>Example</h3>
     <div class="example-row">
-      <pre><code><span class="kw">const</span> vol = <span class="kw">new</span> <span class="fn">AnalogSlider</span>({
-  x: <span class="num">40</span>, y: <span class="num">50</span>,
-  width: <span class="num">44</span>, height: <span class="num">200</span>,
-  min: <span class="num">0</span>, max: <span class="num">1</span>, value: <span class="num">0.8</span>,
-  label: <span class="str">'VOLUME'</span>,
-  readout: <span class="str">'db'</span>,
-  <span class="fn">onChange</span>: v => console.<span class="fn">log</span>(v),
-});</code></pre>
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const vol = new AnalogSlider({
+  x: 28, y: 35,
+  width: 44, height: 180,
+  min: 0, max: 1, value: 0.8,
+  label: 'VOLUME',
+  readout: 'db',
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
       <iframe class="example-frame" src="example.html?c=slider" width="100" height="265" scrolling="no" frameborder="0" loading="lazy" title="AnalogSlider live example"></iframe>
     </div>
 
@@ -562,17 +607,20 @@
 
     <h3>Example</h3>
     <div class="example-row">
-      <pre><code><span class="kw">const</span> freq = <span class="kw">new</span> <span class="fn">Dial</span>({
-  x: <span class="num">120</span>, y: <span class="num">60</span>,
-  size: <span class="num">80</span>,
-  min: <span class="num">20</span>, max: <span class="num">20000</span>, value: <span class="num">440</span>,
-  scale: <span class="str">'log'</span>,
-  label: <span class="str">'FREQ'</span>,
-  readout: <span class="str">'raw'</span>,
-  decimals: <span class="num">0</span>,
-  showScale: <span class="kw">true</span>,
-  <span class="fn">onChange</span>: v => osc.<span class="fn">freq</span>(v),
-});</code></pre>
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const freq = new Dial({
+  x: 45, y: 35,
+  size: 80,
+  min: 20, max: 20000, value: 440,
+  scale: 'log',
+  label: 'FREQ',
+  readout: 'raw',
+  decimals: 0,
+  showScale: true,
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
       <iframe class="example-frame" src="example.html?c=dial" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="Dial live example"></iframe>
     </div>
   </section>
@@ -604,25 +652,33 @@ sw.states[sw.state] <span class="cmt">// active label string</span></code></pre>
 
     <h3>Two-state rocker</h3>
     <div class="example-row">
-      <pre><code><span class="kw">const</span> pwr = <span class="kw">new</span> <span class="fn">AnalogSwitch</span>({
-  x: <span class="num">40</span>, y: <span class="num">80</span>,
-  states: [<span class="str">'OFF'</span>, <span class="str">'ON'</span>],
-  label: <span class="str">'POWER'</span>,
-  <span class="fn">onChange</span>: (i, s) => console.<span class="fn">log</span>(s),
-});</code></pre>
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const pwr = new AnalogSwitch({
+  x: 36, y: 22,
+  width: 48,
+  states: ['OFF', 'ON'],
+  label: 'POWER',
+  state: 1,
+  onChange: (i, s) => console.log(s),
+});</textarea>
+      </div>
       <iframe class="example-frame" src="example.html?c=switch2" width="120" height="130" scrolling="no" frameborder="0" loading="lazy" title="AnalogSwitch 2-state live example"></iframe>
     </div>
 
     <h3>N-state selector</h3>
     <div class="example-row">
-      <pre><code><span class="kw">const</span> style = <span class="kw">new</span> <span class="fn">AnalogSwitch</span>({
-  x: <span class="num">100</span>, y: <span class="num">60</span>,
-  width: <span class="num">52</span>,
-  states: [<span class="str">'BLACK'</span>, <span class="str">'STEEL'</span>, <span class="str">'WHITE'</span>, <span class="str">'BRUSH'</span>],
-  state: <span class="num">0</span>,
-  label: <span class="str">'STYLE'</span>,
-  <span class="fn">onChange</span>: i => { currentStyle = STYLES[i]; <span class="fn">buildControls</span>(); },
-});</code></pre>
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const sel = new AnalogSwitch({
+  x: 39, y: 18,
+  width: 52,
+  states: ['BLACK', 'STEEL', 'WHITE', 'BRUSH'],
+  state: 0,
+  label: 'STYLE',
+  onChange: (i, s) => console.log(s),
+});</textarea>
+      </div>
       <iframe class="example-frame" src="example.html?c=switchn" width="130" height="175" scrolling="no" frameborder="0" loading="lazy" title="AnalogSwitch N-state live example"></iframe>
     </div>
   </section>
@@ -653,15 +709,17 @@ sw.states[sw.state] <span class="cmt">// active label string</span></code></pre>
 
     <h3>Example</h3>
     <div class="example-row">
-      <pre><code><span class="kw">const</span> vu = <span class="kw">new</span> <span class="fn">VUMeter</span>({
-  x: <span class="num">200</span>, y: <span class="num">50</span>, width: <span class="num">44</span>, height: <span class="num">200</span>,
-  label: <span class="str">'L'</span>,
-  showFader: <span class="kw">false</span>,
-  segCount: <span class="num">24</span>, meterWidth: <span class="num">12</span>,
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const vu = new VUMeter({
+  x: 23, y: 35,
+  width: 44, height: 180,
+  label: 'L',
+  showFader: false,
+  segCount: 24, meterWidth: 12,
 });
-
-<span class="cmt">// In draw():</span>
-vu.value = <span class="fn">getAudioLevel</span>(); <span class="cmt">// 0–1</span></code></pre>
+// .value is driven automatically in this preview</textarea>
+      </div>
       <iframe class="example-frame" src="example.html?c=vumeter" width="90" height="265" scrolling="no" frameborder="0" loading="lazy" title="VUMeter live example"></iframe>
     </div>
   </section>
@@ -691,14 +749,17 @@ vu.value = <span class="fn">getAudioLevel</span>(); <span class="cmt">// 0–1</
 
     <h3>Example</h3>
     <div class="example-row">
-      <pre><code><span class="kw">const</span> vuDial = <span class="kw">new</span> <span class="fn">VUDial</span>({
-  x: <span class="num">300</span>, y: <span class="num">80</span>, size: <span class="num">80</span>,
-  label: <span class="str">'VU'</span>,
-  showKnob: <span class="kw">false</span>,
-  segCount: <span class="num">30</span>,
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const vuDial = new VUDial({
+  x: 43, y: 35,
+  size: 80,
+  label: 'VU',
+  showKnob: false,
+  segCount: 30,
 });
-
-vuDial.value = <span class="fn">getAudioLevel</span>();</code></pre>
+// .value is driven automatically in this preview</textarea>
+      </div>
       <iframe class="example-frame" src="example.html?c=vudial" width="165" height="165" scrolling="no" frameborder="0" loading="lazy" title="VUDial live example"></iframe>
     </div>
   </section>
@@ -733,14 +794,19 @@ vuDial.value = <span class="fn">getAudioLevel</span>();</code></pre>
 
     <h3>Example</h3>
     <div class="example-row">
-      <pre><code><span class="kw">const</span> pad = <span class="kw">new</span> <span class="fn">XYPad</span>({
-  x: <span class="num">260</span>, y: <span class="num">50</span>, width: <span class="num">220</span>, height: <span class="num">200</span>,
-  minX: <span class="num">-1</span>, maxX: <span class="num">1</span>,
-  minY: <span class="num">-1</span>, maxY: <span class="num">1</span>,
-  valueX: <span class="num">0</span>, valueY: <span class="num">0</span>,
-  label: <span class="str">'XY'</span>,
-  <span class="fn">onChange</span>: (vx, vy) => synth.<span class="fn">setModulation</span>(vx, vy),
-});</code></pre>
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const pad = new XYPad({
+  x: 20, y: 22,
+  width: 220, height: 200,
+  minX: -1, maxX: 1,
+  minY: -1, maxY: 1,
+  valueX: 0, valueY: 0,
+  label: 'XY',
+  crosshairColor: '#ff6600',
+  onChange: (vx, vy) => console.log(vx, vy),
+});</textarea>
+      </div>
       <iframe class="example-frame" src="example.html?c=xypad" width="260" height="260" scrolling="no" frameborder="0" loading="lazy" title="XYPad live example"></iframe>
     </div>
   </section>
@@ -770,15 +836,17 @@ vuDial.value = <span class="fn">getAudioLevel</span>();</code></pre>
 
     <h3>Example</h3>
     <div class="example-row">
-      <pre><code><span class="kw">const</span> display = <span class="kw">new</span> <span class="fn">LEDMeter</span>({
-  x: <span class="num">40</span>, y: <span class="num">200</span>,
-  min: <span class="num">0</span>, max: <span class="num">1</span>,
-  readout: <span class="str">'db'</span>, decimals: <span class="num">1</span>, digits: <span class="num">5</span>,
-  label: <span class="str">'dB'</span>,
-  ledColor: <span class="str">'#00ff88'</span>,
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const display = new LEDMeter({
+  x: 20, y: 25,
+  min: 0, max: 1,
+  readout: 'db', decimals: 1, digits: 5,
+  label: 'dB',
+  ledColor: '#00ff88',
 });
-
-display.value = masterFader.value; <span class="cmt">// in draw()</span></code></pre>
+// .value is driven automatically in this preview</textarea>
+      </div>
       <iframe class="example-frame" src="example.html?c=ledmeter" width="200" height="110" scrolling="no" frameborder="0" loading="lazy" title="LEDMeter live example"></iframe>
     </div>
 
@@ -821,16 +889,16 @@ display.value = masterFader.value; <span class="cmt">// in draw()</span></code><
 
     <h3>Example</h3>
     <div class="example-row">
-      <pre><code><span class="kw">const</span> waveform = <span class="kw">new</span> <span class="fn">RotarySelector</span>({
-  x: <span class="num">40</span>, y: <span class="num">60</span>,
-  options: [<span class="str">'SINE'</span>, <span class="str">'SQUARE'</span>, <span class="str">'SAW'</span>, <span class="str">'TRI'</span>, <span class="str">'NOISE'</span>],
-  state: <span class="num">0</span>,
-  label: <span class="str">'WAVE'</span>,
-  onChange: (i, lbl) =&gt; console.<span class="fn">log</span>(lbl),
-});
-
-<span class="cmt">// In draw() — no extra work needed; just call draw()</span>
-waveform.<span class="fn">draw</span>();</code></pre>
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const waveform = new RotarySelector({
+  x: 40, y: 22,
+  options: ['SINE', 'SQUARE', 'SAW', 'TRI', 'NOISE'],
+  state: 0,
+  label: 'WAVE',
+  onChange: (i, lbl) => console.log(lbl),
+});</textarea>
+      </div>
       <iframe class="example-frame" src="example.html?c=rotary" width="220" height="100" scrolling="no" frameborder="0" loading="lazy" title="RotarySelector live example"></iframe>
     </div>
 
@@ -950,5 +1018,35 @@ waveform.<span class="fn">draw</span>();</code></pre>
   </section>
 
 </div>
+
+<script>
+(function () {
+  // Wire each editable textarea to its sibling iframe
+  document.querySelectorAll('.example-row').forEach(function (row) {
+    var ta = row.querySelector('textarea.live-code');
+    var fr = row.querySelector('iframe.example-frame');
+    if (!ta || !fr) return;
+
+    // Auto-size textarea to content on load
+    function resize() {
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    }
+    resize();
+
+    // Debounced postMessage to the iframe
+    var timer;
+    ta.addEventListener('input', function () {
+      resize();
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        if (fr.contentWindow) {
+          fr.contentWindow.postMessage({ type: 'run', code: ta.value }, '*');
+        }
+      }, 700);
+    });
+  });
+}());
+</script>
 </body>
 </html>
