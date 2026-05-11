@@ -429,8 +429,7 @@ class LEDMeter extends AnalogControl {
   }
 
   _dimColor(hexStr) {
-    const c = color(hexStr);
-    return color(red(c) * 0.12, green(c) * 0.12, blue(c) * 0.12);
+    return lerpColor(color(this.theme.panel), color(hexStr), 0.18);
   }
 
   _parseStr(str) {
