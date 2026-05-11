@@ -175,6 +175,7 @@ function _drawStainlessOverlay(theme) {
 // events to every registered control so the sketch needs no event boilerplate.
 
 const _analogRegistry  = [];
+const _drawnThisFrame  = new Set();
 let   _analogWired      = false;
 let   _analogWasPressed = false;
 const _analogWheelQ     = [];
@@ -182,6 +183,7 @@ const _analogWheelQ     = [];
 // Clear all registrations — call at the top of buildControls() when rebuilding.
 function analogReset() {
   _analogRegistry.length = 0;
+  _drawnThisFrame.clear();
   _analogWasPressed = false;
 }
 
@@ -220,6 +222,15 @@ p5.prototype.registerMethod('pre', function () {
     for (const c of _analogRegistry) c.mouseWheel(e);
   }
   _analogWheelQ.length = 0;
+});
+
+// Auto-draw: render every registered control that wasn't explicitly drawn
+// this frame. Fires after the sketch's draw() so background is already set.
+p5.prototype.registerMethod('post', function () {
+  for (const c of _analogRegistry) {
+    if (!_drawnThisFrame.has(c)) c.draw();
+  }
+  _drawnThisFrame.clear();
 });
 
 // ─── Base ────────────────────────────────────────────────────────────────────
@@ -326,6 +337,10 @@ class AnalogControl {
     pop();
   }
 
+  // Call at the top of every concrete draw() override to prevent
+  // the auto-draw post hook from rendering the control a second time.
+  _markDrawn() { _drawnThisFrame.add(this); }
+
   // Subclasses override these
   draw()          {}
   mousePressed()  {}
@@ -402,6 +417,7 @@ class AnalogSlider extends AnalogControl {
   // ── drawing ───────────────────────────────────────────────────────────────
 
   draw() {
+    this._markDrawn();
     const cx = this._trackX();
     const { x, y, width: w, height: h } = this;
 
@@ -595,6 +611,7 @@ class Dial extends AnalogControl {
   }
 
   draw() {
+    this._markDrawn();
     const cx = this._cx();
     const cy = this._cy();
     const { x, y, size: s } = this;
@@ -751,6 +768,7 @@ class AnalogSwitch extends AnalogControl {
   _panelH() { return this.height + (this.label ? 14 : 0); }
 
   draw() {
+    this._markDrawn();
     const { x, y, width: w } = this;
     const ph = this._panelH();
     const n  = this.states.length;
@@ -889,7 +907,7 @@ window.AnalogTheme       = AnalogTheme;   // backward compat (black preset)
 window.analogBackground  = analogBackground;
 window.analogReset       = analogReset;
 window.analogControls    = function() { return [..._analogRegistry]; };
-window.analogFullReset   = function() { _analogRegistry.length = 0; _analogWasPressed = false; _analogWired = false; };
+window.analogFullReset   = function() { _analogRegistry.length = 0; _drawnThisFrame.clear(); _analogWasPressed = false; _analogWired = false; };
 window.AnalogControl     = AnalogControl;
 window.AnalogSlider      = AnalogSlider;
 window.Slider            = AnalogSlider;  // backward-compat alias

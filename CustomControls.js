@@ -113,6 +113,7 @@ class XYPad extends AnalogControl {
   _dotY() { return this._innerY() + (1 - this._normY()) * this._innerH(); }
 
   draw() {
+    this._markDrawn();
     const { x, y, width: w, height: h } = this;
     this._drawPanel(x, y, w, h);
 
@@ -334,6 +335,7 @@ class LEDMeter extends AnalogControl {
   }
 
   draw() {
+    this._markDrawn();
     const { x, y } = this;
     const pw = this._panelW();
     const ph = this._panelH();
@@ -476,6 +478,7 @@ class RotarySelector extends AnalogControl {
   // ── drawing ────────────────────────────────────────────────────────────────
 
   draw() {
+    this._markDrawn();
     // Ease drum offset toward 0 when not actively dragging (click animation)
     if (!this._active && this._drumOffset !== 0) {
       this._drumOffset = Math.abs(this._drumOffset) > 0.4

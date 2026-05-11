@@ -503,12 +503,10 @@
 
 <span class="kw">function</span> <span class="fn">draw</span>() {
   <span class="fn">analogBackground</span>();  <span class="cmt">// style-matched background</span>
-  vol.<span class="fn">draw</span>();
-  pan.<span class="fn">draw</span>();
-  pwr.<span class="fn">draw</span>();
+  <span class="cmt">// Controls render themselves — no draw loop needed.</span>
 }
 
-<span class="cmt">// No mouseMoved / mousePressed / mouseWheel / touch handlers needed.</span></code></pre>
+<span class="cmt">// No event handlers. No draw loop. Controls self-register and self-draw.</span></code></pre>
 
     <h3>Rebuilding controls at runtime</h3>
     <p class="desc">When recreating all controls (e.g. on a style switch), call <code>analogReset()</code> first to clear stale registrations. Read current values before rebuilding to preserve them.</p>
@@ -1004,12 +1002,12 @@ sw.states[sw.state] <span class="cmt">// active label string</span></code></pre>
   <!-- Events -->
   <section id="touch">
     <h2>Touch &amp; Events</h2>
-    <p class="desc">All mouse, wheel, and touch events are handled automatically by the library using <code>p5.prototype.registerMethod</code>. No event functions are needed in your sketch. <code>touch-action: none</code> is applied to the canvas automatically to prevent iOS scroll conflicts.</p>
+    <p class="desc">All mouse, wheel, touch events, and rendering are handled automatically by the library. No event functions and no draw loop are needed in your sketch. <code>touch-action: none</code> is applied to the canvas automatically to prevent iOS scroll conflicts.</p>
 
-    <div class="note"><strong>Nothing to wire up.</strong> Just create controls — they start receiving events immediately. Call <code>.remove()</code> when done.</div>
+    <div class="note"><strong>Nothing to wire up.</strong> Just create controls — they start receiving events and drawing themselves immediately. Call <code>.remove()</code> when done.</div>
 
     <h3>How it works</h3>
-    <p class="desc">Each control self-registers on construction into a shared array. The library uses a single <code>p5.prototype.registerMethod('pre', …)</code> hook that fires at the start of every frame, after p5 has already updated <code>mouseX</code>, <code>mouseY</code>, and <code>mouseIsPressed</code> from DOM events. Press and release transitions are detected by comparing <code>mouseIsPressed</code> to its previous value. The wheel event is captured via a native <code>addEventListener</code> attached to the canvas on the first frame. <code>touch-action: none</code> is set on the canvas automatically.</p>
+    <p class="desc">Each control self-registers on construction into a shared array. Two <code>p5.prototype.registerMethod</code> hooks handle everything: a <code>'pre'</code> hook fires at the start of every frame to dispatch mouse/wheel/touch events; a <code>'post'</code> hook fires at the end of every frame and draws any control that wasn't already drawn explicitly that frame. This means you can still call <code>c.draw()</code> manually for z-order control — the post hook simply skips controls already rendered.</p>
 
     <h3>Coexisting with your own handlers</h3>
     <p class="desc">Registered library methods and sketch-level event functions both fire independently — they don't conflict. You can still define <code>mousePressed()</code> in your sketch for other logic.</p>

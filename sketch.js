@@ -119,12 +119,12 @@ function draw() {
 
   // simulate VU level driven by master fader (with noise)
   const target = masterSlider.value * (0.8 + random(-0.1, 0.1));
-  vuLevel          = lerp(vuLevel, target, 0.25);
-  vuMeter.value    = vuLevel;
-  vuDial.value     = vuLevel;
-  ledMeter.value   = vuLevel;
+  vuLevel        = lerp(vuLevel, target, 0.25);
+  vuMeter.value  = vuLevel;
+  vuDial.value   = vuLevel;
+  ledMeter.value = vuLevel;
 
-  for (const c of controls) c.draw();
+  // No draw loop needed — controls render themselves automatically.
 }
 
-// No event wiring needed — AnalogControls.js handles it automatically.
+// No event wiring or draw loop needed — AnalogControls.js handles it all.

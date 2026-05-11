@@ -49,16 +49,15 @@ function runCode(code) {
 
   window.draw = function () {
     analogBackground();
-    const ctrls = analogControls();
-    if (!ctrls.length) return;
+    // Drive animated display meters before they auto-draw this frame
     _lvl = lerp(_lvl, 0.5 + 0.4 * sin(frameCount * 0.035), 0.1);
     _lvl += random(-0.025, 0.025);
     _lvl = constrain(_lvl, 0, 1);
-    for (const c of ctrls) {
+    for (const c of analogControls()) {
       const n = c.constructor.name;
       if (n === 'VUMeter' || n === 'VUDial' || n === 'LEDMeter') c.value = _lvl;
-      c.draw();
     }
+    // Controls render themselves via the auto-draw post hook
   };
 
   _inst = new p5();
