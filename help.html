@@ -448,7 +448,7 @@
   <span class="sep">·</span>
   <a href="#ledmeter">LEDMeter</a>
   <span class="sep">·</span>
-  <a href="#rotaryselector">RotarySelector</a>
+  <a href="#selector">Selector</a>
   <span class="sep">·</span>
   <a href="#multislider">MultiSlider</a>
   <span class="sep">·</span>
@@ -904,23 +904,26 @@ sw.states[sw.state] <span class="cmt">// active label string</span></code></pre>
 
   <hr>
 
-  <!-- RotarySelector -->
-  <section id="rotaryselector">
-    <h2>RotarySelector <span class="tag ext">Input</span></h2>
-    <p class="desc">A mechanical drum-style selector inspired by vintage rotary counters. A display window shows the selected option; the drum's serrated edge is exposed on the right — horizontal ridges scroll as the drum rotates, giving a tactile feel. Adjacent options are visible in the drum window while scrolling. Drag up/down, scroll wheel, or touch.</p>
+  <!-- Selector -->
+  <section id="selector">
+    <h2>Selector <span class="tag ext">Input</span></h2>
+    <p class="desc">A multi-style option selector. Set <code>selectorStyle</code> to choose the visual style. Scroll wheel and touch work for all styles.</p>
 
-    <div class="sig">new RotarySelector(opts)</div>
+    <div class="sig">new Selector(opts)</div>
 
     <h3>Options</h3>
     <table class="opts">
       <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
       <tbody>
-        <tr><td>options</td><td>string[]</td><td>['A','B','C']</td><td>Array of option labels shown in the drum.</td></tr>
+        <tr><td>options</td><td>string[]</td><td>['A','B','C']</td><td>Array of option labels.</td></tr>
         <tr><td>state</td><td>number</td><td>0</td><td>Initial selected index into <code>options</code>.</td></tr>
-        <tr><td>width</td><td>number</td><td>140</td><td>Total panel width in pixels (drum window + teeth column).</td></tr>
-        <tr><td>height</td><td>number</td><td>40</td><td>Panel height in pixels. Also controls the teeth column width.</td></tr>
+        <tr><td>selectorStyle</td><td>string</td><td>'rotary'</td><td>Visual style — <code>'rotary'</code> or <code>'arrow'</code>. See style descriptions below.</td></tr>
+        <tr><td>width</td><td>number</td><td>140</td><td>Total panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>40</td><td>Panel height in pixels.</td></tr>
         <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(index, label)</code> whenever the selection changes.</td></tr>
         <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with <code>(index, label)</code> when the mouse/touch is released.</td></tr>
+        <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, the selection snaps back to its initial state after <code>springDuration</code> seconds.</td></tr>
+        <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds before snapping back when <code>springBack</code> is enabled.</td></tr>
         <tr><td>label</td><td>string</td><td>''</td><td>Caption drawn below the panel.</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
@@ -932,15 +935,17 @@ sw.states[sw.state] <span class="cmt">// active label string</span></code></pre>
       <thead><tr><th>Property</th><th>Description</th></tr></thead>
       <tbody>
         <tr><td><code>.state</code></td><td>Current selected index (read/write).</td></tr>
-        <tr><td><code>.options</code></td><td>Array of option labels (read/write — rebuild control after changing).</td></tr>
+        <tr><td><code>.options</code></td><td>Array of option labels (read/write).</td></tr>
       </tbody>
     </table>
 
-    <h3>Example</h3>
+    <h3>Style — rotary (default)</h3>
+    <p class="desc">A mechanical drum-style selector inspired by vintage rotary counters. A display window shows the selected option; the drum's serrated edge is exposed on the right — horizontal ridges scroll as the drum rotates, giving a tactile feel. Adjacent options are visible while scrolling. Drag up/down, scroll wheel, or touch.</p>
+    <div class="note"><strong>Teeth column sizing:</strong> width is <code>max(14, round(height × 0.28))</code> px. The display window occupies the remaining panel width to the left.</div>
     <div class="example-row">
       <div class="live-editor">
         <div class="live-hint">editable — changes update the preview</div>
-        <textarea class="live-code" spellcheck="false">const waveform = new RotarySelector({
+        <textarea class="live-code" spellcheck="false">const waveform = new Selector({
   x: 40, y: 22,
   options: ['SINE', 'SQUARE', 'SAW', 'TRI', 'NOISE'],
   state: 0,
@@ -948,10 +953,26 @@ sw.states[sw.state] <span class="cmt">// active label string</span></code></pre>
   onChange: (i, lbl) => console.log(lbl),
 });</textarea>
       </div>
-      <iframe class="example-frame" src="example.html?c=rotary" width="220" height="100" scrolling="no" frameborder="0" loading="lazy" title="RotarySelector live example"></iframe>
+      <iframe class="example-frame" src="example.html?c=selector" width="220" height="100" scrolling="no" frameborder="0" loading="lazy" title="Selector rotary live example"></iframe>
     </div>
 
-    <div class="note"><strong>Teeth column sizing:</strong> the exposed drum-edge column width is <code>max(14, round(height × 0.28))</code> px. The display window occupies the remaining panel width to the left of the teeth.</div>
+    <h3>Style — arrow</h3>
+    <p class="desc">A compact left/right arrow selector. Pressing either arrow button steps to the adjacent option; the new selection slides into the display window from the direction of travel. Scroll wheel also works.</p>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const waveform = new Selector({
+  x: 20, y: 22,
+  width: 180,
+  selectorStyle: 'arrow',
+  options: ['SINE', 'SQUARE', 'SAW', 'TRI', 'NOISE'],
+  state: 0,
+  label: 'WAVE',
+  onChange: (i, lbl) => console.log(lbl),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=selector_arrow" width="220" height="100" scrolling="no" frameborder="0" loading="lazy" title="Selector arrow live example"></iframe>
+    </div>
   </section>
 
   <hr>

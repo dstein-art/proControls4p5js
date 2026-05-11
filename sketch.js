@@ -87,7 +87,7 @@ function buildControls() {
     label: 'dB',
   });
 
-  effectSelector = new RotarySelector({
+  effectSelector = new Selector({
     x: 516, y: 200,
     options: ['SINE', 'SQUARE', 'SAW', 'TRI', 'NOISE'],
     state: effectSelector ? effectSelector.state : 0,

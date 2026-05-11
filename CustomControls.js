@@ -507,20 +507,27 @@ class LEDMeter extends AnalogControl {
 // as you scroll. Only the selected option is fully visible at rest; adjacent
 // options peek in at the drum edges during a drag.
 
-class RotarySelector extends AnalogControl {
+class Selector extends AnalogControl {
   constructor(opts = {}) {
     super(opts);
-    this.options  = opts.options ?? ['A', 'B', 'C'];
-    this.state    = opts.state   ?? 0;
-    this.width    = opts.width   ?? 140;
-    this.height   = opts.height  ?? 40;
+    this.options       = opts.options       ?? ['A', 'B', 'C'];
+    this.state         = opts.state         ?? 0;
+    this.selectorStyle = opts.selectorStyle ?? 'rotary'; // 'rotary' | 'arrow'
+    this.width         = opts.width         ?? 140;
+    this.height        = opts.height        ?? 40;
 
-    this._gearAngle   = 0;
-    this._drumOffset  = 0;   // px shift applied to drum items during drag
-    this._dragY       = null;
-    this._stateAtDrag = 0;
-    this._angleAtDrag = 0;
-    this._springDefault = this.state; // spring snaps back to initial option
+    // rotary-specific
+    this._gearAngle    = 0;
+    this._drumOffset   = 0;
+    this._dragY        = null;
+    this._stateAtDrag  = 0;
+    this._angleAtDrag  = 0;
+
+    // arrow-specific
+    this._slideOffset  = 0;  // px; eases to 0 after each state change
+    this._arrowHover   = null; // 'left' | 'right' | null
+
+    this._springDefault = this.state;
   }
 
   // ── geometry ───────────────────────────────────────────────────────────────
@@ -529,13 +536,21 @@ class RotarySelector extends AnalogControl {
   _dispW()    { return this.width - this._teethW() - 9; }
   _panelH()   { return this.height + (this.label ? 16 : 4); }
   _spacing()  { return Math.round((this.height - 4) * 0.62); }
-  // pxPerStep matches the visual item spacing so snap threshold (~50%) feels natural
   _pxPerStep(){ return this._spacing(); }
+  _arrowW()   { return 28; }
 
   // ── drawing ────────────────────────────────────────────────────────────────
 
   draw() {
     this._markDrawn();
+    if (this.selectorStyle === 'arrow') {
+      this._drawArrow();
+    } else {
+      this._drawRotaryFrame();
+    }
+  }
+
+  _drawRotaryFrame() {
     // Ease drum offset toward 0 when not actively dragging (click animation)
     if (!this._active && this._drumOffset !== 0) {
       this._drumOffset = Math.abs(this._drumOffset) > 0.4
@@ -561,6 +576,96 @@ class RotarySelector extends AnalogControl {
 
     if (this.label) this._drawLabel(x + this.width / 2, y + panelH - 14);
     if (this.disabled) this._drawDisabled(x, y, this.width, panelH);
+  }
+
+  _drawArrow() {
+    // Ease slide animation
+    if (Math.abs(this._slideOffset) > 0.5) {
+      this._slideOffset = lerp(this._slideOffset, 0, 0.25);
+    } else {
+      this._slideOffset = 0;
+    }
+
+    const { x, y } = this;
+    const ph   = this._panelH();
+    const aw   = this._arrowW();
+    const cy   = y + this.height / 2;
+    const dispX = x + aw;
+    const dispW = this.width - aw * 2;
+    const cx   = dispX + dispW / 2;
+    const gc   = drawingContext;
+
+    this._drawPanel(x, y, this.width, ph);
+
+    // Display window background
+    push();
+    noStroke();
+    fill(this.theme.track);
+    rect(dispX, y + 2, dispW, this.height - 4, 2);
+    pop();
+
+    // Arrow zone hover glow
+    const lHit = this._arrowHover === 'left'  && !this.disabled;
+    const rHit = this._arrowHover === 'right' && !this.disabled;
+    if (lHit) {
+      push(); noStroke(); fill(this.theme.hoverGlow);
+      rect(x, y, aw, this.height, 4); pop();
+    }
+    if (rHit) {
+      push(); noStroke(); fill(this.theme.hoverGlow);
+      rect(x + this.width - aw, y, aw, this.height, 4); pop();
+    }
+
+    // Separators between arrow zones and display
+    push();
+    stroke(this.theme.trackStroke);
+    strokeWeight(1);
+    line(dispX,        y + 4, dispX,        y + this.height - 4);
+    line(dispX + dispW, y + 4, dispX + dispW, y + this.height - 4);
+    pop();
+
+    // Left arrow ◀
+    const as = 5;
+    push(); noStroke();
+    fill(lHit ? this.theme.capIndicator : this.theme.scaleText);
+    const lax = x + aw / 2;
+    beginShape();
+    vertex(lax - as, cy);
+    vertex(lax + as, cy - as);
+    vertex(lax + as, cy + as);
+    endShape(CLOSE);
+    pop();
+
+    // Right arrow ▶
+    push(); noStroke();
+    fill(rHit ? this.theme.capIndicator : this.theme.scaleText);
+    const rax = x + this.width - aw / 2;
+    beginShape();
+    vertex(rax + as, cy);
+    vertex(rax - as, cy - as);
+    vertex(rax - as, cy + as);
+    endShape(CLOSE);
+    pop();
+
+    // Selected option text — clipped to display zone with slide offset
+    gc.save();
+    gc.beginPath();
+    gc.rect(dispX, y, dispW, this.height);
+    gc.clip();
+    push();
+    noStroke();
+    const rdC = color(this.theme.readout);
+    fill(red(rdC), green(rdC), blue(rdC));
+    textSize(13);
+    textStyle(BOLD);
+    textAlign(CENTER, CENTER);
+    if (this.theme.font) textFont(this.theme.font);
+    text(this.options[this.state], cx + this._slideOffset, cy);
+    pop();
+    gc.restore();
+
+    if (this.label) this._drawLabel(x + this.width / 2, y + ph - 14);
+    if (this.disabled) this._drawDisabled(x, y, this.width, ph);
   }
 
   _drawDrum(dx, dy, dw, dh) {
@@ -720,37 +825,61 @@ class RotarySelector extends AnalogControl {
            my >= this.y + 2 && my <= this.y + this.height - 2;
   }
 
+  // Returns 'left' | 'right' | 'center' | null for the arrow style
+  _arrowZone(mx, my) {
+    if (mx < this.x || mx > this.x + this.width ||
+        my < this.y || my > this.y + this.height) return null;
+    const aw = this._arrowW();
+    if (mx < this.x + aw)                return 'left';
+    if (mx > this.x + this.width - aw)  return 'right';
+    return 'center';
+  }
+
   // ── input ──────────────────────────────────────────────────────────────────
 
   mousePressed() {
     if (this.disabled) return;
-    if (this._containsPoint(mouseX, mouseY)) {
+    if (this.selectorStyle === 'arrow') {
+      const zone = this._arrowZone(mouseX, mouseY);
+      if (!zone || zone === 'center') return;
       this._cancelSpring();
-      this._active       = true;
-      this._dragY        = mouseY;
-      this._stateAtDrag  = this.state;
-      this._angleAtDrag  = this._gearAngle;
-      this._drumOffset   = 0;
-      this._teethPress   = this._inTeeth(mouseX, mouseY);
+      const n     = this.options.length;
+      const dispW = this.width - this._arrowW() * 2;
+      const dir   = zone === 'left' ? -1 : 1;
+      this.state        = (this.state + dir + n) % n;
+      this._slideOffset = dir * dispW; // negative = enter from left, positive = enter from right
+      this._active      = true;
+      if (this.onChange) this.onChange(this.state, this.options[this.state]);
+    } else {
+      if (!this._containsPoint(mouseX, mouseY)) return;
+      this._cancelSpring();
+      this._active        = true;
+      this._dragY         = mouseY;
+      this._stateAtDrag   = this.state;
+      this._angleAtDrag   = this._gearAngle;
+      this._drumOffset    = 0;
+      this._teethPress    = this._inTeeth(mouseX, mouseY);
       this._teethPressBot = mouseY >= this.y + this.height / 2;
     }
   }
 
   mouseReleased() {
-    if (this._active) {
+    if (!this._active) return;
+    if (this.selectorStyle === 'arrow') {
+      this._active = false;
+      if (this.onRelease) this.onRelease(this.state, this.options[this.state]);
+      this._startSpring();
+    } else {
       if (this._dragY !== null) {
         const pxPerStep = this._pxPerStep();
         const n         = this.options.length;
         const dy        = this._dragY - mouseY;
 
         let newState;
-        // Short click on the teeth column: step one position and animate
         if (this._teethPress && Math.abs(dy) < pxPerStep * 0.3) {
-          const dir = this._teethPressBot ? -1 : 1;  // bottom=down, top=up
+          const dir = this._teethPressBot ? -1 : 1;
           newState = (this.state + dir + n) % n;
-          // Start the drum offset at the adjacent position so it eases to centre
           this._drumOffset = dir * this._spacing();
-          // Rotate the teeth ridges by one tooth
           this._gearAngle += dir * (Math.PI * 2) / 14;
         } else {
           newState = ((this._stateAtDrag + Math.round(dy / pxPerStep)) % n + n) % n;
@@ -762,9 +891,9 @@ class RotarySelector extends AnalogControl {
           if (this.onChange) this.onChange(this.state, this.options[this.state]);
         }
       }
-      this._active      = false;
-      this._dragY       = null;
-      this._teethPress  = false;
+      this._active     = false;
+      this._dragY      = null;
+      this._teethPress = false;
       if (this.onRelease) this.onRelease(this.state, this.options[this.state]);
       this._startSpring();
     }
@@ -791,16 +920,18 @@ class RotarySelector extends AnalogControl {
   mouseMoved() {
     if (this.disabled) return;
     this._hovered = this._containsPoint(mouseX, mouseY);
+    if (this.selectorStyle === 'arrow') {
+      this._arrowHover = this._arrowZone(mouseX, mouseY);
+      return;
+    }
     if (!this._active || this._dragY === null) return;
 
-    const dy        = this._dragY - mouseY;  // reversed: down = lower index
+    const dy        = this._dragY - mouseY;
     const pxPerStep = this._pxPerStep();
     const teeth     = 14;
     const n         = this.options.length;
 
-    // Integer steps crossed (trunc keeps direction symmetric)
     const steps      = Math.trunc(dy / pxPerStep);
-    // Sub-step offset drives the drum scroll animation
     this._drumOffset = -(dy - steps * pxPerStep);
 
     const newState = ((this._stateAtDrag + steps) % n + n) % n;
@@ -814,11 +945,16 @@ class RotarySelector extends AnalogControl {
 
   mouseWheel(e) {
     if (this.disabled || !this._hovered) return;
-    const dir   = e.delta > 0 ? -1 : 1;
-    const n     = this.options.length;
-    const teeth = 14;
-    this.state       = (this.state + dir + n) % n;
-    this._gearAngle += dir * ((Math.PI * 2) / teeth);
+    const dir = e.delta > 0 ? -1 : 1;
+    const n   = this.options.length;
+    const prev = this.state;
+    this.state = (this.state + dir + n) % n;
+    if (this.state === prev) return;
+    if (this.selectorStyle === 'arrow') {
+      this._slideOffset = dir * (this.width - this._arrowW() * 2);
+    } else {
+      this._gearAngle += dir * ((Math.PI * 2) / 14);
+    }
     if (this.onChange) this.onChange(this.state, this.options[this.state]);
   }
 }
@@ -827,7 +963,7 @@ window.VUMeter        = VUMeter;
 window.XYPad          = XYPad;
 window.VUDial         = VUDial;
 window.LEDMeter       = LEDMeter;
-window.RotarySelector = RotarySelector;
+window.Selector       = Selector;
 
 // ─── MultiSlider ──────────────────────────────────────────────────────────────
 // A row of AnalogSliders sharing a single onChange / onRelease callback.

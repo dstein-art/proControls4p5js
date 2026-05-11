@@ -28,7 +28,8 @@ const SIZES = {
   vudial:    [165, 165],
   xypad:     [260, 260],
   ledmeter:  [200, 110],
-  rotary:      [220, 100],
+  selector:       [220, 100],
+  selector_arrow: [220, 100],
   multislider:   [350, 265],
   multislider_h: [220, 230],
   multislider_h_spring: [220, 230],
@@ -182,9 +183,20 @@ const display = new LEDMeter({
 });
 // .value is driven automatically in this preview`,
 
-  rotary: `\
-const waveform = new RotarySelector({
+  selector: `\
+const waveform = new Selector({
   x: 40, y: 22,
+  options: ['SINE', 'SQUARE', 'SAW', 'TRI', 'NOISE'],
+  state: 0,
+  label: ${label || "'WAVE'"},
+  onChange: (i, lbl) => console.log(lbl),
+});`,
+
+  selector_arrow: `\
+const waveform = new Selector({
+  x: 20, y: 22,
+  width: 180,
+  selectorStyle: 'arrow',
   options: ['SINE', 'SQUARE', 'SAW', 'TRI', 'NOISE'],
   state: 0,
   label: ${label || "'WAVE'"},
