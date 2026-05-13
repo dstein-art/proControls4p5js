@@ -2348,3 +2348,233 @@ class RangeSlider extends AnalogControl {
 }
 
 window.RangeSlider = RangeSlider;
+
+// ─── Panel ───────────────────────────────────────────────────────────────────
+// Container that hosts AnalogControls positioned relative to the panel's
+// top-left. Use .add(control) to attach controls.  Clips content, draws
+// scrollbars when children extend beyond the panel bounds.
+
+class Panel extends AnalogControl {
+  constructor(opts = {}) {
+    super(Object.assign({ min: 0, max: 1, value: 0 }, opts));
+    this.width     = opts.width  ?? 300;
+    this.height    = opts.height ?? 200;
+    this._visible  = opts.visible !== false;
+    this._children = [];
+    this._scrollX  = 0;
+    this._scrollY  = 0;
+    this._sbW      = 8;         // scrollbar thickness px
+    this._dragSB   = null;      // 'v' | 'h' | null
+    this._dragSBRef = null;
+  }
+
+  get visible()  { return this._visible; }
+  set visible(v) {
+    this._visible = !!v;
+    if (!this._visible) {
+      for (const c of this._children) { c._hovered = false; c._active = false; }
+    }
+  }
+
+  get scrollX()  { return this._scrollX; }
+  set scrollX(v) { this._scrollX = constrain(v, 0, this._maxScrollX()); }
+  get scrollY()  { return this._scrollY; }
+  set scrollY(v) { this._scrollY = constrain(v, 0, this._maxScrollY()); }
+
+  // Remove control from the global registry and adopt it into this panel.
+  add(control) {
+    control.remove();
+    this._children.push(control);
+    return this;
+  }
+
+  remove() {
+    super.remove();
+    this._children = [];
+  }
+
+  // ── Content / scroll geometry ───────────────────────────────────────────────
+  _contentW() {
+    let m = 0;
+    for (const c of this._children) m = Math.max(m, c.x + (c.width ?? c.size ?? 50));
+    return m;
+  }
+  _contentH() {
+    let m = 0;
+    for (const c of this._children) m = Math.max(m, c.y + (c.height ?? c.size ?? 50));
+    return m;
+  }
+
+  _needsV() { return this._contentH() > this.height; }
+  _needsH() { return this._contentW() > this.width;  }
+  _viewW()  { return this.width  - (this._needsV() ? this._sbW : 0); }
+  _viewH()  { return this.height - (this._needsH() ? this._sbW : 0); }
+  _maxScrollX() { return Math.max(0, this._contentW() - this._viewW()); }
+  _maxScrollY() { return Math.max(0, this._contentH() - this._viewH()); }
+
+  _inBounds(mx, my) {
+    return mx >= this.x && mx <= this.x + this.width &&
+           my >= this.y && my <= this.y + this.height;
+  }
+  _inViewport(mx, my) {
+    return mx >= this.x && mx <= this.x + this._viewW() &&
+           my >= this.y && my <= this.y + this._viewH();
+  }
+
+  // Temporarily remap mouseX/mouseY to panel-local coords while calling fn.
+  _withOffsetMouse(fn) {
+    const ox = window.mouseX, oy = window.mouseY;
+    window.mouseX = ox - this.x + this._scrollX;
+    window.mouseY = oy - this.y + this._scrollY;
+    try { fn(); } finally { window.mouseX = ox; window.mouseY = oy; }
+  }
+
+  // ── Event handlers ──────────────────────────────────────────────────────────
+  mouseMoved() {
+    if (!this._visible) return;
+
+    // Scrollbar dragging uses raw canvas coords
+    if (this._dragSB === 'v' && this._dragSBRef) {
+      const dy    = mouseY - this._dragSBRef.my;
+      const vh    = this._viewH();
+      const cH    = this._contentH();
+      const tH    = Math.max(20, (vh / cH) * vh);
+      const range = vh - tH;
+      if (range > 0) this._scrollY = constrain(this._dragSBRef.scrollY + dy * (this._maxScrollY() / range), 0, this._maxScrollY());
+      return;
+    }
+    if (this._dragSB === 'h' && this._dragSBRef) {
+      const dx    = mouseX - this._dragSBRef.mx;
+      const vw    = this._viewW();
+      const cW    = this._contentW();
+      const tW    = Math.max(20, (vw / cW) * vw);
+      const range = vw - tW;
+      if (range > 0) this._scrollX = constrain(this._dragSBRef.scrollX + dx * (this._maxScrollX() / range), 0, this._maxScrollX());
+      return;
+    }
+
+    if (this._inViewport(mouseX, mouseY)) {
+      this._withOffsetMouse(() => { for (const c of this._children) c.mouseMoved(); });
+    } else {
+      // Mouse is outside — clear hover/active on all children
+      const ox = window.mouseX, oy = window.mouseY;
+      window.mouseX = -99999; window.mouseY = -99999;
+      for (const c of this._children) c.mouseMoved();
+      window.mouseX = ox; window.mouseY = oy;
+    }
+  }
+
+  mousePressed() {
+    if (!this._visible || !this._inBounds(mouseX, mouseY)) return;
+
+    if (this._needsV() && mouseX >= this.x + this._viewW()) {
+      this._dragSB  = 'v';
+      this._dragSBRef = { my: mouseY, scrollY: this._scrollY };
+      return;
+    }
+    if (this._needsH() && mouseY >= this.y + this._viewH()) {
+      this._dragSB  = 'h';
+      this._dragSBRef = { mx: mouseX, scrollX: this._scrollX };
+      return;
+    }
+    if (this._inViewport(mouseX, mouseY)) {
+      this._withOffsetMouse(() => { for (const c of this._children) c.mousePressed(); });
+    }
+  }
+
+  mouseReleased() {
+    if (!this._visible) return;
+    this._dragSB    = null;
+    this._dragSBRef = null;
+    this._withOffsetMouse(() => { for (const c of this._children) c.mouseReleased(); });
+  }
+
+  mouseWheel(e) {
+    if (!this._visible || !this._inBounds(mouseX, mouseY)) return;
+
+    // If a child control is hovered, let it consume the scroll
+    if (this._children.some(c => c._hovered)) {
+      this._withOffsetMouse(() => { for (const c of this._children) c.mouseWheel(e); });
+      return false;
+    }
+
+    const dy = e.deltaY ?? e.delta ?? 0;
+    const dx = e.deltaX ?? 0;
+    if (this._needsV()) this._scrollY = constrain(this._scrollY + dy * 0.4, 0, this._maxScrollY());
+    if (this._needsH()) this._scrollX = constrain(this._scrollX + dx * 0.4, 0, this._maxScrollX());
+    return false;
+  }
+
+  _tickSpring() {
+    for (const c of this._children) c._tickSpring();
+  }
+
+  // ── Drawing ─────────────────────────────────────────────────────────────────
+  draw() {
+    if (!this._visible) return;
+
+    const gc     = drawingContext;
+    const { x, y, width, height, theme } = this;
+    const needsV = this._needsV();
+    const needsH = this._needsH();
+    const viewW  = this._viewW();
+    const viewH  = this._viewH();
+
+    // Panel border + background
+    push();
+    fill(theme.panel);
+    stroke(theme.panelStroke);
+    strokeWeight(1);
+    rect(x, y, width, height, 4);
+    pop();
+
+    // Clip viewport, translate to panel-local coordinate space, draw children
+    gc.save();
+    gc.beginPath();
+    gc.rect(x + 1, y + 1, viewW - 2, viewH - 2);
+    gc.clip();
+
+    gc.save();
+    gc.translate(x - this._scrollX, y - this._scrollY);
+    for (const c of this._children) c.draw();
+    gc.restore();
+
+    gc.restore();
+
+    if (needsV) this._drawVScrollBar(viewW, viewH);
+    if (needsH) this._drawHScrollBar(viewW, viewH);
+    if (this.label) this._drawLabel(x + width / 2, y + height + 3);
+  }
+
+  _drawVScrollBar(viewW, viewH) {
+    const { x, y, theme } = this;
+    const cH   = this._contentH();
+    const tH   = Math.max(20, (viewH / cH) * viewH);
+    const maxS = this._maxScrollY();
+    const ty   = y + (maxS > 0 ? (this._scrollY / maxS) * (viewH - tH) : 0);
+    push();
+    noStroke();
+    fill(lerpColor(color(theme.panel), color(theme.track), 0.4));
+    rect(x + viewW, y, this._sbW, viewH, 2);
+    fill(lerpColor(color(theme.capBody), color(theme.capHighlight), 0.3));
+    rect(x + viewW + 1, ty, this._sbW - 2, tH, 2);
+    pop();
+  }
+
+  _drawHScrollBar(viewW, viewH) {
+    const { x, y, theme } = this;
+    const cW   = this._contentW();
+    const tW   = Math.max(20, (viewW / cW) * viewW);
+    const maxS = this._maxScrollX();
+    const tx   = x + (maxS > 0 ? (this._scrollX / maxS) * (viewW - tW) : 0);
+    push();
+    noStroke();
+    fill(lerpColor(color(theme.panel), color(theme.track), 0.4));
+    rect(x, y + viewH, viewW, this._sbW, 2);
+    fill(lerpColor(color(theme.capBody), color(theme.capHighlight), 0.3));
+    rect(tx, y + viewH + 1, tW, this._sbW - 2, 2);
+    pop();
+  }
+}
+
+window.Panel = Panel;

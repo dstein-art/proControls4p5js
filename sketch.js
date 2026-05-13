@@ -6,6 +6,7 @@ let arrowSelector, gridToggle, gridPercent;
 let adsrDisplay;
 let tagSelector;
 let rangeSlider;
+let channelPanel;
 let controls  = [];
 let vuLevel   = 0;
 let _noiseT   = 0;  // time offset for Perlin noise
@@ -240,10 +241,37 @@ function buildControls() {
     onChange: (lo, hi) => console.log('range', lo, hi),
   });
 
+  // Panel — demonstrates grouped controls with scrollable content
+  channelPanel = new Panel({
+    x: 556, y: 300,
+    width: 165, height: 170,
+    label: 'PANEL',
+  });
+  channelPanel.add(new Dial({
+    x: 15, y: 18,
+    size: 65, min: 0, max: 100,
+    value: 60,
+    label: 'FREQ', readout: 'raw', decimals: 0,
+  }));
+  channelPanel.add(new Dial({
+    x: 90, y: 18,
+    size: 65, min: 0, max: 100,
+    value: 40,
+    label: 'RES', readout: 'raw', decimals: 0,
+  }));
+  channelPanel.add(new AnalogSwitch({
+    x: 26, y: 110,
+    width: 112,
+    states: ['LP', 'BP', 'HP', 'NOTCH'],
+    state: 0,
+    label: 'MODE',
+  }));
+
   controls = [gainSlider, masterSlider, vuMeter, xyPad, gainDial, vuDial, ledMeter,
               effectSelector, arrowSelector, gridToggle, gridPercent,
               styleSwitch, multiSlider, adsrDisplay, multiDial,
-              rubberDial, groovedDial, pointerDial, tagSelector, rangeSlider];
+              rubberDial, groovedDial, pointerDial, tagSelector, rangeSlider,
+              channelPanel];
 }
 
 function setup() {
