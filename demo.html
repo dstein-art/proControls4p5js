@@ -46,7 +46,8 @@
       align-items: center;
       padding: 0 32px;
       gap: 4px;
-      overflow-x: auto;
+      overflow-x: clip;
+      overflow-y: visible;
       white-space: nowrap;
     }
 
@@ -76,6 +77,42 @@
     }
 
     nav .sep { color: var(--border); margin: 0 2px; user-select: none; }
+
+    /* ── Nav submenu ── */
+    .nav-group { position: relative; display: flex; align-items: center; }
+    .nav-submenu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px;
+      min-width: 130px;
+      z-index: 200;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(0,0,0,.1);
+      flex-direction: column;
+      gap: 2px;
+    }
+    .nav-group:hover .nav-submenu { display: flex; }
+    .nav-submenu a {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+    }
+    .nav-submenu a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
 
     /* ── Mini Hero ── */
     .hero {
@@ -183,27 +220,36 @@
 <nav>
   <a href="help.html#getting-started">Getting Started</a>
   <span class="sep">·</span>
-  <a href="help.html#slider">AnalogSlider</a>
+  <div class="nav-group">
+    <a href="help.html#slider">Sliders</a>
+    <div class="nav-submenu">
+      <a href="help.html#slider">AnalogSlider</a>
+      <a href="help.html#multislider">MultiSlider</a>
+      <a href="help.html#rangeslider">RangeSlider</a>
+    </div>
+  </div>
   <span class="sep">·</span>
   <a href="help.html#dial">Dial</a>
   <span class="sep">·</span>
   <a href="help.html#switch">AnalogSwitch</a>
   <span class="sep">·</span>
-  <a href="help.html#vumeter">VUMeter</a>
-  <span class="sep">·</span>
-  <a href="help.html#vudial">VUDial</a>
-  <span class="sep">·</span>
   <a href="help.html#xypad">XYPad</a>
   <span class="sep">·</span>
-  <a href="help.html#ledmeter">LEDMeter</a>
+  <div class="nav-group">
+    <a href="help.html#selectors">Selectors</a>
+    <div class="nav-submenu">
+      <a href="help.html#selector">Selector</a>
+      <a href="help.html#tagSelector">TagSelector</a>
+    </div>
+  </div>
   <span class="sep">·</span>
-  <a href="help.html#selector">Selector</a>
+  <a href="help.html#gridpad">GridPad</a>
   <span class="sep">·</span>
-  <a href="help.html#multislider">MultiSlider</a>
+  <a href="help.html#displays">Displays</a>
   <span class="sep">·</span>
-  <a href="help.html#multidial">MultiDial</a>
+  <a href="help.html#themes">Themes &amp; Styles</a>
   <span class="sep">·</span>
-  <a href="help.html#themes">Themes</a>
+  <a href="help.html#touch">Events</a>
   <a href="help.html" class="docs-link">↗ Docs</a>
 </nav>
 

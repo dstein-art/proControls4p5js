@@ -39,6 +39,14 @@ const SIZES = {
   dialrubber:    [170, 170],
   dialgrooved:   [170, 170],
   dialpointer:   [170, 170],
+  slider_wheel:  [100, 265],
+  slider_button: [100, 265],
+  gridpad_toggle:  [160, 155],
+  gridpad_percent: [160, 155],
+  adsr:            [260, 160],
+  tagSelector:     [260, 130],
+  rangeslider:     [110, 265],
+  rangeslider_h:   [260, 80],
 };
 
 const [W, H] = SIZES[CTRL] || [300, 200];
@@ -196,7 +204,7 @@ const waveform = new Selector({
 const waveform = new Selector({
   x: 20, y: 22,
   width: 180,
-  selectorStyle: 'arrow',
+  style: 'arrow',
   options: ['SINE', 'SQUARE', 'SAW', 'TRI', 'NOISE'],
   state: 0,
   label: ${label || "'WAVE'"},
@@ -279,7 +287,7 @@ const tone = new MultiDial({
   dials: {
     'BASS':   50,
     'MID':    50,
-    'TREBLE': { value: 8000, min: 20, max: 20000, decimals: 0, dialStyle: 'pointer' },
+    'TREBLE': { value: 8000, min: 20, max: 20000, decimals: 0, style: 'pointer' },
   },
   onChange: v => console.log(v),
 });`,
@@ -291,7 +299,7 @@ const vol = new Dial({
   min: 0, max: 1, value: 0.65,
   label: ${label || "'VOLUME'"},
   readout: 'raw', decimals: 2,
-  dialStyle: 'rubber',
+  style: 'rubber',
   onChange: v => console.log(v),
 });`,
 
@@ -302,7 +310,7 @@ const freq = new Dial({
   min: 0, max: 20000, value: 1000,
   label: ${label || "'FREQ'"},
   readout: 'raw', decimals: 0,
-  dialStyle: 'grooved',
+  style: 'grooved',
   onChange: v => console.log(v),
 });`,
 
@@ -313,8 +321,95 @@ const pan = new Dial({
   min: -1, max: 1, value: 0,
   label: ${label || "'PAN'"},
   readout: 'raw', decimals: 2,
-  dialStyle: 'pointer',
+  style: 'pointer',
   onChange: v => console.log(v),
+});`,
+
+  slider_wheel: `\
+const pitch = new AnalogSlider({
+  x: 28, y: 35,
+  width: 44, height: 180,
+  min: -1, max: 1, value: 0,
+  style: 'wheel',
+  label: ${label || "'PITCH'"},
+  readout: 'raw', decimals: 2,
+  springBack: true,
+  onChange: v => console.log(v),
+});`,
+
+  slider_button: `\
+const vol = new AnalogSlider({
+  x: 28, y: 35,
+  width: 44, height: 180,
+  min: 0, max: 1, value: 0.75,
+  style: 'button',
+  label: ${label || "'LEVEL'"},
+  readout: 'raw', decimals: 2,
+  onChange: v => console.log(v),
+});`,
+
+  gridpad_toggle: `\
+const seq = new GridPad({
+  x: 20, y: 22,
+  rows: 4, cols: 4,
+  mode: 'toggle',
+  cellSize: 20,
+  hGroup: 2, vGroup: 2,
+  label: ${label || "'PATTERN'"},
+  onChange: v => console.log(v),
+});`,
+
+  gridpad_percent: `\
+const vel = new GridPad({
+  x: 20, y: 22,
+  rows: 4, cols: 4,
+  mode: 'percent',
+  cellSize: 20,
+  hGroup: 2, vGroup: 2,
+  label: ${label || "'VELOCITY'"},
+  onChange: v => console.log(v),
+});`,
+
+  tagSelector: `\
+const tags = new TagSelector({
+  x: 20, y: 22,
+  width: 220,
+  words: ['REVERB', 'DELAY', 'CHORUS', 'FLANGER', 'PHASER',
+          'DISTORT', 'COMPRESS', 'EQ', 'GATE', 'LIMITER'],
+  label: ${label || "'FX'"},
+  onChange: (sel, added, removed) => console.log(sel, added, removed),
+});`,
+
+  adsr: `\
+const env = new ADSRDisplay({
+  x: 20, y: 22,
+  width: 220, height: 120,
+  attack: 0.1, decay: 0.2,
+  sustain: 0.7, release: 0.4,
+  label: ${label || "'ENV'"},
+});`,
+
+  rangeslider: `\
+const range = new RangeSlider({
+  x: 28, y: 35,
+  width: 54, height: 195,
+  min: 0, max: 1,
+  valueLow: 0.2, valueHigh: 0.8,
+  label: ${label || "'RANGE'"},
+  readout: 'raw', decimals: 2,
+  onChange: (lo, hi) => console.log(lo, hi),
+});`,
+
+  rangeslider_h: `\
+const range = new RangeSlider({
+  x: 20, y: 18,
+  width: 220, height: 44,
+  min: 0, max: 1,
+  valueLow: 0.2, valueHigh: 0.8,
+  horizontal: true,
+  label: ${label || "'RANGE'"},
+  readout: 'raw', decimals: 2,
+  onChange: (lo, hi) => console.log(lo, hi),
 });`,
 };
 

@@ -192,6 +192,15 @@ class XYPad extends AnalogControl {
   mousePressed() {
     if (this.disabled) return;
     if (this._containsPoint(mouseX, mouseY)) {
+      if (this._isDoubleClick()) {
+        this._cancelSpring();
+        this.valueX = this._springDefaultX;
+        this.valueY = this._springDefaultY;
+        if (this.onChangeX) this.onChangeX(this.valueX);
+        if (this.onChangeY) this.onChangeY(this.valueY);
+        if (this.onChange) this.onChange(this.valueX, this.valueY);
+        return;
+      }
       this._cancelSpring();
       this._active = true;
       this._updateXY(mouseX, mouseY);
@@ -501,7 +510,121 @@ class LEDMeter extends AnalogControl {
   }
 }
 
-// ─── RotarySelector ──────────────────────────────────────────────────────────
+// ─── ADSRDisplay ─────────────────────────────────────────────────────────────
+// Display-only ADSR envelope graph drawn inside a beveled panel.
+// Attack / Decay / Release are relative time values; Sustain is amplitude 0–1.
+// Set any property at any time; the graph redraws each frame automatically.
+
+class ADSRDisplay extends AnalogControl {
+  constructor(opts = {}) {
+    super(opts);
+    this.attack        = opts.attack        ?? 0.1;
+    this.decay         = opts.decay         ?? 0.2;
+    this.sustain       = opts.sustain       ?? 0.7;   // amplitude 0–1
+    this.release       = opts.release       ?? 0.3;
+    this.width         = opts.width         ?? 220;
+    this.height        = opts.height        ?? 120;
+    this.envelopeColor = opts.envelopeColor ?? null;  // null → theme.capIndicator
+  }
+
+  draw() {
+    this._markDrawn();
+    const { x, y } = this;
+    const pw = this.width;
+    const ph = this.height;
+    this._drawPanel(x, y, pw, ph);
+
+    const pad    = 8;
+    const labelH = this.label ? 14 : 0;
+    const tickH  = 14;                           // row for A D S R labels
+    const plotW  = pw - pad * 2;
+    const plotH  = ph - pad * 2 - tickH - labelH;
+    const px     = x + pad;
+    const py     = y + pad;
+    const lineC  = this.envelopeColor ?? this.theme.capIndicator;
+
+    const A = Math.max(0.001, this.attack);
+    const D = Math.max(0.001, this.decay);
+    const S = constrain(this.sustain, 0, 1);
+    const R = Math.max(0.001, this.release);
+    const totalADR = A + D + R;
+
+    // 70% of width shared proportionally by A+D+R; 30% = fixed sustain hold
+    const aDRW   = plotW * 0.70;
+    const sHoldW = plotW - aDRW;
+    const ax = (A / totalADR) * aDRW;
+    const dx = (D / totalADR) * aDRW;
+    const rx = (R / totalADR) * aDRW;
+
+    const bot  = py + plotH;
+    const top  = py;
+    const susY = py + (1 - S) * plotH;
+
+    const pts = [
+      [px,                         bot],
+      [px + ax,                    top],
+      [px + ax + dx,               susY],
+      [px + ax + dx + sHoldW,      susY],
+      [px + ax + dx + sHoldW + rx, bot],
+    ];
+
+    const gc  = drawingContext;
+    const col = color(lineC);
+    gc.save();
+
+    // Gradient fill under the curve
+    gc.beginPath();
+    gc.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) gc.lineTo(pts[i][0], pts[i][1]);
+    gc.closePath();
+    const grad = gc.createLinearGradient(px, top, px, bot);
+    grad.addColorStop(0, `rgba(${red(col)},${green(col)},${blue(col)},0.30)`);
+    grad.addColorStop(1, `rgba(${red(col)},${green(col)},${blue(col)},0.04)`);
+    gc.fillStyle = grad;
+    gc.fill();
+
+    // Envelope line with glow
+    gc.beginPath();
+    gc.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) gc.lineTo(pts[i][0], pts[i][1]);
+    gc.shadowBlur  = 5;
+    gc.shadowColor = lineC;
+    gc.strokeStyle = lineC;
+    gc.lineWidth   = 1.5;
+    gc.lineJoin    = 'round';
+    gc.stroke();
+    gc.shadowBlur  = 0;
+
+    // Dashed section dividers at A / A+D / A+D+S boundaries
+    gc.setLineDash([2, 3]);
+    gc.strokeStyle = this.theme.scaleTick;
+    gc.lineWidth   = 1;
+    for (const dvx of [px + ax, px + ax + dx, px + ax + dx + sHoldW]) {
+      gc.beginPath(); gc.moveTo(dvx, top); gc.lineTo(dvx, bot); gc.stroke();
+    }
+    gc.setLineDash([]);
+    gc.restore();
+
+    // A / D / S / R labels centred in each section
+    const tickY = py + plotH + 2;
+    push();
+    textSize(8);
+    textFont(this.theme.font || 'sans-serif');
+    textAlign(CENTER, TOP);
+    fill(this.theme.scaleText);
+    noStroke();
+    text('A', px + ax / 2,                    tickY);
+    text('D', px + ax + dx / 2,               tickY);
+    text('S', px + ax + dx + sHoldW / 2,      tickY);
+    text('R', px + ax + dx + sHoldW + rx / 2, tickY);
+    pop();
+
+    if (this.label) this._drawLabel(x + pw / 2, y + ph - labelH + 1);
+    if (this.disabled) this._drawDisabled(x, y, pw, ph);
+  }
+}
+
+// ─── Selector ────────────────────────────────────────────────────────────────
 // Mechanical drum-style selector. Drag up/down on the control (or use the
 // scroll wheel) to cycle through options. A gear wheel on the right rotates
 // as you scroll. Only the selected option is fully visible at rest; adjacent
@@ -512,7 +635,7 @@ class Selector extends AnalogControl {
     super(opts);
     this.options       = opts.options       ?? ['A', 'B', 'C'];
     this.state         = opts.state         ?? 0;
-    this.selectorStyle = opts.selectorStyle ?? 'rotary'; // 'rotary' | 'arrow'
+    this.style = opts.style ?? opts.selectorStyle ?? 'rotary'; // 'rotary' | 'arrow'
     this.width         = opts.width         ?? 140;
     this.height        = opts.height        ?? 40;
 
@@ -524,10 +647,12 @@ class Selector extends AnalogControl {
     this._angleAtDrag  = 0;
 
     // arrow-specific
-    this._slideOffset  = 0;  // px; eases to 0 after each state change
+    this._slideOffset  = 0;    // px; eases to 0 after each state change
+    this._slideDir     = 1;    // direction of last change (+1 / -1)
+    this._prevState    = null; // outgoing option index while animating
     this._arrowHover   = null; // 'left' | 'right' | null
 
-    this._springDefault = this.state;
+    this._springDefault = opts.springDefault ?? this.state;
   }
 
   // ── geometry ───────────────────────────────────────────────────────────────
@@ -543,7 +668,7 @@ class Selector extends AnalogControl {
 
   draw() {
     this._markDrawn();
-    if (this.selectorStyle === 'arrow') {
+    if (this.style === 'arrow') {
       this._drawArrow();
     } else {
       this._drawRotaryFrame();
@@ -581,9 +706,10 @@ class Selector extends AnalogControl {
   _drawArrow() {
     // Ease slide animation
     if (Math.abs(this._slideOffset) > 0.5) {
-      this._slideOffset = lerp(this._slideOffset, 0, 0.25);
+      this._slideOffset = lerp(this._slideOffset, 0, 0.14);
     } else {
       this._slideOffset = 0;
+      this._prevState   = null;
     }
 
     const { x, y } = this;
@@ -661,8 +787,30 @@ class Selector extends AnalogControl {
     textAlign(CENTER, CENTER);
     if (this.theme.font) textFont(this.theme.font);
     text(this.options[this.state], cx + this._slideOffset, cy);
+    if (this._prevState !== null) {
+      text(this.options[this._prevState], cx + this._slideOffset + this._slideDir * dispW, cy);
+    }
     pop();
     gc.restore();
+
+    // Progress indicator — one segment per option, lit segment = current state
+    const n        = this.options.length;
+    const segGap   = 2;
+    const segH     = 3;
+    const segAreaW = dispW - 8;
+    const segW     = Math.max(2, (segAreaW - (n - 1) * segGap) / n);
+    const segY     = y + this.height - segH - 4;
+    const litC     = color(this.theme.readout);
+    push();
+    noStroke();
+    for (let i = 0; i < n; i++) {
+      const sx = dispX + 4 + i * (segW + segGap);
+      fill(i === this.state
+        ? litC
+        : color(red(litC), green(litC), blue(litC), 65));
+      rect(sx, segY, segW, segH, 1);
+    }
+    pop();
 
     if (this.label) this._drawLabel(x + this.width / 2, y + ph - 14);
     if (this.disabled) this._drawDisabled(x, y, this.width, ph);
@@ -744,18 +892,8 @@ class Selector extends AnalogControl {
   }
 
   _drawTeeth(tx, ty, tw, th) {
-    // Exposed drum edge: horizontal ridges that scroll as the drum rotates.
-    // Left shadow and right highlight suggest the cylindrical surface curving
-    // away from the viewer on the left and catching light on the right rim.
-    const gc    = drawingContext;
-    const pitch = 6;   // pixels between ridge centres
-    const nMax  = Math.ceil(th / pitch) + 2;
-
-    // _gearAngle accumulates one tooth-step (2π/14) per selection step.
-    // Mapping to pixels: one step = pxPerStep of linear travel.
-    // Negate so dragging down (advancing) scrolls ridges upward.
-    const scrollPx = -(this._gearAngle * (this._pxPerStep() * 14 / (Math.PI * 2)));
-    const off      = ((scrollPx % pitch) + pitch) % pitch;
+    const gc = drawingContext;
+    const n  = this.options.length;
 
     gc.save();
     gc.beginPath();
@@ -770,20 +908,24 @@ class Selector extends AnalogControl {
     gc.fillStyle = `rgb(${br},${bg_},${bb})`;
     gc.fillRect(tx, ty, tw, th);
 
-    // Ridges
-    const cc = color(this.theme.capBody);
-    const cr = red(cc) | 0, cg = green(cc) | 0, cb = blue(cc) | 0;
-    for (let i = -1; i < nMax; i++) {
-      const ry = ty + i * pitch + off;
-      // top highlight
-      gc.fillStyle = 'rgba(255,255,255,0.30)';
-      gc.fillRect(tx + 1, ry, tw - 2, 1);
-      // ridge body
-      gc.fillStyle = `rgba(${cr},${cg},${cb},0.85)`;
-      gc.fillRect(tx + 1, ry + 1, tw - 2, pitch - 3);
-      // bottom shadow
-      gc.fillStyle = 'rgba(0,0,0,0.22)';
-      gc.fillRect(tx + 1, ry + pitch - 2, tw - 2, 1);
+    // Segments — one per option, current state lit
+    const segGap   = 2;
+    const segAreaH = th - 2;
+    const segH     = Math.max(1, (segAreaH - (n - 1) * segGap) / n);
+    const litC     = color(this.theme.capIndicator);
+    const lr = red(litC) | 0, lg = green(litC) | 0, lb = blue(litC) | 0;
+    for (let i = 0; i < n; i++) {
+      const sy = ty + 1 + i * (segH + segGap);
+      gc.fillStyle = i === (n - 1 - this.state)
+        ? `rgb(${lr},${lg},${lb})`
+        : `rgba(${lr},${lg},${lb},0.22)`;
+      if (gc.roundRect) {
+        gc.beginPath();
+        gc.roundRect(tx + 2, sy, tw - 4, segH, 1);
+        gc.fill();
+      } else {
+        gc.fillRect(tx + 2, sy, tw - 4, segH);
+      }
     }
 
     // Left shadow — drum curves away from viewer
@@ -837,35 +979,81 @@ class Selector extends AnalogControl {
 
   // ── input ──────────────────────────────────────────────────────────────────
 
+  _resetToDefault() {
+    this._cancelSpring();
+    this.state        = this._springDefault;
+    this._slideOffset = 0;
+    this._prevState   = null;
+    this._dragY       = null;
+    this._active      = false;
+    if (this.onChange) this.onChange(this.state, this.options[this.state]);
+  }
+
   mousePressed() {
     if (this.disabled) return;
-    if (this.selectorStyle === 'arrow') {
+    const inBody  = mouseX >= this.x && mouseX <= this.x + this.width &&
+                    mouseY >= this.y && mouseY <= this.y + this.height;
+    const inLabel = this.label &&
+                    mouseX >= this.x && mouseX <= this.x + this.width &&
+                    mouseY >  this.y + this.height &&
+                    mouseY <= this.y + this._panelH();
+    if (!inBody && !inLabel) return;
+
+    // Label: double-click resets; single click records time only
+    if (inLabel) {
+      if (this._isDoubleClick()) this._resetToDefault();
+      return;
+    }
+
+    if (this.style === 'arrow') {
       const zone = this._arrowZone(mouseX, mouseY);
-      if (!zone || zone === 'center') return;
+      if (!zone) return;
+      if (zone === 'center') {
+        // Center display: double-click resets; single click does nothing
+        if (this._isDoubleClick()) this._resetToDefault();
+        return;
+      }
+      // Arrow buttons: advance state only — rapid double-clicks are intentional
       this._cancelSpring();
       const n     = this.options.length;
       const dispW = this.width - this._arrowW() * 2;
       const dir   = zone === 'left' ? -1 : 1;
+      const prevState   = this.state;
       this.state        = (this.state + dir + n) % n;
-      this._slideOffset = dir * dispW; // negative = enter from left, positive = enter from right
+      this._prevState   = prevState;
+      this._slideDir    = dir;
+      this._slideOffset = -dir * dispW;
       this._active      = true;
       if (this.onChange) this.onChange(this.state, this.options[this.state]);
     } else {
-      if (!this._containsPoint(mouseX, mouseY)) return;
-      this._cancelSpring();
-      this._active        = true;
-      this._dragY         = mouseY;
-      this._stateAtDrag   = this.state;
-      this._angleAtDrag   = this._gearAngle;
-      this._drumOffset    = 0;
-      this._teethPress    = this._inTeeth(mouseX, mouseY);
-      this._teethPressBot = mouseY >= this.y + this.height / 2;
+      if (this._inTeeth(mouseX, mouseY)) {
+        // Gear wheel: normal drag interaction only — rapid double-clicks intentional
+        this._cancelSpring();
+        this._active        = true;
+        this._dragY         = mouseY;
+        this._stateAtDrag   = this.state;
+        this._angleAtDrag   = this._gearAngle;
+        this._drumOffset    = 0;
+        this._teethPress    = true;
+        this._teethPressBot = mouseY >= this.y + this.height / 2;
+      } else {
+        // Drum display: double-click resets
+        if (this._isDoubleClick()) { this._resetToDefault(); return; }
+        this._cancelSpring();
+        this._active        = true;
+        this._dragY         = mouseY;
+        this._stateAtDrag   = this.state;
+        this._angleAtDrag   = this._gearAngle;
+        this._drumOffset    = 0;
+        this._teethPress    = false;
+        this._teethPressBot = mouseY >= this.y + this.height / 2;
+      }
     }
   }
 
   mouseReleased() {
     if (!this._active) return;
-    if (this.selectorStyle === 'arrow') {
+    if (this.style === 'arrow') {
       this._active = false;
       if (this.onRelease) this.onRelease(this.state, this.options[this.state]);
       this._startSpring();
@@ -920,7 +1108,7 @@ class Selector extends AnalogControl {
   mouseMoved() {
     if (this.disabled) return;
     this._hovered = this._containsPoint(mouseX, mouseY);
-    if (this.selectorStyle === 'arrow') {
+    if (this.style === 'arrow') {
       this._arrowHover = this._arrowZone(mouseX, mouseY);
       return;
     }
@@ -950,8 +1138,10 @@ class Selector extends AnalogControl {
     const prev = this.state;
     this.state = (this.state + dir + n) % n;
     if (this.state === prev) return;
-    if (this.selectorStyle === 'arrow') {
-      this._slideOffset = dir * (this.width - this._arrowW() * 2);
+    if (this.style === 'arrow') {
+      this._prevState   = prev;
+      this._slideDir    = dir;
+      this._slideOffset = -dir * (this.width - this._arrowW() * 2);
     } else {
       this._gearAngle += dir * ((Math.PI * 2) / 14);
     }
@@ -963,6 +1153,7 @@ window.VUMeter        = VUMeter;
 window.XYPad          = XYPad;
 window.VUDial         = VUDial;
 window.LEDMeter       = LEDMeter;
+window.ADSRDisplay    = ADSRDisplay;
 window.Selector       = Selector;
 
 // ─── MultiSlider ──────────────────────────────────────────────────────────────
@@ -1005,6 +1196,7 @@ class MultiSlider extends AnalogControl {
       showScale:      opts.showScale      ?? !this.horizontal,
       springBack:     opts.springBack     ?? false,
       springDuration: opts.springDuration ?? 1.0,
+      style:          opts.style          ?? 'knob',
       theme:          opts.theme          ?? {},
     };
 
@@ -1128,7 +1320,7 @@ class MultiDial extends AnalogControl {
       scale:          opts.scale          ?? 'linear',
       showScale:      opts.showScale      ?? false,
       showKnob:       opts.showKnob       ?? true,
-      dialStyle:      opts.dialStyle      ?? 'classic',
+      style:          opts.style ?? opts.dialStyle ?? 'classic',
       springBack:     opts.springBack     ?? false,
       springDuration: opts.springDuration ?? 1.0,
       theme:          opts.theme          ?? {},
@@ -1217,3 +1409,897 @@ class MultiDial extends AnalogControl {
 }
 
 window.MultiDial = MultiDial;
+
+// ─── GridPad ──────────────────────────────────────────────────────────────────
+// A 2-D grid of cells in two modes:
+//   'toggle'  — click to flip each cell 0 ↔ 1
+//   'percent' — hold left/right click to raise/lower a 0–1 value per cell;
+//               double-click snaps to 0 or 1
+//
+// Options:
+//   rows, cols        grid dimensions
+//   mode              'toggle' (default) | 'percent'
+//   cellSize          pixel size of each cell (default 20)
+//   cellGap           gap between cells (default 2)
+//   hGroup / vGroup   draw a bevel separator every N cols/rows (0 = none)
+//   groupGap          extra px at each group boundary (default 4)
+//   values            initial [[row][col]] 2-D array
+//   rate              percent change per frame while held (default 0.02)
+//   onChange(values)  fires on any cell change
+
+class GridPad extends AnalogControl {
+  constructor(opts = {}) {
+    super(opts);
+    this.rows     = opts.rows     ?? 4;
+    this.cols     = opts.cols     ?? 4;
+    this.mode     = opts.mode     ?? 'toggle';
+    this.cellSize = opts.cellSize ?? 20;
+    this.cellGap  = opts.cellGap  ?? 2;
+    this.hGroup   = opts.hGroup   ?? 0;
+    this.vGroup   = opts.vGroup   ?? 0;
+    this.groupGap = opts.groupGap ?? 4;
+    this._rate    = opts.rate     ?? 0.02;
+    this._pad     = 6;
+
+    const iv = opts.values;
+    this._vals     = Array.from({ length: this.rows }, (_, r) =>
+      Array.from({ length: this.cols }, (_, c) => iv?.[r]?.[c] ?? 0)
+    );
+    this._initVals = this._vals.map(row => [...row]);
+
+    this._activeCell  = null;
+    this._dir         = 1;
+    this._lastCell    = null;
+    this._pressedCell = null;  // button mode only
+
+    if (!GridPad._ctxBlocked) {
+      GridPad._ctxBlocked = true;
+      if (typeof document !== 'undefined') {
+        document.addEventListener('contextmenu', e => {
+          if (e.target?.tagName === 'CANVAS') e.preventDefault();
+        });
+      }
+    }
+  }
+
+  // ── geometry ─────────────────────────────────────────────────────────────────
+
+  _colX(c) {
+    const gs = this.hGroup ? Math.floor(c / this.hGroup) * this.groupGap : 0;
+    return this.x + this._pad + c * (this.cellSize + this.cellGap) + gs;
+  }
+
+  _rowY(r) {
+    const gs = this.vGroup ? Math.floor(r / this.vGroup) * this.groupGap : 0;
+    return this.y + this._pad + r * (this.cellSize + this.cellGap) + gs;
+  }
+
+  _totalW() {
+    const gs = this.hGroup ? Math.floor((this.cols - 1) / this.hGroup) * this.groupGap : 0;
+    return this._pad * 2 + this.cols * this.cellSize + (this.cols - 1) * this.cellGap + gs;
+  }
+
+  _totalH() {
+    const gs = this.vGroup ? Math.floor((this.rows - 1) / this.vGroup) * this.groupGap : 0;
+    return this._pad * 2 + this.rows * this.cellSize + (this.rows - 1) * this.cellGap + gs + (this.label ? 16 : 4);
+  }
+
+  _cellAt(mx, my) {
+    for (let r = 0; r < this.rows; r++) {
+      const cy = this._rowY(r);
+      if (my < cy || my > cy + this.cellSize) continue;
+      for (let c = 0; c < this.cols; c++) {
+        const cx = this._colX(c);
+        if (mx >= cx && mx <= cx + this.cellSize) return { r, c };
+      }
+    }
+    return null;
+  }
+
+  _containsPoint(mx, my) {
+    return mx >= this.x && mx <= this.x + this._totalW() &&
+           my >= this.y && my <= this.y + this._totalH();
+  }
+
+  // ── public API ────────────────────────────────────────────────────────────────
+
+  get values() { return this._vals.map(row => [...row]); }
+  getValue(r, c) { return this._vals[r]?.[c] ?? 0; }
+  setValue(r, c, v) {
+    if (r < 0 || r >= this.rows || c < 0 || c >= this.cols) return;
+    this._vals[r][c] = this.mode === 'toggle' ? (v ? 1 : 0) : constrain(v, 0, 1);
+  }
+
+  // ── drawing ───────────────────────────────────────────────────────────────────
+
+  draw() {
+    this._markDrawn();
+    const w = this._totalW();
+    const h = this._totalH();
+    this._drawPanel(this.x, this.y, w, h);
+
+    if (this._hovered && !this.disabled) {
+      push(); noStroke(); fill(this.theme.hoverGlow);
+      rect(this.x, this.y, w, h, 4); pop();
+    }
+
+    const litC = color(this.theme.capIndicator);
+    const dimC = color(this.theme.track);
+
+    // Pass 1: cell fills
+    push();
+    noStroke();
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.cols; c++) {
+        if (this.mode === 'button') {
+          const pressed = this._pressedCell?.r === r && this._pressedCell?.c === c;
+          fill(pressed ? litC : dimC);
+        } else {
+          const val = this._vals[r][c];
+          fill(this.mode === 'toggle' ? (val ? litC : dimC) : lerpColor(dimC, litC, val));
+        }
+        rect(this._colX(c), this._rowY(r), this.cellSize, this.cellSize, 2);
+      }
+    }
+    pop();
+
+    // Pass 2: per-cell bevel (raised normally, sunken when button is pressed)
+    const gc = drawingContext;
+    gc.save();
+    gc.lineWidth = 1;
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.cols; c++) {
+        const cx = this._colX(c);
+        const cy = this._rowY(r);
+        const cs = this.cellSize;
+        const pressed = this.mode === 'button' &&
+                        this._pressedCell?.r === r && this._pressedCell?.c === c;
+
+        // Top + left inner edge
+        gc.strokeStyle = pressed ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.42)';
+        gc.beginPath();
+        gc.moveTo(cx + 1.5, cy + cs - 1.5);
+        gc.lineTo(cx + 1.5, cy + 1.5);
+        gc.lineTo(cx + cs - 1.5, cy + 1.5);
+        gc.stroke();
+
+        // Bottom + right inner edge
+        gc.strokeStyle = pressed ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.38)';
+        gc.beginPath();
+        gc.moveTo(cx + 1.5, cy + cs - 1.5);
+        gc.lineTo(cx + cs - 1.5, cy + cs - 1.5);
+        gc.lineTo(cx + cs - 1.5, cy + 1.5);
+        gc.stroke();
+      }
+    }
+    gc.restore();
+
+    this._drawGroupLines();
+
+    if (this.label) this._drawLabel(this.x + w / 2, this.y + h - 13);
+    if (this.disabled) this._drawDisabled(this.x, this.y, w, h);
+  }
+
+  _drawGroupLines() {
+    if (!this.hGroup && !this.vGroup) return;
+    const hiC  = lerpColor(color(this.theme.panel), color(this.theme.capHighlight), 0.5);
+    const shC  = lerpColor(color(this.theme.panel), color(this.theme.panelStroke),  0.65);
+    const half = Math.round(this.groupGap / 2);
+    push();
+    strokeWeight(1);
+    noFill();
+    if (this.hGroup) {
+      const top = this._rowY(0);
+      const bot = this._rowY(this.rows - 1) + this.cellSize;
+      for (let g = 1; g * this.hGroup < this.cols; g++) {
+        const lx = this._colX(g * this.hGroup) - half - 1;
+        stroke(hiC); line(lx,     top, lx,     bot);
+        stroke(shC); line(lx + 1, top, lx + 1, bot);
+      }
+    }
+    if (this.vGroup) {
+      const lft = this._colX(0);
+      const rgt = this._colX(this.cols - 1) + this.cellSize;
+      for (let g = 1; g * this.vGroup < this.rows; g++) {
+        const ly = this._rowY(g * this.vGroup) - half - 1;
+        stroke(hiC); line(lft, ly,     rgt, ly);
+        stroke(shC); line(lft, ly + 1, rgt, ly + 1);
+      }
+    }
+    pop();
+  }
+
+  // ── input ─────────────────────────────────────────────────────────────────────
+
+  mousePressed() {
+    if (this.disabled || !this._containsPoint(mouseX, mouseY)) return;
+    const cell = this._cellAt(mouseX, mouseY);
+    if (!cell) {
+      // Label area: double-click resets all cells to initial values
+      if (this.label && mouseY >= this.y + this._totalH() - 16 && this._isDoubleClick()) {
+        this._vals = this._initVals.map(row => [...row]);
+        if (this.onChange) this.onChange(this.values);
+      }
+      return;
+    }
+    const { r, c } = cell;
+
+    if (this.mode === 'toggle') {
+      this._vals[r][c] = this._vals[r][c] ? 0 : 1;
+      if (this.onChange) this.onChange(this.values);
+      return;
+    }
+
+    if (this.mode === 'button') {
+      this._pressedCell = { r, c };
+      this._active      = true;
+      if (this.onPress) this.onPress(r, c);
+      return;
+    }
+
+    // percent mode
+    this._dir        = (mouseButton === RIGHT) ? -1 : 1;
+    this._activeCell = { r, c };
+    this._active     = true;
+
+    const now = millis();
+    if (this._lastCell?.r === r && this._lastCell?.c === c &&
+        now - this._lastCell.t < 350) {
+      // Use the value captured at first-click time so the hold effect
+      // accumulating between clicks doesn't interfere with snap direction.
+      const v0 = this._lastCell.v0;
+      this._vals[r][c] = v0 <= 0 ? 1 : v0 >= 1 ? 0 : v0 >= 0.5 ? 1 : 0;
+      if (this.onChange) this.onChange(this.values);
+      this._lastCell = null; this._active = false; this._activeCell = null;
+      return;
+    }
+    this._lastCell = { r, c, t: now, v0: this._vals[r][c] };
+  }
+
+  mouseReleased() {
+    if (this._active) {
+      this._active = false;
+      if (this.mode === 'button') {
+        const pc = this._pressedCell;
+        this._pressedCell = null;
+        this._activeCell  = null;
+        if (this.onRelease && pc) this.onRelease(pc.r, pc.c);
+      } else {
+        this._activeCell = null;
+        if (this.onRelease) this.onRelease(this.values);
+      }
+    }
+  }
+
+  mouseMoved() {
+    if (this.disabled) return;
+    this._hovered = this._containsPoint(mouseX, mouseY);
+  }
+
+  _tickSpring() {
+    super._tickSpring();
+    if (!this._active || !this._activeCell || this.mode !== 'percent') return;
+    const { r, c } = this._activeCell;
+    this._vals[r][c] = constrain(this._vals[r][c] + this._rate * this._dir, 0, 1);
+    if (this.onChange) this.onChange(this.values);
+  }
+}
+
+GridPad._ctxBlocked = false;
+window.GridPad = GridPad;
+
+// ─── TagSelector ─────────────────────────────────────────────────────────────
+// Multi-select chip panel. Each string in opts.words is shown as a rounded
+// pill; clicking toggles selection. Double-click the label to reset to the
+// initial selection.
+// onChange(selectedArray, addedWord, removedWord) — one of the last two args
+// is always non-null during a toggle; both null on a label double-click reset.
+
+class TagSelector extends AnalogControl {
+  constructor(opts = {}) {
+    super(opts);
+    this.words     = opts.words    ?? [];
+    this._selected = new Set(opts.selected ?? []);
+    this._initSel  = new Set(opts.selected ?? []);
+    this.width     = opts.width    ?? 200;
+    this._fixedH   = opts.height   ?? null;
+
+    this._pillH    = 20;
+    this._padX     = 8;
+    this._gap      = 5;
+    this._rowGap   = 6;
+    this._inPad    = 8;
+    this._labelH   = this.label ? 14 : 0;
+    this._sbW      = 5;   // scrollbar width
+
+    this._layout      = [];
+    this._layoutDirty = true;
+    this._hoveredWord = null;
+    this._scrollY     = 0;
+    this._contentH    = 0;
+    this._maxScrollY  = 0;
+    this.height       = this._fixedH ?? 0;
+
+    this._sbDragging        = false;
+    this._sbDragStartY      = 0;
+    this._sbDragStartScroll = 0;
+    this._sbThumbHov        = false;
+
+    this._buildLayout();
+  }
+
+  get selected() { return [...this._selected]; }
+  set selected(arr) { this._selected = new Set(arr); }
+
+  _buildLayout() {
+    this._layoutDirty = false;
+    this._layout = [];
+
+    // Reserve scrollbar gutter when height is fixed so pills never overlap it
+    const sbGutter  = this._fixedH !== null ? this._sbW + 3 : 0;
+    const rightEdge = this.width - this._inPad - sbGutter;
+
+    let curX = this._inPad;
+    let curY = this._inPad;
+
+    push();
+    textSize(9);
+    if (this.theme.font) textFont(this.theme.font);
+
+    for (const word of this.words) {
+      const pw = textWidth(word) + this._padX * 2;
+      if (curX > this._inPad && curX + pw > rightEdge) {
+        curX  = this._inPad;
+        curY += this._pillH + this._rowGap;
+      }
+      this._layout.push({ word, rx: curX, ry: curY, w: pw, h: this._pillH });
+      curX += pw + this._gap;
+    }
+    pop();
+
+    const bottom = this._layout.length > 0
+      ? Math.max(...this._layout.map(p => p.ry + p.h))
+      : 0;
+    this._contentH = bottom + this._inPad;
+
+    if (this._fixedH === null) {
+      this.height      = this._contentH + this._labelH;
+      this._maxScrollY = 0;
+    } else {
+      this.height      = this._fixedH;
+      this._maxScrollY = Math.max(0, this._contentH - (this._fixedH - this._labelH));
+    }
+
+    this._scrollY = constrain(this._scrollY, 0, this._maxScrollY);
+  }
+
+  _panelH() { return this.height; }
+
+  _sbGeom() {
+    const { x, y, width: w, height: h } = this;
+    const trackX = x + w - this._sbW - 2;
+    const trackY = y + 3;
+    const trackH = h - this._labelH - 6;
+    const thumbH = Math.max(14, trackH * trackH / this._contentH);
+    const thumbY = this._maxScrollY > 0
+      ? trackY + (this._scrollY / this._maxScrollY) * (trackH - thumbH)
+      : trackY;
+    return { trackX, trackY, trackH, thumbH, thumbY };
+  }
+
+  _containsPoint(mx, my) {
+    return mx >= this.x && mx <= this.x + this.width &&
+           my >= this.y && my <= this.y + this.height;
+  }
+
+  _pillAt(mx, my) {
+    const visTop = this.y + 1;
+    const visBot = this.y + this.height - this._labelH - 1;
+    for (const pill of this._layout) {
+      const px = this.x + pill.rx;
+      const py = this.y + pill.ry - this._scrollY;
+      if (py + pill.h < visTop || py > visBot) continue;
+      if (mx >= px && mx <= px + pill.w && my >= py && my <= py + pill.h) {
+        return pill.word;
+      }
+    }
+    return null;
+  }
+
+  draw() {
+    this._markDrawn();
+    if (this._layoutDirty) this._buildLayout();
+
+    const { x, y, width: w, height: h } = this;
+    const scrollable = this._maxScrollY > 0;
+
+    this._drawPanel(x, y, w, h);
+
+    if (this._hovered && !this.disabled) {
+      push(); noStroke(); fill(this.theme.hoverGlow); rect(x, y, w, h, 4); pop();
+    }
+
+    // Clip pill content to interior (above label)
+    const gc = drawingContext;
+    gc.save();
+    gc.beginPath();
+    gc.rect(x + 1, y + 1, w - 2, h - this._labelH - 1);
+    gc.clip();
+
+    for (const pill of this._layout) {
+      const px  = x + pill.rx;
+      const py  = y + pill.ry - this._scrollY;
+      const sel = this._selected.has(pill.word);
+      const hov = this._hoveredWord === pill.word && !this.disabled;
+      const pr  = 5;
+
+      push();
+      noStroke();
+      textSize(9);
+      if (this.theme.font) textFont(this.theme.font);
+
+      if (sel) {
+        const ic = color(this.theme.capIndicator);
+        fill(red(ic), green(ic), blue(ic), hov ? 72 : 48);
+        rect(px, py, pill.w, pill.h, pr);
+        stroke(this.theme.capIndicator);
+        strokeWeight(1.5);
+        noFill();
+        rect(px, py, pill.w, pill.h, pr);
+        noStroke();
+        fill(this.theme.capIndicator);
+      } else {
+        fill(this.theme.bg);
+        stroke(hov ? this.theme.capIndicator : this.theme.panelStroke);
+        strokeWeight(1);
+        rect(px, py, pill.w, pill.h, pr);
+        noStroke();
+        fill(this.theme.label);
+      }
+
+      textAlign(CENTER, CENTER);
+      text(pill.word, px + pill.w / 2, py + pill.h / 2 + 0.5);
+      pop();
+    }
+
+    gc.restore();
+
+    // Scrollbar
+    if (scrollable) {
+      const { trackX, trackY, trackH, thumbH, thumbY } = this._sbGeom();
+      const thumbActive = this._sbDragging || this._sbThumbHov;
+      push();
+      noStroke();
+      fill(this.theme.track);
+      rect(trackX, trackY, this._sbW, trackH, 2);
+      fill(lerpColor(color(this.theme.panelStroke), color(this.theme.capIndicator), thumbActive ? 0.65 : 0.35));
+      rect(trackX, thumbY, this._sbW, thumbH, 2);
+      pop();
+    }
+
+    if (this.label) this._drawLabel(x + w / 2, y + h - this._labelH + 2);
+    if (this.disabled) this._drawDisabled(x, y, w, h);
+  }
+
+  mousePressed() {
+    if (this.disabled) return;
+
+    // Scrollbar interaction takes priority
+    if (this._maxScrollY > 0) {
+      const { trackX, trackY, trackH, thumbH, thumbY } = this._sbGeom();
+      if (mouseX >= trackX && mouseX <= trackX + this._sbW &&
+          mouseY >= trackY && mouseY <= trackY + trackH) {
+        if (mouseY >= thumbY && mouseY <= thumbY + thumbH) {
+          this._sbDragging        = true;
+          this._sbDragStartY      = mouseY;
+          this._sbDragStartScroll = this._scrollY;
+        } else {
+          // Click on track — jump scroll so thumb centres on click
+          const ratio = (mouseY - trackY - thumbH / 2) / (trackH - thumbH);
+          this._scrollY = constrain(ratio * this._maxScrollY, 0, this._maxScrollY);
+        }
+        return;
+      }
+    }
+
+    const word = this._pillAt(mouseX, mouseY);
+    if (word) {
+      let added = null, removed = null;
+      if (this._selected.has(word)) {
+        this._selected.delete(word);
+        removed = word;
+      } else {
+        this._selected.add(word);
+        added = word;
+      }
+      if (this.onChange) this.onChange(this.selected, added, removed);
+      return;
+    }
+
+    if (this.label) {
+      const inLabel = mouseX >= this.x && mouseX <= this.x + this.width &&
+                      mouseY >  this.y + this.height - this._labelH &&
+                      mouseY <= this.y + this.height;
+      if (inLabel && this._isDoubleClick()) {
+        this._selected = new Set(this._initSel);
+        if (this.onChange) this.onChange(this.selected, null, null);
+      }
+    }
+  }
+
+  mouseReleased() {
+    this._sbDragging = false;
+  }
+
+  mouseWheel(e) {
+    if (!this._hovered || this._maxScrollY <= 0) return;
+    const delta = e.deltaY ?? e.delta ?? 0;
+    this._scrollY = constrain(this._scrollY + delta * 0.4, 0, this._maxScrollY);
+    return false;
+  }
+
+  mouseMoved() {
+    this._hovered = this._containsPoint(mouseX, mouseY);
+
+    if (this._sbDragging) {
+      const { trackH, thumbH } = this._sbGeom();
+      const dy = mouseY - this._sbDragStartY;
+      this._scrollY = constrain(
+        this._sbDragStartScroll + dy / (trackH - thumbH) * this._maxScrollY,
+        0, this._maxScrollY
+      );
+      this._hoveredWord = null;
+      return;
+    }
+
+    if (this._maxScrollY > 0) {
+      const { trackX, thumbY, thumbH } = this._sbGeom();
+      this._sbThumbHov = mouseX >= trackX && mouseX <= trackX + this._sbW &&
+                         mouseY >= thumbY  && mouseY <= thumbY + thumbH;
+    } else {
+      this._sbThumbHov = false;
+    }
+
+    this._hoveredWord = this._pillAt(mouseX, mouseY);
+  }
+}
+
+window.TagSelector = TagSelector;
+
+// ─── RangeSlider ─────────────────────────────────────────────────────────────
+// A two-handle slider that defines a low/high range.
+// opts: x, y, width, height, min, max, valueLow, valueHigh, label,
+//       readout ('raw'|'percent'|'db'), decimals, horizontal,
+//       showScale, showFader, onChange(low,high), onRelease(low,high), theme
+
+class RangeSlider extends AnalogControl {
+  constructor(opts = {}) {
+    super(opts);
+
+    this.readout    = opts.readout    ?? 'raw';
+    this.decimals   = opts.decimals   ?? 2;
+    this.horizontal = opts.horizontal ?? false;
+    this.showFader  = opts.showFader  ?? true;
+
+    this.valueLow  = opts.valueLow  ?? this.min;
+    this.valueHigh = opts.valueHigh ?? this.max;
+
+    this._capH     = 24;
+    this._trackPad = this._capH / 2 + 2;
+    this._dragging  = null;   // 'low' | 'high'
+    this._dragStart = null;
+    this._defaultLow  = this.valueLow;
+    this._defaultHigh = this.valueHigh;
+
+    if (this.horizontal) {
+      this.width     = opts.width     ?? 180;
+      this.height    = opts.height    ?? 44;
+      this.showScale = opts.showScale ?? false;
+    } else {
+      this.height    = opts.height    ?? 180;
+      this.width     = opts.width     ?? 50;
+      this.showScale = opts.showScale ?? true;
+    }
+  }
+
+  // ── geometry ───────────────────────────────────────────────────────────────
+
+  _trackX()      { return this.x + this.width / 2; }
+  _trackTop()    { return this.y + this._trackPad; }
+  _trackBottom() { return this.y + this.height - this._trackPad; }
+  _trackLen()    { return this._trackBottom() - this._trackTop(); }
+  _normLow()     { return this._norm(this.valueLow); }
+  _normHigh()    { return this._norm(this.valueHigh); }
+  _lowY()        { return this._trackBottom() - this._normLow()  * this._trackLen(); }
+  _highY()       { return this._trackBottom() - this._normHigh() * this._trackLen(); }
+
+  _hTrackY()     { return this.y + this.height / 2; }
+  _hTrackLeft()  { return this.x + this._trackPad; }
+  _hTrackRight() { return this.x + this.width - this._trackPad; }
+  _hTrackLen()   { return this._hTrackRight() - this._hTrackLeft(); }
+  _lowX()        { return this._hTrackLeft() + this._normLow()  * this._hTrackLen(); }
+  _highX()       { return this._hTrackLeft() + this._normHigh() * this._hTrackLen(); }
+
+  // ── formatting ─────────────────────────────────────────────────────────────
+
+  _fmt(v) {
+    switch (this.readout) {
+      case 'percent': return nf(this._norm(v) * 100, 1, 0) + '%';
+      case 'db':
+        if (v <= this.min) return '-∞';
+        return nf(20 * Math.log10(v / this.max), 1, 1) + ' dB';
+      default: return nf(v, 1, this.decimals);
+    }
+  }
+
+  // ── drawing ────────────────────────────────────────────────────────────────
+
+  draw() {
+    this._markDrawn();
+    if (this.horizontal) this._drawH(); else this._drawV();
+  }
+
+  _drawCapV(cx, cy) {
+    const capW = this.width - 8;
+    const capH = this._capH;
+    const capX = cx - capW / 2;
+    const capY = cy - capH / 2;
+    push();
+    noStroke();
+    for (let i = 0; i < capH; i++) {
+      fill(lerpColor(color(this.theme.capHighlight), color(this.theme.capShadow), i / capH));
+      rect(capX, capY + i, capW, 1);
+    }
+    stroke(this.theme.panelStroke); strokeWeight(1); noFill();
+    rect(capX, capY, capW, capH, 3);
+    stroke(this.theme.capIndicator); strokeWeight(1.5);
+    line(capX + 4, cy, capX + capW - 4, cy);
+    pop();
+  }
+
+  _drawCapH(cx, cy) {
+    const capW = this._capH;
+    const capH = this.height - 10;
+    const capX = cx - capW / 2;
+    const capY = cy - capH / 2;
+    push();
+    noStroke();
+    for (let i = 0; i < capW; i++) {
+      fill(lerpColor(color(this.theme.capHighlight), color(this.theme.capShadow), i / capW));
+      rect(capX + i, capY, 1, capH);
+    }
+    stroke(this.theme.panelStroke); strokeWeight(1); noFill();
+    rect(capX, capY, capW, capH, 3);
+    stroke(this.theme.capIndicator); strokeWeight(1.5);
+    line(cx, capY + 4, cx, capY + capH - 4);
+    pop();
+  }
+
+  _drawV() {
+    const cx = this._trackX();
+    const { x, y, width: w, height: h } = this;
+
+    this._drawPanel(x, y, w, h);
+
+    if (this._hovered && !this.disabled) {
+      push(); noStroke(); fill(this.theme.hoverGlow); rect(x, y, w, h, 4); pop();
+    }
+
+    const trackW = 6;
+    push();
+    fill(this.theme.track); stroke(this.theme.trackStroke); strokeWeight(1);
+    rect(cx - trackW / 2, this._trackTop(), trackW, this._trackLen(), 2);
+    pop();
+
+    // Range fill between the two caps
+    const lowY  = this._lowY();
+    const highY = this._highY();
+    const gc    = drawingContext;
+    gc.save();
+    gc.fillStyle   = this.theme.capIndicator;
+    gc.globalAlpha = 0.30;
+    gc.fillRect(cx - trackW / 2 + 1, highY, trackW - 2, lowY - highY);
+    gc.restore();
+
+    if (this.showScale) {
+      const steps = 5; const tickLen = 5;
+      push();
+      stroke(this.theme.scaleTick); strokeWeight(1);
+      fill(this.theme.scaleText); textSize(7); textAlign(LEFT, CENTER);
+      if (this.theme.font) textFont(this.theme.font);
+      for (let i = 0; i <= steps; i++) {
+        const n  = i / steps;
+        const ty = this._trackBottom() - n * this._trackLen();
+        const tx = cx + trackW / 2 + 2;
+        line(tx, ty, tx + tickLen, ty);
+        noStroke();
+        text(nf(this._fromNorm(n), 1, 1), tx + tickLen + 2, ty);
+        stroke(this.theme.scaleTick);
+      }
+      pop();
+    }
+
+    if (this.showFader) {
+      this._drawCapV(cx, lowY);   // low cap beneath
+      this._drawCapV(cx, highY);  // high cap on top
+    }
+
+    const readoutTxt = this._fmt(this.valueLow) + ' – ' + this._fmt(this.valueHigh);
+    this._drawReadout(cx, y + h - 12, readoutTxt);
+    this._drawLabel(cx, y + 2);
+
+    if (this._dragging === 'low')  this._drawTooltip(cx, lowY,  this._fmt(this.valueLow));
+    if (this._dragging === 'high') this._drawTooltip(cx, highY, this._fmt(this.valueHigh));
+
+    if (this.disabled) this._drawDisabled(x, y, w, h);
+  }
+
+  _drawH() {
+    const ty = this._hTrackY();
+    const { x, y, width: w, height: h } = this;
+
+    this._drawPanel(x, y, w, h);
+
+    if (this._hovered && !this.disabled) {
+      push(); noStroke(); fill(this.theme.hoverGlow); rect(x, y, w, h, 4); pop();
+    }
+
+    const trackH = 6;
+    push();
+    fill(this.theme.track); stroke(this.theme.trackStroke); strokeWeight(1);
+    rect(this._hTrackLeft(), ty - trackH / 2, this._hTrackLen(), trackH, 2);
+    pop();
+
+    // Range fill
+    const lowX  = this._lowX();
+    const highX = this._highX();
+    const gc    = drawingContext;
+    gc.save();
+    gc.fillStyle   = this.theme.capIndicator;
+    gc.globalAlpha = 0.30;
+    gc.fillRect(lowX, ty - trackH / 2 + 1, highX - lowX, trackH - 2);
+    gc.restore();
+
+    if (this.showScale) {
+      const steps = 5; const tickLen = 4;
+      push();
+      stroke(this.theme.scaleTick); strokeWeight(1);
+      fill(this.theme.scaleText); textSize(7); textAlign(CENTER, TOP);
+      if (this.theme.font) textFont(this.theme.font);
+      for (let i = 0; i <= steps; i++) {
+        const n  = i / steps;
+        const tx = this._hTrackLeft() + n * this._hTrackLen();
+        const by = ty + trackH / 2 + 2;
+        line(tx, by, tx, by + tickLen);
+        noStroke();
+        text(nf(this._fromNorm(n), 1, 1), tx, by + tickLen + 1);
+        stroke(this.theme.scaleTick);
+      }
+      pop();
+    }
+
+    if (this.showFader) {
+      this._drawCapH(lowX, ty);
+      this._drawCapH(highX, ty);
+    }
+
+    if (this.label) {
+      push(); noStroke(); fill(this.theme.label); textSize(9); textAlign(LEFT, TOP);
+      if (this.theme.font) textFont(this.theme.font);
+      text(this.label, x + 4, y + 2);
+      pop();
+    }
+    const readoutTxt = this._fmt(this.valueLow) + ' – ' + this._fmt(this.valueHigh);
+    this._drawReadout(x + w / 2, y + h - 13, readoutTxt);
+
+    if (this._dragging === 'low')  this._drawTooltip(lowX,  y - 2, this._fmt(this.valueLow));
+    if (this._dragging === 'high') this._drawTooltip(highX, y - 2, this._fmt(this.valueHigh));
+
+    if (this.disabled) this._drawDisabled(x, y, w, h);
+  }
+
+  // ── input ──────────────────────────────────────────────────────────────────
+
+  _containsPoint(mx, my) {
+    return mx >= this.x && mx <= this.x + this.width &&
+           my >= this.y && my <= this.y + this.height;
+  }
+
+  _whichCap(mx, my) {
+    if (this.horizontal) {
+      const lowX  = this._lowX();
+      const highX = this._highX();
+      const hitL  = abs(mx - lowX)  <= this._capH / 2 && my >= this.y && my <= this.y + this.height;
+      const hitH  = abs(mx - highX) <= this._capH / 2 && my >= this.y && my <= this.y + this.height;
+      if (hitL && hitH) return mx <= (lowX + highX) / 2 ? 'low' : 'high';
+      if (hitH) return 'high';
+      if (hitL) return 'low';
+    } else {
+      const lowY  = this._lowY();
+      const highY = this._highY();
+      const hitL  = abs(my - lowY)  <= this._capH / 2 && mx >= this.x && mx <= this.x + this.width;
+      const hitH  = abs(my - highY) <= this._capH / 2 && mx >= this.x && mx <= this.x + this.width;
+      if (hitL && hitH) return my >= (lowY + highY) / 2 ? 'low' : 'high';
+      if (hitH) return 'high';
+      if (hitL) return 'low';
+    }
+    return null;
+  }
+
+  mousePressed() {
+    if (this.disabled) return;
+    const cap = this._whichCap(mouseX, mouseY);
+    if (!cap) return;
+    if (this._isDoubleClick()) {
+      if (cap === 'low') this.valueLow  = this._defaultLow;
+      else               this.valueHigh = this._defaultHigh;
+      if (this.onChange) this.onChange(this.valueLow, this.valueHigh);
+      return;
+    }
+    this._dragging  = cap;
+    this._dragStart = this.horizontal
+      ? { pos: mouseX, valueLow: this.valueLow, valueHigh: this.valueHigh }
+      : { pos: mouseY, valueLow: this.valueLow, valueHigh: this.valueHigh };
+  }
+
+  mouseReleased() {
+    if (this._dragging) {
+      this._dragging  = null;
+      this._dragStart = null;
+      if (this.onRelease) this.onRelease(this.valueLow, this.valueHigh);
+    }
+  }
+
+  mouseMoved() {
+    if (this.disabled) return;
+    this._hovered = this._containsPoint(mouseX, mouseY);
+    if (!this._dragging || !this._dragStart) return;
+
+    if (this.horizontal) {
+      const delta = (mouseX - this._dragStart.pos) / this._hTrackLen();
+      const n0L   = this._norm(this._dragStart.valueLow);
+      const n0H   = this._norm(this._dragStart.valueHigh);
+      if (this._dragging === 'low') {
+        this.valueLow  = this._fromNorm(constrain(n0L + delta, 0, this._normHigh()));
+      } else {
+        this.valueHigh = this._fromNorm(constrain(n0H + delta, this._normLow(), 1));
+      }
+    } else {
+      const delta = (this._dragStart.pos - mouseY) / this._trackLen();
+      const n0L   = this._norm(this._dragStart.valueLow);
+      const n0H   = this._norm(this._dragStart.valueHigh);
+      if (this._dragging === 'low') {
+        this.valueLow  = this._fromNorm(constrain(n0L + delta, 0, this._normHigh()));
+      } else {
+        this.valueHigh = this._fromNorm(constrain(n0H + delta, this._normLow(), 1));
+      }
+    }
+    if (this.onChange) this.onChange(this.valueLow, this.valueHigh);
+  }
+
+  mouseWheel(e) {
+    if (this.disabled || !this._hovered) return;
+    const delta = (e.deltaY ?? e.delta ?? 0) * 0.001;
+    if (this.horizontal) {
+      const lowX  = this._lowX();
+      const highX = this._highX();
+      if (abs(mouseX - lowX) <= abs(mouseX - highX)) {
+        this.valueLow  = this._fromNorm(constrain(this._normLow()  + delta, 0, this._normHigh()));
+      } else {
+        this.valueHigh = this._fromNorm(constrain(this._normHigh() + delta, this._normLow(), 1));
+      }
+    } else {
+      const lowY  = this._lowY();
+      const highY = this._highY();
+      if (abs(mouseY - lowY) <= abs(mouseY - highY)) {
+        this.valueLow  = this._fromNorm(constrain(this._normLow()  - delta, 0, this._normHigh()));
+      } else {
+        this.valueHigh = this._fromNorm(constrain(this._normHigh() - delta, this._normLow(), 1));
+      }
+    }
+    if (this.onChange) this.onChange(this.valueLow, this.valueHigh);
+    return false;
+  }
+}
+
+window.RangeSlider = RangeSlider;

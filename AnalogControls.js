@@ -6,6 +6,9 @@
 //   AnalogStyle = 'stainless'; // polished chrome/steel
 //   AnalogStyle = 'white';     // Swiss/Braun minimalist
 //   AnalogStyle = 'brushed';   // brushed aluminum
+//   AnalogStyle = 'red';       // deep red studio console
+//   AnalogStyle = 'blue';      // deep navy broadcast
+//   AnalogStyle = 'yellow';    // warm amber/golden
 
 let AnalogStyle = 'black';
 
@@ -92,6 +95,69 @@ const AnalogThemes = {
     tooltipBg:       '#d0d8e0dd',
     hoverGlow:       '#ff880033',
     disabledOverlay: '#00000044',
+    font:            null,
+  },
+  red: {
+    bg:              '#cc0000',
+    panel:           '#990000',
+    panelStroke:     '#660000',
+    track:           '#550000',
+    trackStroke:     '#330000',
+    capBody:         '#cc4444',
+    capHighlight:    '#ff8888',
+    capShadow:       '#882222',
+    capIndicator:    '#ffdd00',
+    scaleText:       '#ff9999',
+    scaleTick:       '#cc3333',
+    label:           '#ffdddd',
+    readout:         '#ffffff',
+    readoutBg:       '#66000099',
+    tooltip:         '#ffffff',
+    tooltipBg:       '#000000cc',
+    hoverGlow:       '#ffdd0044',
+    disabledOverlay: '#00000066',
+    font:            null,
+  },
+  blue: {
+    bg:              '#0000cc',
+    panel:           '#000099',
+    panelStroke:     '#000066',
+    track:           '#000055',
+    trackStroke:     '#000033',
+    capBody:         '#3344cc',
+    capHighlight:    '#7788ff',
+    capShadow:       '#112288',
+    capIndicator:    '#ffdd00',
+    scaleText:       '#99aaff',
+    scaleTick:       '#4455cc',
+    label:           '#ddeeff',
+    readout:         '#ffffff',
+    readoutBg:       '#00006699',
+    tooltip:         '#ffffff',
+    tooltipBg:       '#000000cc',
+    hoverGlow:       '#ffdd0044',
+    disabledOverlay: '#00000066',
+    font:            null,
+  },
+  yellow: {
+    bg:              '#e0d000',
+    panel:           '#c0a800',
+    panelStroke:     '#907800',
+    track:           '#665500',
+    trackStroke:     '#443300',
+    capBody:         '#ddc840',
+    capHighlight:    '#fff8aa',
+    capShadow:       '#998800',
+    capIndicator:    '#cc0000',
+    scaleText:       '#332200',
+    scaleTick:       '#775500',
+    label:           '#110800',
+    readout:         '#110800',
+    readoutBg:       '#887700aa',
+    tooltip:         '#110800',
+    tooltipBg:       '#ffeeaadd',
+    hoverGlow:       '#cc000033',
+    disabledOverlay: '#00000055',
     font:            null,
   },
 };
@@ -257,9 +323,18 @@ class AnalogControl {
     this._springActive  = false;
     this._springStartMs = 0;
     this._springFrom    = null;
-    this._springDefault = this.value; // subclasses override for non-value fields
+    this._springDefault  = opts.springDefault ?? this.value; // subclasses may override
+    this._lastPressTime  = -9999;
 
     _analogRegistry.push(this);
+  }
+
+  _isDoubleClick() {
+    const now = millis();
+    const dt  = now - this._lastPressTime;
+    this._lastPressTime = now;
+    if (dt < 350) { this._lastPressTime = -9999; return true; }
+    return false;
   }
 
   // Unregister this control so it no longer receives events.
@@ -392,9 +467,10 @@ class AnalogSlider extends AnalogControl {
     this.readout    = opts.readout    ?? 'raw';  // 'raw' | 'percent' | 'db'
     this.decimals   = opts.decimals   ?? 2;
     this.horizontal = opts.horizontal ?? false;
+    this.style      = opts.style ?? 'knob';      // 'knob' | 'wheel' | 'button'
 
     // internal
-    this._capH      = 24;
+    this._capH      = this.style === 'button' ? 20 : 24;
     this._trackPad  = this._capH / 2 + 2;
     this._dragStart = null;
 
@@ -404,11 +480,14 @@ class AnalogSlider extends AnalogControl {
       this.width     = opts.width  ?? 180;
       this.height    = opts.height ?? 44;
     } else {
-      this.showScale = opts.showScale ?? true;
+      const isSpecial = this.style !== 'knob';
+      this.showScale = opts.showScale ?? !isSpecial;
       this.showFader = opts.showFader ?? true;
       this.height    = opts.height ?? 180;
       if (opts.width !== undefined) {
         this.width = opts.width;
+      } else if (this.style === 'wheel') {
+        this.width = 50;
       } else if (this.showScale) {
         // Auto-size width so scale labels fit inside the panel.
         const charPx   = 4;
@@ -469,6 +548,8 @@ class AnalogSlider extends AnalogControl {
   }
 
   _drawVertical() {
+    if (this.style === 'wheel')  { this._drawWheel();        return; }
+    if (this.style === 'button') { this._drawButtonSlider(); return; }
     const cx = this._trackX();
     const { x, y, width: w, height: h } = this;
 
@@ -501,7 +582,302 @@ class AnalogSlider extends AnalogControl {
     if (this.disabled) this._drawDisabled(x, y, w, h);
   }
 
+  _drawWheel() {
+    const { x, y, width: w, height: h } = this;
+    const cx   = this._trackX();
+    const capY = this._capY();
+
+    this._drawPanel(x, y, w, h);
+
+    if (this._hovered && !this.disabled) {
+      push(); noStroke();
+      fill(this.theme.hoverGlow);
+      rect(x, y, w, h, 4);
+      pop();
+    }
+
+    const slotPad = 8;
+    const slotX   = x + slotPad;
+    const slotW   = w - slotPad * 2;
+    const slotTop = this._trackTop();
+    const slotH   = this._trackLen();
+    const gc      = drawingContext;
+
+    // Wheel body — clipped to slot
+    gc.save();
+    gc.beginPath();
+    gc.rect(slotX, slotTop, slotW, slotH);
+    gc.clip();
+
+    const grad = gc.createLinearGradient(slotX, 0, slotX + slotW, 0);
+    grad.addColorStop(0,    this.theme.capShadow);
+    grad.addColorStop(0.18, this.theme.capBody);
+    grad.addColorStop(0.42, this.theme.capHighlight);
+    grad.addColorStop(0.58, this.theme.capHighlight);
+    grad.addColorStop(0.82, this.theme.capBody);
+    grad.addColorStop(1,    this.theme.capShadow);
+    gc.fillStyle = grad;
+    gc.fillRect(slotX, slotTop, slotW, slotH);
+
+    // Horizontal ribs scrolling with position
+    const ribSpacing = 8;
+    const ribOffset  = ((capY - slotTop) % ribSpacing + ribSpacing) % ribSpacing;
+    gc.lineWidth = 1;
+    for (let ry = slotTop + ribOffset; ry < slotTop + slotH; ry += ribSpacing) {
+      gc.beginPath(); gc.moveTo(slotX, ry); gc.lineTo(slotX + slotW, ry);
+      gc.strokeStyle = 'rgba(0,0,0,0.22)'; gc.stroke();
+      gc.beginPath(); gc.moveTo(slotX, ry + 1); gc.lineTo(slotX + slotW, ry + 1);
+      gc.strokeStyle = 'rgba(255,255,255,0.16)'; gc.stroke();
+    }
+
+    // Accent ridge at current position
+    gc.beginPath(); gc.moveTo(slotX, capY); gc.lineTo(slotX + slotW, capY);
+    gc.strokeStyle = this.theme.capIndicator;
+    gc.lineWidth   = 2;
+    gc.globalAlpha = 0.9;
+    gc.stroke();
+    gc.globalAlpha = 1;
+
+    gc.restore();
+
+    // Overlays — slot border, rim lines, center notches
+    gc.save();
+    gc.strokeStyle = this.theme.trackStroke;
+    gc.lineWidth   = 1;
+    gc.strokeRect(slotX, slotTop, slotW, slotH);
+
+    gc.strokeStyle = 'rgba(255,255,255,0.30)';
+    gc.beginPath(); gc.moveTo(slotX + 1.5, slotTop + 2); gc.lineTo(slotX + 1.5, slotTop + slotH - 2); gc.stroke();
+    gc.strokeStyle = 'rgba(0,0,0,0.22)';
+    gc.beginPath(); gc.moveTo(slotX + slotW - 1.5, slotTop + 2); gc.lineTo(slotX + slotW - 1.5, slotTop + slotH - 2); gc.stroke();
+
+    const midY = slotTop + slotH / 2;
+    gc.strokeStyle = this.theme.capIndicator;
+    gc.lineWidth   = 1.5;
+    gc.beginPath(); gc.moveTo(x + 3, midY); gc.lineTo(slotX - 1, midY); gc.stroke();
+    gc.beginPath(); gc.moveTo(slotX + slotW + 1, midY); gc.lineTo(x + w - 3, midY); gc.stroke();
+
+    gc.restore();
+
+    this._drawReadout(cx, y + h - 12, this._formatReadout());
+    this._drawLabel(cx, y + 2);
+    if (this._active) this._drawTooltip(cx, capY, this._formatReadout());
+    if (this.disabled) this._drawDisabled(x, y, w, h);
+  }
+
+  _drawButtonSlider() {
+    const { x, y, width: w, height: h } = this;
+    const cx   = this._trackX();
+    const capY = this._capY();
+
+    this._drawPanel(x, y, w, h);
+
+    if (this._hovered && !this.disabled) {
+      push(); noStroke();
+      fill(this.theme.hoverGlow);
+      rect(x, y, w, h, 4);
+      pop();
+    }
+
+    // Thin 4px track groove
+    const trackW = 4;
+    push();
+    fill(this.theme.track);
+    stroke(this.theme.trackStroke);
+    strokeWeight(1);
+    rect(cx - trackW / 2, this._trackTop(), trackW, this._trackLen(), 2);
+    pop();
+
+    // Circular cap
+    if (this.showFader) {
+      const r  = this._capH / 2;   // 10px radius
+      const gc = drawingContext;
+      gc.save();
+
+      const grad = gc.createRadialGradient(
+        cx - r * 0.3, capY - r * 0.35, 0,
+        cx, capY, r
+      );
+      grad.addColorStop(0,    this.theme.capHighlight);
+      grad.addColorStop(0.55, this.theme.capBody);
+      grad.addColorStop(1,    this.theme.capShadow);
+
+      gc.beginPath();
+      gc.arc(cx, capY, r, 0, Math.PI * 2);
+      gc.fillStyle = grad;
+      gc.fill();
+      gc.strokeStyle = this.theme.panelStroke;
+      gc.lineWidth   = 1;
+      gc.stroke();
+
+      gc.beginPath();
+      gc.arc(cx, capY, 2.5, 0, Math.PI * 2);
+      gc.fillStyle = this.theme.capIndicator;
+      gc.fill();
+
+      gc.restore();
+    }
+
+    this._drawReadout(cx, y + h - 12, this._formatReadout());
+    this._drawLabel(cx, y + 2);
+    if (this._active) this._drawTooltip(cx, capY, this._formatReadout());
+    if (this.disabled) this._drawDisabled(x, y, w, h);
+  }
+
+  _drawHWheel() {
+    const { x, y, width: w, height: h } = this;
+    const capX = this._hCapX();
+
+    this._drawPanel(x, y, w, h);
+
+    if (this._hovered && !this.disabled) {
+      push(); noStroke();
+      fill(this.theme.hoverGlow);
+      rect(x, y, w, h, 4);
+      pop();
+    }
+
+    const slotPad  = 8;
+    const slotY    = y + slotPad;
+    const slotH    = h - slotPad * 2;
+    const slotLeft = this._hTrackLeft();
+    const slotW    = this._hTrackLen();
+    const gc       = drawingContext;
+
+    gc.save();
+    gc.beginPath();
+    gc.rect(slotLeft, slotY, slotW, slotH);
+    gc.clip();
+
+    // Gradient runs top-to-bottom (perpendicular to travel)
+    const grad = gc.createLinearGradient(0, slotY, 0, slotY + slotH);
+    grad.addColorStop(0,    this.theme.capShadow);
+    grad.addColorStop(0.18, this.theme.capBody);
+    grad.addColorStop(0.42, this.theme.capHighlight);
+    grad.addColorStop(0.58, this.theme.capHighlight);
+    grad.addColorStop(0.82, this.theme.capBody);
+    grad.addColorStop(1,    this.theme.capShadow);
+    gc.fillStyle = grad;
+    gc.fillRect(slotLeft, slotY, slotW, slotH);
+
+    // Vertical ribs scrolling with position
+    const ribSpacing = 8;
+    const ribOffset  = ((capX - slotLeft) % ribSpacing + ribSpacing) % ribSpacing;
+    gc.lineWidth = 1;
+    for (let rx = slotLeft + ribOffset; rx < slotLeft + slotW; rx += ribSpacing) {
+      gc.beginPath(); gc.moveTo(rx, slotY); gc.lineTo(rx, slotY + slotH);
+      gc.strokeStyle = 'rgba(0,0,0,0.22)'; gc.stroke();
+      gc.beginPath(); gc.moveTo(rx + 1, slotY); gc.lineTo(rx + 1, slotY + slotH);
+      gc.strokeStyle = 'rgba(255,255,255,0.16)'; gc.stroke();
+    }
+
+    // Accent ridge at current position
+    gc.beginPath(); gc.moveTo(capX, slotY); gc.lineTo(capX, slotY + slotH);
+    gc.strokeStyle = this.theme.capIndicator;
+    gc.lineWidth   = 2;
+    gc.globalAlpha = 0.9;
+    gc.stroke();
+    gc.globalAlpha = 1;
+
+    gc.restore();
+
+    // Slot border, rim highlights, center notches
+    gc.save();
+    gc.strokeStyle = this.theme.trackStroke;
+    gc.lineWidth   = 1;
+    gc.strokeRect(slotLeft, slotY, slotW, slotH);
+
+    gc.strokeStyle = 'rgba(255,255,255,0.30)';
+    gc.beginPath(); gc.moveTo(slotLeft + 2, slotY + 1.5); gc.lineTo(slotLeft + slotW - 2, slotY + 1.5); gc.stroke();
+    gc.strokeStyle = 'rgba(0,0,0,0.22)';
+    gc.beginPath(); gc.moveTo(slotLeft + 2, slotY + slotH - 1.5); gc.lineTo(slotLeft + slotW - 2, slotY + slotH - 1.5); gc.stroke();
+
+    const midX = slotLeft + slotW / 2;
+    gc.strokeStyle = this.theme.capIndicator;
+    gc.lineWidth   = 1.5;
+    gc.beginPath(); gc.moveTo(midX, y + 3);          gc.lineTo(midX, slotY - 1);          gc.stroke();
+    gc.beginPath(); gc.moveTo(midX, slotY + slotH + 1); gc.lineTo(midX, y + h - 3);       gc.stroke();
+
+    gc.restore();
+
+    if (this.label) {
+      push(); noStroke(); fill(this.theme.label); textSize(9); textAlign(LEFT, TOP);
+      if (this.theme.font) textFont(this.theme.font);
+      text(this.label, x + 4, y + 2);
+      pop();
+    }
+    this._drawReadout(x + w - 22, y + h - 13, this._formatReadout());
+    if (this._active) this._drawTooltip(capX, y - 2, this._formatReadout());
+    if (this.disabled) this._drawDisabled(x, y, w, h);
+  }
+
+  _drawHButtonSlider() {
+    const { x, y, width: w, height: h } = this;
+    const ty   = this._hTrackY();
+    const capX = this._hCapX();
+
+    this._drawPanel(x, y, w, h);
+
+    if (this._hovered && !this.disabled) {
+      push(); noStroke();
+      fill(this.theme.hoverGlow);
+      rect(x, y, w, h, 4);
+      pop();
+    }
+
+    // Thin 4px track groove
+    const trackH = 4;
+    push();
+    fill(this.theme.track);
+    stroke(this.theme.trackStroke);
+    strokeWeight(1);
+    rect(this._hTrackLeft(), ty - trackH / 2, this._hTrackLen(), trackH, 2);
+    pop();
+
+    // Circular cap
+    if (this.showFader) {
+      const r  = this._capH / 2;
+      const gc = drawingContext;
+      gc.save();
+
+      const grad = gc.createRadialGradient(
+        capX - r * 0.3, ty - r * 0.35, 0,
+        capX, ty, r
+      );
+      grad.addColorStop(0,    this.theme.capHighlight);
+      grad.addColorStop(0.55, this.theme.capBody);
+      grad.addColorStop(1,    this.theme.capShadow);
+
+      gc.beginPath();
+      gc.arc(capX, ty, r, 0, Math.PI * 2);
+      gc.fillStyle = grad;
+      gc.fill();
+      gc.strokeStyle = this.theme.panelStroke;
+      gc.lineWidth   = 1;
+      gc.stroke();
+
+      gc.beginPath();
+      gc.arc(capX, ty, 2.5, 0, Math.PI * 2);
+      gc.fillStyle = this.theme.capIndicator;
+      gc.fill();
+
+      gc.restore();
+    }
+
+    if (this.label) {
+      push(); noStroke(); fill(this.theme.label); textSize(9); textAlign(LEFT, TOP);
+      if (this.theme.font) textFont(this.theme.font);
+      text(this.label, x + 4, y + 2);
+      pop();
+    }
+    this._drawReadout(x + w - 22, y + h - 13, this._formatReadout());
+    if (this._active) this._drawTooltip(capX, y - 2, this._formatReadout());
+    if (this.disabled) this._drawDisabled(x, y, w, h);
+  }
+
   _drawHorizontal() {
+    if (this.style === 'wheel')  { this._drawHWheel();        return; }
+    if (this.style === 'button') { this._drawHButtonSlider(); return; }
     const ty = this._hTrackY();
     const { x, y, width: w, height: h } = this;
 
@@ -651,6 +1027,14 @@ class AnalogSlider extends AnalogControl {
   }
 
   _capHit(mx, my) {
+    if (this.style === 'wheel') {
+      if (this.horizontal) {
+        return mx >= this._hTrackLeft() && mx <= this._hTrackRight() &&
+               my >= this.y && my <= this.y + this.height;
+      }
+      return mx >= this.x && mx <= this.x + this.width &&
+             my >= this._trackTop() && my <= this._trackBottom();
+    }
     if (this.horizontal) {
       const cx = this._hCapX();
       return abs(mx - cx) <= this._capH / 2 &&
@@ -664,6 +1048,12 @@ class AnalogSlider extends AnalogControl {
   mousePressed() {
     if (this.disabled) return;
     if (this._capHit(mouseX, mouseY)) {
+      if (this._isDoubleClick()) {
+        this._cancelSpring();
+        this.value = this._springDefault;
+        if (this.onChange) this.onChange(this.value);
+        return;
+      }
       this._cancelSpring();
       this._active    = true;
       this._dragStart = this.horizontal
@@ -701,8 +1091,9 @@ class AnalogSlider extends AnalogControl {
 
   mouseWheel(e) {
     if (this.disabled || !this._hovered) return;
+    const delta   = e.deltaY ?? e.delta ?? 0;
     const prev    = this.value;
-    const newNorm = constrain(this._norm() - e.delta * 0.001, 0, 1);
+    const newNorm = constrain(this._norm() - delta * 0.001, 0, 1);
     this.value    = this._fromNorm(newNorm);
     if (this.value !== prev && this.onChange) this.onChange(this.value);
     return false; // prevent page scroll
@@ -719,7 +1110,7 @@ class Dial extends AnalogControl {
     this.decimals  = opts.decimals  ?? 2;
     this.showScale = opts.showScale ?? false;
     this.showKnob  = opts.showKnob  ?? true;
-    this.dialStyle = opts.dialStyle ?? 'classic'; // 'classic' | 'rubber' | 'grooved' | 'pointer'
+    this.style = opts.style ?? opts.dialStyle ?? 'classic'; // 'classic' | 'rubber' | 'grooved' | 'pointer'
 
     this._startAngle = 3 * Math.PI / 4;  // 7:30 o'clock (min)
     this._sweepAngle = 3 * Math.PI / 2;  // 270° clockwise sweep
@@ -772,7 +1163,7 @@ class Dial extends AnalogControl {
     this._drawArcTrack(cx, cy);
     this._drawExtra(cx, cy);  // hook called between arc and knob
     if (this.showKnob) {
-      switch (this.dialStyle) {
+      switch (this.style) {
         case 'rubber':  this._drawRubberKnob(cx, cy);  break;
         case 'grooved': this._drawGroovedKnob(cx, cy); break;
         case 'pointer': this._drawPointerKnob(cx, cy); break;
@@ -1027,6 +1418,12 @@ class Dial extends AnalogControl {
   mousePressed() {
     if (this.disabled) return;
     if (this._containsPoint(mouseX, mouseY)) {
+      if (this._isDoubleClick()) {
+        this._cancelSpring();
+        this.value = this._springDefault;
+        if (this.onChange) this.onChange(this.value);
+        return;
+      }
       this._cancelSpring();
       this._active    = true;
       this._dragStart = { my: mouseY, value: this.value };
@@ -1076,7 +1473,7 @@ class AnalogSwitch extends AnalogControl {
     this.width    = opts.width    ?? 48;
     this.height   = opts.height   ?? (this.states.length > 2 ? this.states.length * 26 + 20 : 70);
     this.onChange = opts.onChange ?? null;        // called with (stateIndex, stateLabel)
-    this._springDefault = this.state;             // spring snaps back to initial state
+    this._springDefault = opts.springDefault ?? this.state; // spring / reset target
   }
 
   _panelW() { return this.width; }
@@ -1189,8 +1586,9 @@ class AnalogSwitch extends AnalogControl {
 
   _slotAt(mx, my) {
     if (!this._containsPoint(mx, my)) return -1;
-    const n = this.states.length;
-    return Math.floor((my - this.y) / (this.height / n));
+    const n    = this.states.length;
+    const slot = Math.floor((my - this.y) / (this.height / n));
+    return slot < n ? slot : -1;
   }
 
   mouseMoved() {
@@ -1201,7 +1599,25 @@ class AnalogSwitch extends AnalogControl {
   mousePressed() {
     if (this.disabled) return;
     const slot = this._slotAt(mouseX, mouseY);
-    if (slot < 0) return;
+    if (slot < 0) {
+      // Label area: double-click resets to initial state
+      const inLabel = this.label &&
+                      mouseX >= this.x && mouseX <= this.x + this.width &&
+                      mouseY >  this.y + this.height &&
+                      mouseY <= this.y + this._panelH();
+      if (inLabel && this._isDoubleClick()) {
+        this._cancelSpring();
+        this.state = this._springDefault;
+        if (this.onChange) this.onChange(this.state, this.states[this.state]);
+      }
+      return;
+    }
+    if (this._isDoubleClick()) {
+      this._cancelSpring();
+      this.state = this._springDefault;
+      if (this.onChange) this.onChange(this.state, this.states[this.state]);
+      return;
+    }
     this._cancelSpring();
     if (this.states.length === 2) {
       this.state = this.state === 0 ? 1 : 0;

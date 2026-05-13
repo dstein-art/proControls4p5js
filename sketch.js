@@ -2,11 +2,16 @@
 
 let gainSlider, masterSlider, vuMeter, xyPad, gainDial, vuDial, ledMeter, styleSwitch, effectSelector, multiSlider, multiDial;
 let rubberDial, groovedDial, pointerDial;
+let arrowSelector, gridToggle, gridPercent;
+let adsrDisplay;
+let tagSelector;
+let rangeSlider;
 let controls  = [];
 let vuLevel   = 0;
+let _noiseT   = 0;  // time offset for Perlin noise
 
-const STYLES  = ['black', 'stainless', 'white', 'brushed'];
-const LABELS  = ['BLACK', 'STEEL', 'WHITE', 'BRUSH'];
+const STYLES  = ['black', 'stainless', 'white', 'brushed', 'red', 'blue', 'yellow'];
+const LABELS  = ['BLACK', 'STEEL', 'WHITE', 'BRUSH', 'RED', 'BLUE', 'YLW'];
 let   currentStyle = 'stainless';
 
 function buildControls() {
@@ -54,6 +59,7 @@ function buildControls() {
     valueY: xyPad ? xyPad.valueY : 0,
     label: 'XY',
     crosshairColor: '#ff6600',
+    springBack: true,
     onChangeX: vx => console.log('x', vx),
     onChangeY: vy => console.log('y', vy),
   });
@@ -89,10 +95,53 @@ function buildControls() {
 
   effectSelector = new Selector({
     x: 516, y: 200,
+    width: 200,
     options: ['SINE', 'SQUARE', 'SAW', 'TRI', 'NOISE'],
     state: effectSelector ? effectSelector.state : 0,
     label: 'WAVE',
     onChange: (i, lbl) => console.log('wave', lbl),
+  });
+
+  arrowSelector = new Selector({
+    x: 516, y: 262,
+    width: 200,
+    style: 'arrow',
+    options: ['NONE', 'ROOM', 'HALL', 'PLATE', 'SPRING'],
+    state: arrowSelector ? arrowSelector.state : 0,
+    label: 'REVERB',
+    onChange: (i, lbl) => console.log('reverb', lbl),
+  });
+
+  gridToggle = new GridPad({
+    x: 730, y: 200,
+    rows: 4, cols: 4,
+    mode: 'toggle',
+    cellSize: 18,
+    hGroup: 2, vGroup: 2,
+    label: 'PATTERN',
+    values: gridToggle ? gridToggle.values : null,
+    onChange: v => console.log('pattern', v),
+  });
+
+  tagSelector = new TagSelector({
+    x: 185, y: 300,
+    width: 285,
+    words: ['REVERB', 'DELAY', 'CHORUS', 'FLANGER', 'PHASER', 'DISTORT',
+            'COMPRESS', 'EQ', 'GATE', 'LIMITER', 'PITCH', 'RING MOD'],
+    selected: tagSelector ? tagSelector.selected : [],
+    label: 'FX',
+    onChange: (sel, added, removed) => console.log('fx', sel, added, removed),
+  });
+
+  gridPercent = new GridPad({
+    x: 20, y: 300,
+    rows: 4, cols: 8,
+    mode: 'percent',
+    cellSize: 18,
+    hGroup: 4,
+    label: 'MATRIX',
+    values: gridPercent ? gridPercent.values : null,
+    onChange: v => console.log('matrix', v),
   });
 
   styleSwitch = new AnalogSwitch({
@@ -100,6 +149,7 @@ function buildControls() {
     width: 52,
     states: LABELS,
     state: STYLES.indexOf(currentStyle),
+    springDefault: STYLES.indexOf('stainless'),
     label: 'STYLE',
     onChange: i => {
       currentStyle = STYLES[i];
@@ -107,23 +157,43 @@ function buildControls() {
     },
   });
 
+  // Preserve ADSR values across theme rebuilds
+  const aVal = multiSlider ? multiSlider.slider('A').value : 0.3;
+  const dVal = multiSlider ? multiSlider.slider('D').value : 0.4;
+  const sVal = multiSlider ? multiSlider.slider('S').value : 0.7;
+  const rVal = multiSlider ? multiSlider.slider('R').value : 0.8;
+
+  // 4 sliders × 60px + 3 gaps × 4px = 252px — matches ADSRDisplay width exactly
   multiSlider = new MultiSlider({
-    x: 20, y: 310,
-    height: 150,
-    min: -12, max: 12,
-    readout: 'raw', decimals: 1,
-    label: 'EQ',
+    x: 20, y: 410,
+    width: 60, height: 90,
+    readout: 'raw', decimals: 2,
     sliders: {
-      '60Hz':  multiSlider ? multiSlider.slider('60Hz').value  : 0,
-      '250Hz': multiSlider ? multiSlider.slider('250Hz').value : 0,
-      '2kHz':  multiSlider ? multiSlider.slider('2kHz').value  : 0,
-      '8kHz':  multiSlider ? multiSlider.slider('8kHz').value  : 0,
+      'A': { value: aVal, min: 0, max: 2 },
+      'D': { value: dVal, min: 0, max: 2 },
+      'S': { value: sVal, min: 0, max: 1 },
+      'R': { value: rVal, min: 0, max: 4 },
     },
-    onChange: v => console.log('eq', v),
+    onChange: v => {
+      if (adsrDisplay) {
+        adsrDisplay.attack  = v['A'];
+        adsrDisplay.decay   = v['D'];
+        adsrDisplay.sustain = v['S'];
+        adsrDisplay.release = v['R'];
+      }
+    },
+  });
+
+  // y = slider top (410) + fader height (90) + child label height (16) + gap (3)
+  adsrDisplay = new ADSRDisplay({
+    x: 20, y: 519,
+    width: 252, height: 115,
+    attack: aVal, decay: dVal, sustain: sVal, release: rVal,
+    label: 'ENV',
   });
 
   multiDial = new MultiDial({
-    x: 510, y: 310,
+    x: 510, y: 420,
     size: 60,
     min: 0, max: 100,
     readout: 'raw', decimals: 0,
@@ -136,45 +206,59 @@ function buildControls() {
   });
 
   rubberDial = new Dial({
-    x: 730, y: 320,
+    x: 730, y: 430,
     size: 60,
     min: 0, max: 1, value: rubberDial ? rubberDial.value : 0.6,
     label: 'RUBBER', readout: 'raw', decimals: 2,
-    dialStyle: 'rubber',
+    style: 'rubber',
   });
 
   groovedDial = new Dial({
-    x: 800, y: 320,
+    x: 800, y: 430,
     size: 60,
     min: 0, max: 1, value: groovedDial ? groovedDial.value : 0.4,
     label: 'GROOVED', readout: 'raw', decimals: 2,
-    dialStyle: 'grooved',
+    style: 'grooved',
   });
 
   pointerDial = new Dial({
-    x: 870, y: 320,
+    x: 870, y: 430,
     size: 60,
     min: 0, max: 1, value: pointerDial ? pointerDial.value : 0.75,
     label: 'POINTER', readout: 'raw', decimals: 2,
-    dialStyle: 'pointer',
+    style: 'pointer',
+  });
+
+  rangeSlider = new RangeSlider({
+    x: 480, y: 300,
+    width: 54, height: 170,
+    min: 0, max: 1,
+    valueLow:  rangeSlider ? rangeSlider.valueLow  : 0.2,
+    valueHigh: rangeSlider ? rangeSlider.valueHigh : 0.8,
+    label: 'RANGE',
+    readout: 'raw', decimals: 2,
+    onChange: (lo, hi) => console.log('range', lo, hi),
   });
 
   controls = [gainSlider, masterSlider, vuMeter, xyPad, gainDial, vuDial, ledMeter,
-              effectSelector, styleSwitch, multiSlider, multiDial,
-              rubberDial, groovedDial, pointerDial];
+              effectSelector, arrowSelector, gridToggle, gridPercent,
+              styleSwitch, multiSlider, adsrDisplay, multiDial,
+              rubberDial, groovedDial, pointerDial, tagSelector, rangeSlider];
 }
 
 function setup() {
-  createCanvas(970, 510);
+  createCanvas(970, 640);
   buildControls();
 }
 
 function draw() {
   analogBackground();
 
-  // simulate VU level driven by master fader (with noise)
-  const target = masterSlider.value * (0.8 + random(-0.1, 0.1));
-  vuLevel        = lerp(vuLevel, target, 0.25);
+  // Simulate VU level driven by master fader, modulated by slow Perlin noise
+  _noiseT += 0.002;
+  const noiseVal = noise(_noiseT);          // 0–1, slowly drifting
+  const target   = masterSlider.value * (0.4 + noiseVal * 0.7);
+  vuLevel        = lerp(vuLevel, target, 0.12);
   vuMeter.value  = vuLevel;
   vuDial.value   = vuLevel;
   ledMeter.value = vuLevel;
