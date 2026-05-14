@@ -1462,9 +1462,9 @@ class Dial extends AnalogControl {
   }
 }
 
-// ─── AnalogSwitch ─────────────────────────────────────────────────────────────
+// ─── Switch ───────────────────────────────────────────────────────────────────
 
-class AnalogSwitch extends AnalogControl {
+class Switch extends AnalogControl {
   constructor(opts = {}) {
     super(opts);
     // states: array of labels, e.g. ['OFF','ON'] or ['A','B','C']
@@ -1665,5 +1665,6 @@ window.analogControls    = function() { return [..._analogRegistry]; };
 window.analogFullReset   = function() { _analogRegistry.length = 0; _drawnThisFrame.clear(); _analogWasPressed = false; _analogWired = false; };
 window.AnalogControl     = AnalogControl;
 window.AnalogSlider      = AnalogSlider;
-window.AnalogSwitch      = AnalogSwitch;
+window.Switch            = Switch;
+window.AnalogSwitch      = Switch;        // backward-compat alias
 window.Dial              = Dial;

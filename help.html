@@ -484,13 +484,12 @@
   <span class="sep">·</span>
   <a href="#dial">Dial</a>
   <span class="sep">·</span>
-  <a href="#switch">AnalogSwitch</a>
-  <span class="sep">·</span>
   <a href="#xypad">XYPad</a>
   <span class="sep">·</span>
   <div class="nav-group">
     <a href="#selectors">Selectors</a>
     <div class="nav-submenu">
+      <a href="#switch">Switch</a>
       <a href="#selector">Selector</a>
       <a href="#tagSelector">TagSelector</a>
     </div>
@@ -985,65 +984,6 @@
 
   <hr>
 
-  <!-- AnalogSwitch -->
-  <section id="switch">
-    <h2>AnalogSwitch <span class="tag">Input</span></h2>
-    <p class="desc">An illuminated discrete selector. Two states renders as a rocker toggle — click to flip. Three or more states renders as a vertical button stack — click any slot to select it. The active slot glows with the style's accent color. Double-click any slot or the label to reset to the initial state.</p>
-
-    <div class="sig">new AnalogSwitch(opts)</div>
-
-    <h3>Options</h3>
-    <table class="opts">
-      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
-      <tbody>
-        <tr><td>states</td><td>string[]</td><td>['OFF','ON']</td><td>Array of state labels. 2 entries = rocker. 3+ entries = selector stack.</td></tr>
-        <tr><td>state</td><td>number</td><td>0</td><td>Index of the initially active state.</td></tr>
-        <tr><td>springDefault</td><td>number</td><td>state</td><td>State index to restore on double-click reset. Defaults to <code>state</code>. Useful when the control is rebuilt dynamically and you want reset to always target a fixed index.</td></tr>
-        <tr><td>width</td><td>number</td><td>48</td><td>Panel width in pixels.</td></tr>
-        <tr><td>height</td><td>number</td><td>auto</td><td>Defaults to <code>70</code> for 2-state; <code>states.length × 26 + 20</code> for N-state.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(stateIndex, stateLabel)</code> on every click.</td></tr>
-      </tbody>
-    </table>
-
-    <h3>Reading state</h3>
-    <pre><code>sw.state           <span class="cmt">// active index (readable/writable)</span>
-sw.states[sw.state] <span class="cmt">// active label string</span></code></pre>
-
-    <h3>Two-state rocker</h3>
-    <div class="example-row">
-      <div class="live-editor">
-        <div class="live-hint">editable — changes update the preview</div>
-        <textarea class="live-code" spellcheck="false">const pwr = new AnalogSwitch({
-  x: 36, y: 22,
-  width: 48,
-  states: ['OFF', 'ON'],
-  label: 'POWER',
-  state: 1,
-  onChange: (i, s) => console.log(s),
-});</textarea>
-      </div>
-      <iframe class="example-frame" src="example.html?c=switch2" width="120" height="130" scrolling="no" frameborder="0" loading="lazy" title="AnalogSwitch 2-state live example"></iframe>
-    </div>
-
-    <h3>N-state selector</h3>
-    <div class="example-row">
-      <div class="live-editor">
-        <div class="live-hint">editable — changes update the preview</div>
-        <textarea class="live-code" spellcheck="false">const sel = new AnalogSwitch({
-  x: 39, y: 18,
-  width: 52,
-  states: ['BLACK', 'STEEL', 'WHITE', 'BRUSH'],
-  state: 0,
-  label: 'STYLE',
-  onChange: (i, s) => console.log(s),
-});</textarea>
-      </div>
-      <iframe class="example-frame" src="example.html?c=switchn" width="130" height="175" scrolling="no" frameborder="0" loading="lazy" title="AnalogSwitch N-state live example"></iframe>
-    </div>
-  </section>
-
-  <hr>
-
   <!-- XYPad -->
   <section id="xypad">
     <h2>XYPad <span class="tag">Input</span></h2>
@@ -1113,9 +1053,63 @@ sw.states[sw.state] <span class="cmt">// active label string</span></code></pre>
 
   <hr>
 
-  <!-- Selectors -->
+  <!-- Selectors: Switch, Selector, TagSelector -->
   <section id="selectors">
     <h2>Selectors <span class="tag ext">Input</span></h2>
+
+    <h2 id="switch">Switch <span class="tag">Input</span></h2>
+    <p class="desc">An illuminated discrete selector. Two states renders as a rocker toggle — click to flip. Three or more states renders as a vertical button stack — click any slot to select it. The active slot glows with the style's accent color. Double-click any slot or the label to reset to the initial state.</p>
+
+    <div class="sig">new Switch(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>states</td><td>string[]</td><td>['OFF','ON']</td><td>Array of state labels. 2 entries = rocker. 3+ entries = selector stack.</td></tr>
+        <tr><td>state</td><td>number</td><td>0</td><td>Index of the initially active state.</td></tr>
+        <tr><td>springDefault</td><td>number</td><td>state</td><td>State index to restore on double-click reset. Defaults to <code>state</code>. Useful when the control is rebuilt dynamically and you want reset to always target a fixed index.</td></tr>
+        <tr><td>width</td><td>number</td><td>48</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>auto</td><td>Defaults to <code>70</code> for 2-state; <code>states.length × 26 + 20</code> for N-state.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(stateIndex, stateLabel)</code> on every click.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Reading state</h3>
+    <pre><code>sw.state            <span class="cmt">// active index (readable/writable)</span>
+sw.states[sw.state]  <span class="cmt">// active label string</span></code></pre>
+
+    <h3>Two-state rocker</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const pwr = new Switch({
+  x: 36, y: 22,
+  width: 48,
+  states: ['OFF', 'ON'],
+  label: 'POWER',
+  state: 1,
+  onChange: (i, s) => console.log(s),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=switch2" width="120" height="130" scrolling="no" frameborder="0" loading="lazy" title="Switch 2-state live example"></iframe>
+    </div>
+
+    <h3>N-state selector</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const sel = new Switch({
+  x: 39, y: 18,
+  width: 52,
+  states: ['BLACK', 'STEEL', 'WHITE', 'BRUSH'],
+  state: 0,
+  label: 'STYLE',
+  onChange: (i, s) => console.log(s),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=switchn" width="130" height="175" scrolling="no" frameborder="0" loading="lazy" title="Switch N-state live example"></iframe>
+    </div>
 
     <h2 id="selector">Selector <span class="tag ext">Input</span></h2>
     <p class="desc">A multi-style option selector. Set <code>style</code> to choose the visual style. Scroll wheel and touch work for all styles. Double-click the selection display or the label to reset to the initial option (double-clicking the arrow buttons or gear wheel advances state as normal).</p>
