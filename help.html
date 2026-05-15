@@ -466,6 +466,31 @@
       .example-row { flex-direction: column; }
       .example-frame { align-self: center; }
     }
+
+    /* ── Pre-release badge ── */
+    .prerelease-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #ff990018;
+      border: 1px solid #ff990055;
+      color: #ffbb44;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 4px;
+      margin-bottom: 22px;
+    }
+    .prerelease-badge::before {
+      content: '';
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #ffaa33;
+      box-shadow: 0 0 6px #ffaa33aa;
+    }
   </style>
 </head>
 <body>
@@ -530,22 +555,26 @@
   <a href="#themes">Themes &amp; Styles</a>
   <span class="sep">·</span>
   <a href="#touch">Events</a>
+  <span class="sep">·</span>
+  <a href="LICENSE" target="_blank">License</a>
   <a href="demo.html" class="demo-link" target="_blank">↗ Live Demo</a>
 </nav>
 
 <!-- ── Hero ── -->
 <div class="hero">
   <div class="hero-inner">
+    <div class="prerelease-badge">Pre-Release — API subject to change</div>
     <h1>
       <span class="accent">Pro</span><span class="dim">Controls</span> <span class="dim">for p5.js</span>
     </h1>
     <p class="hero-desc">
-      Hardware-style UI components for p5.js — sliders, knobs, VU meters, XY pads, LED displays, and switches. Four built-in visual styles, touch-ready, zero event boilerplate.
+      A rich set of hardware-inspired UI controls for p5.js sketches — faders, rotary knobs, XY pads, step-sequencer grids, VU meters, LED displays, ADSR envelopes, menus, dialogs, and more. Built by David Stein. Drop in two script tags, set a style, and your controls wire themselves up — no event handlers, no layout math, no boilerplate. Four built-in themes (black, stainless, white, brushed) plus touch support out of the box.
     </p>
     <div class="hero-chips">
       <span class="chip">ProControls.js</span>
       <span class="chip">CustomControls.js</span>
       <span class="chip">p5.js 1.9+</span>
+      <span class="chip">MIT License</span>
       <a href="demo.html" class="chip chip-demo" target="_blank">↗ Live Demo</a>
     </div>
   </div>
