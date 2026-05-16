@@ -2040,6 +2040,7 @@ for (let i = 0; i &lt; 4; i++) {
         <tr><td>fontSize</td><td>number</td><td>12</td><td>Base font size in pixels. Headings scale relative to this.</td></tr>
         <tr><td>padding</td><td>number</td><td>10</td><td>Inner padding on all sides.</td></tr>
         <tr><td>lineSpacing</td><td>number</td><td>1.5</td><td>Line-height multiplier applied to <code>fontSize</code>.</td></tr>
+        <tr><td>onClick</td><td>function</td><td>null</td><td>Called on any click inside the panel. Receives the link's URL string when a link is clicked, or <code>null</code> when clicking non-link text.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
       </tbody>
     </table>
@@ -2102,6 +2103,9 @@ A hardware-inspired UI library for [[https://p5js.org|p5.js]].
 ----
 : '''''Scroll for more'''''
 This panel supports '''bold''', ''italic'', and '''''bold italic''''' text inline with normal paragraphs. Long lines wrap automatically within the panel width.\`,
+  onClick: (href) => {
+    if (href) window.open(href, '_blank');
+  },
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=markup&s=black" width="280" height="220" scrolling="no" frameborder="0" loading="lazy" title="Markup live example"></iframe>

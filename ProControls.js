@@ -5761,6 +5761,7 @@ class Markup extends ProControl {
     this._popupHref    = null; // href shown in the URL popup, null = hidden
     this._clickHandler = null;
     this._clickCanvas  = null;
+    this.onClick       = opts.onClick ?? null; // onClick(href|null)
     this.text          = opts.text ?? '';   // setter parses immediately
   }
 
@@ -6127,10 +6128,12 @@ class Markup extends ProControl {
       if (mouseX >= lnk.x && mouseX <= lnk.x + lnk.w &&
           mouseY >= lnk.y && mouseY <= lnk.y + lnk.h) {
         this._popupHref = lnk.href;
+        if (this.onClick) this.onClick(lnk.href);
         return;
       }
     }
-    this._popupHref = null;   // click outside any link → dismiss
+    this._popupHref = null;
+    if (this.onClick) this.onClick(null);
   }
 
   // window.open() requires a trusted user-gesture event (not rAF / the pre-hook).
