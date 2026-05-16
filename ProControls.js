@@ -1939,10 +1939,16 @@ class XYPad extends ProControl {
   }
 
   get valueX() { return this._valueX; }
-  set valueX(v) { this._valueX = Math.min(Math.max(v, this.minX), this.maxX); }
+  set valueX(v) {
+    this._valueX = Math.min(Math.max(v, this.minX), this.maxX);
+    if ((v < this.minX || v > this.maxX) && this.springBack) this._startSpring();
+  }
 
   get valueY() { return this._valueY; }
-  set valueY(v) { this._valueY = Math.min(Math.max(v, this.minY), this.maxY); }
+  set valueY(v) {
+    this._valueY = Math.min(Math.max(v, this.minY), this.maxY);
+    if ((v < this.minY || v > this.maxY) && this.springBack) this._startSpring();
+  }
 
   _normX() {
     if (this.scaleX === 'log') return Math.log(this.valueX / this.minX) / Math.log(this.maxX / this.minX);
