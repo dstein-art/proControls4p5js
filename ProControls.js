@@ -5873,7 +5873,7 @@ class Markup extends ProControl {
         if (!part) continue;
         const pw = gc.measureText(part).width;
         if (x + pw > maxW && x > 0 && part.trim()) flush();
-        cur.push({ text: part, bold: tok.bold, italic: tok.italic, link: tok.link, x, w: pw });
+        cur.push({ text: part, bold: tok.bold, italic: tok.italic, link: tok.link, href: tok.href, x, w: pw });
         x += pw;
       }
     }
