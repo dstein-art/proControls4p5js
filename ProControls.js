@@ -6145,8 +6145,10 @@ class Markup extends ProControl {
     for (const lnk of this._links) {
       if (mouseX >= lnk.x && mouseX <= lnk.x + lnk.w &&
           mouseY >= lnk.y && mouseY <= lnk.y + lnk.h) {
-        this._popupHref = lnk.href;
-        if (this.onClick) this.onClick(lnk.href);
+        if (this.onClick) {
+          this._popupHref = lnk.href;
+          this.onClick(lnk.href);
+        }
         return;
       }
     }
@@ -6154,22 +6156,31 @@ class Markup extends ProControl {
     if (this.onClick) this.onClick(null);
   }
 
+  _isValidUrl(href) {
+    try { const u = new URL(href); return u.protocol === 'http:' || u.protocol === 'https:'; }
+    catch { return false; }
+  }
+
   // window.open() requires a trusted user-gesture event (not rAF / the pre-hook).
   // We attach a native 'click' listener directly to the canvas so the browser
   // treats it as user-initiated and allows the new tab to open.
+  // Only registered when no onClick handler is set — if onClick is provided, the
+  // caller is responsible for navigation.
   _ensureClickHandler() {
+    if (this.onClick) return;
     if (this._clickHandler) return;
     const canvas = document.querySelector('canvas');
     if (!canvas) return;
     this._clickCanvas  = canvas;
     this._clickHandler = (e) => {
+      if (this.onClick) return; // onClick added after registration — defer to it
       const r  = canvas.getBoundingClientRect();
       const mx = (e.clientX - r.left) * (canvas.width / r.width / (window.devicePixelRatio || 1));
       const my = (e.clientY - r.top)  * (canvas.height / r.height / (window.devicePixelRatio || 1));
       for (const lnk of this._links) {
         if (mx >= lnk.x && mx <= lnk.x + lnk.w &&
             my >= lnk.y && my <= lnk.y + lnk.h) {
-          window.open(lnk.href, '_blank', 'noopener');
+          if (this._isValidUrl(lnk.href)) window.open(lnk.href, '_blank', 'noopener');
           break;
         }
       }
