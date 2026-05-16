@@ -5757,8 +5757,10 @@ class Markup extends ProControl {
     this._contentH   = 0;
     this._hovered    = false;
     this._blocks     = [];
-    this._links      = [];   // [{x,y,w,h,href}] rebuilt each draw frame
-    this.text        = opts.text ?? '';   // setter parses immediately
+    this._links        = [];   // [{x,y,w,h,href}] rebuilt each draw frame
+    this._clickHandler = null;
+    this._clickCanvas  = null;
+    this.text          = opts.text ?? '';   // setter parses immediately
   }
 
   get text()  { return this._text; }
@@ -5881,6 +5883,7 @@ class Markup extends ProControl {
 
   draw() {
     this._markDrawn();
+    this._ensureClickHandler();
     const { x, y, padding: pad, fontSize: fs, lineSpacing: ls } = this;
     const pw = this.width, ph = this.height;
     const lh = fs * ls;
@@ -6079,14 +6082,33 @@ class Markup extends ProControl {
                     mouseY >= this.y && mouseY <= this.y + this.height;
   }
 
-  mousePressed() {
-    for (const lnk of this._links) {
-      if (mouseX >= lnk.x && mouseX <= lnk.x + lnk.w &&
-          mouseY >= lnk.y && mouseY <= lnk.y + lnk.h) {
-        window.open(lnk.href, '_blank', 'noopener');
-        return;
+  // window.open() requires a trusted user-gesture event (not rAF / the pre-hook).
+  // We attach a native 'click' listener directly to the canvas so the browser
+  // treats it as user-initiated and allows the new tab to open.
+  _ensureClickHandler() {
+    if (this._clickHandler) return;
+    const canvas = document.querySelector('canvas');
+    if (!canvas) return;
+    this._clickCanvas  = canvas;
+    this._clickHandler = (e) => {
+      const r  = canvas.getBoundingClientRect();
+      const mx = (e.clientX - r.left) * (canvas.width / r.width / (window.devicePixelRatio || 1));
+      const my = (e.clientY - r.top)  * (canvas.height / r.height / (window.devicePixelRatio || 1));
+      for (const lnk of this._links) {
+        if (mx >= lnk.x && mx <= lnk.x + lnk.w &&
+            my >= lnk.y && my <= lnk.y + lnk.h) {
+          window.open(lnk.href, '_blank', 'noopener');
+          break;
+        }
       }
-    }
+    };
+    canvas.addEventListener('click', this._clickHandler);
+  }
+
+  remove() {
+    if (this._clickCanvas && this._clickHandler)
+      this._clickCanvas.removeEventListener('click', this._clickHandler);
+    super.remove();
   }
 
   mouseWheel(e) {
