@@ -1977,6 +1977,32 @@ class XYPad extends ProControl {
     const { x, y, width: w, height: h } = this;
     this._drawPanel(x, y, w, h);
 
+    if (ControlStyle === 'dimpled') {
+      const gc = drawingContext;
+      const spacing = 7;
+      const r = 1.4;
+      gc.save();
+      gc.beginPath();
+      gc.roundRect(x, y, w, h, 4);
+      gc.clip();
+      let row = 0;
+      for (let gy = spacing / 2; gy < y + h; gy += spacing) {
+        const xOff = (row % 2 === 1) ? spacing / 2 : 0;
+        for (let gx = x + spacing / 2 + xOff; gx < x + w + spacing; gx += spacing) {
+          gc.beginPath();
+          gc.arc(gx, gy, r, 0, Math.PI * 2);
+          gc.fillStyle = 'rgba(0,0,0,0.18)';
+          gc.fill();
+          gc.beginPath();
+          gc.arc(gx - 0.6, gy - 0.6, r * 0.5, 0, Math.PI * 2);
+          gc.fillStyle = 'rgba(255,255,255,0.20)';
+          gc.fill();
+        }
+        row++;
+      }
+      gc.restore();
+    }
+
     if (this._hovered && !this.disabled) {
       push();
       noStroke();
@@ -5748,11 +5774,9 @@ class Markup extends ProControl {
     this._contentH   = 0;
     this._hovered    = false;
     this._blocks     = [];
-    this._links        = [];   // [{x,y,w,h,href}] rebuilt each draw frame
-    this._popupHref    = null; // href shown in the URL popup, null = hidden
-    this._clickHandler = null;
-    this._clickCanvas  = null;
-    this.onClick       = opts.onClick ?? null; // onClick(href|null)
+    this._links      = [];   // [{x,y,w,h,href}] rebuilt each draw frame
+    this._popupHref  = null; // href shown in the URL popup, null = hidden
+    this.onClick     = opts.onClick ?? null; // onClick(href|null)
     this.text          = opts.text ?? '';   // setter parses immediately
   }
 
@@ -5876,7 +5900,6 @@ class Markup extends ProControl {
 
   draw() {
     this._markDrawn();
-    this._ensureClickHandler();
     const { x, y, padding: pad, fontSize: fs, lineSpacing: ls } = this;
     const pw = this.width, ph = this.height;
     const lh = fs * ls;
@@ -6113,7 +6136,7 @@ class Markup extends ProControl {
     this._hovered = mouseX >= this.x && mouseX <= this.x + this.width &&
                     mouseY >= this.y && mouseY <= this.y + this.height;
 
-    const canvas = this._clickCanvas ?? document.querySelector('canvas');
+    const canvas = document.querySelector('canvas');
     if (!canvas) return;
 
     if (this._hovered) {
@@ -6139,6 +6162,8 @@ class Markup extends ProControl {
         if (this.onClick) {
           this._popupHref = lnk.href;
           this.onClick(lnk.href);
+        } else if (this._isValidUrl(lnk.href)) {
+          window.open(lnk.href, '_blank');
         }
         return;
       }
@@ -6148,41 +6173,9 @@ class Markup extends ProControl {
   }
 
   _isValidUrl(href) {
+    if (href.startsWith('/')) return true;
     try { const u = new URL(href); return u.protocol === 'http:' || u.protocol === 'https:'; }
     catch { return false; }
-  }
-
-  // window.open() requires a trusted user-gesture event (not rAF / the pre-hook).
-  // We attach a native 'click' listener directly to the canvas so the browser
-  // treats it as user-initiated and allows the new tab to open.
-  // Only registered when no onClick handler is set — if onClick is provided, the
-  // caller is responsible for navigation.
-  _ensureClickHandler() {
-    if (this.onClick) return;
-    if (this._clickHandler) return;
-    const canvas = document.querySelector('canvas');
-    if (!canvas) return;
-    this._clickCanvas  = canvas;
-    this._clickHandler = (e) => {
-      if (this.onClick) return; // onClick added after registration — defer to it
-      const r  = canvas.getBoundingClientRect();
-      const mx = (e.clientX - r.left) * (canvas.width / r.width / (window.devicePixelRatio || 1));
-      const my = (e.clientY - r.top)  * (canvas.height / r.height / (window.devicePixelRatio || 1));
-      for (const lnk of this._links) {
-        if (mx >= lnk.x && mx <= lnk.x + lnk.w &&
-            my >= lnk.y && my <= lnk.y + lnk.h) {
-          if (this._isValidUrl(lnk.href)) window.open(lnk.href, '_blank', 'noopener');
-          break;
-        }
-      }
-    };
-    canvas.addEventListener('click', this._clickHandler);
-  }
-
-  remove() {
-    if (this._clickCanvas && this._clickHandler)
-      this._clickCanvas.removeEventListener('click', this._clickHandler);
-    super.remove();
   }
 
   mouseWheel(e) {
