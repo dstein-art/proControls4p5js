@@ -61,6 +61,7 @@ const SIZES = {
   menu_right:      [200, 240],
   menu_popup:      [300, 200],
   markup:          [280, 220],
+  consolePanel:    [360, 200],
 };
 
 const [W, H] = SIZES[CTRL] || [300, 200];
@@ -624,6 +625,25 @@ const dlg = new MessageDialog({
   buttons: ['Cancel', 'Discard'],
   onButton: (i, lbl) => console.log(i, lbl),
 });`,
+
+  consolePanel: `\
+const con = new ConsolePanel({
+  x: 0, y: 0,
+  width: 360, height: 200,
+  label: 'Console',
+  minimizable: false,
+  movable: false,
+  resizable: false,
+});
+console.log('Sketch started — ProControls v1.0');
+console.info('ControlStyle: ' + ControlStyle);
+console.log('Canvas: 360 × 200');
+console.warn('Low audio buffer — consider increasing latency');
+console.log('frameRate target: 60 fps');
+console.log('frameRate target: 60 fps');
+console.log('frameRate target: 60 fps');
+console.error('AudioContext suspended — user gesture required');
+console.log('setup() complete');`,
 
   markup: `\
 const doc = new Markup({
