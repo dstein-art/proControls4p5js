@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-05-18 11:46 — commit c7868e6
+// Last updated: 2026-05-18 12:54 — commit 8039650
 
 // Set ControlStyle before creating controls to choose a built-in look.
 // Per-control overrides still work via opts.theme.
@@ -6337,7 +6337,7 @@ window.Markup = Markup;
 // Intercepts console.log/warn/error/info, window errors, and unhandled promise
 // rejections, displaying them as a scrollable, color-coded log panel.
 //
-// opts: x, y, width, height, label, movable, resizable,
+// opts: x, y, width, height, label, movable, resizable, minimizable,
 //       maxMessages, timestamps, intercept[], theme
 
 class ConsolePanel extends ProControl {
@@ -6347,23 +6347,25 @@ class ConsolePanel extends ProControl {
     this.height      = opts.height      ?? 200;
     this.label       = opts.label       ?? 'Console';
     this.movable     = opts.movable     !== false;
-    this.resizable   = opts.resizable   ?? false;
+    this.resizable   = opts.resizable   !== false;
+    this.minimizable = opts.minimizable !== false;
+    this._minimized  = opts.minimized   ?? false;
     this._maxMsgs    = opts.maxMessages ?? 100;
     this._showTime   = opts.timestamps  !== false;
 
-    this._msgs          = [];   // { type, text, time, lines, lineCount }
+    this._msgs          = [];   // { type, text, time, count, lines, lineCount }
     this._scrollY       = 0;
     this._contentH      = 0;
-    this._autoScroll    = true;
     this._layoutDirty   = true;
     this._lastWidth     = this.width;
     this._pendingBottom = false;
 
-    this._rowH    = 13;
-    this._padX    = 6;
-    this._padY    = 4;
-    this._sbW     = 6;
-    this._gripSz  = 12;
+    this._rowH   = 13;
+    this._padX   = 6;
+    this._padY   = 4;
+    this._sbW    = 6;
+    this._gripSz = 12;
+    this._btnSz  = 10;
 
     this._clrHov        = false;
     this._dragSB        = false;
@@ -6397,6 +6399,9 @@ class ConsolePanel extends ProControl {
     this._layoutDirty = true;
   }
 
+  get minimized()  { return this._minimized; }
+  set minimized(v) { this._minimized = !!v; }
+
   get messages() { return [...this._msgs]; }
 
   remove() {
@@ -6417,29 +6422,59 @@ class ConsolePanel extends ProControl {
       return String(a);
     }).join(' ');
 
-    const d = new Date();
+    const d    = new Date();
     const time = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
-    this._msgs.push({ type, text, time, lines: null, lineCount: 1 });
+
+    // Collapse consecutive identical messages — update count and timestamp
+    const last = this._msgs.length > 0 ? this._msgs[this._msgs.length - 1] : null;
+    if (last && last.text === text && last.type === type) {
+      last.count++;
+      last.time  = time;
+      last.lines = null;   // invalidate so prefix re-renders with new count/time
+      this._layoutDirty   = true;
+      this._pendingBottom = true;
+      return;
+    }
+
+    this._msgs.push({ type, text, time, count: 1, lines: null, lineCount: 1 });
     if (this._msgs.length > this._maxMsgs) this._msgs.shift();
-    this._layoutDirty = true;
-    if (this._autoScroll) this._pendingBottom = true;
+    this._layoutDirty   = true;
+    this._pendingBottom = true;
   }
 
   // ── Geometry ──────────────────────────────────────────────────────────────
 
-  get _titleH()   { return 20; }
-  _bodyH()        { return this.height - this._titleH; }
-  _needsScroll()  { return this._contentH > this._bodyH(); }
-  _maxScrollY()   { return Math.max(0, this._contentH - this._bodyH()); }
+  get _titleH()  { return 20; }
+  _drawnH()      { return this._minimized ? this._titleH : this.height; }
+  _bodyH()       { return this.height - this._titleH; }
+  _needsScroll() { return this._contentH > this._bodyH(); }
+  _maxScrollY()  { return Math.max(0, this._contentH - this._bodyH()); }
 
   _inBounds(mx, my) {
     return mx >= this.x && mx <= this.x + this.width &&
-           my >= this.y && my <= this.y + this.height;
+           my >= this.y && my <= this.y + this._drawnH();
   }
 
+  // Minimize toggle button — right side of title bar
+  _btnRect() {
+    const bx = this.x + this.width - this._btnSz - 5;
+    const by = this.y + (this._titleH - this._btnSz) / 2;
+    return { bx, by, bsz: this._btnSz };
+  }
+
+  _hitBtn(mx, my) {
+    if (!this.minimizable) return false;
+    const { bx, by, bsz } = this._btnRect();
+    return mx >= bx && mx <= bx + bsz && my >= by && my <= by + bsz;
+  }
+
+  // CLR button — left of the minimize toggle button
   _clrBtnRect() {
-    const bw = 24, bh = 14, pad = 5;
-    return { x: this.x + this.width - bw - pad, y: this.y + (this._titleH - bh) / 2, w: bw, h: bh };
+    const bw = 24, bh = 14;
+    const rightX = this.minimizable
+      ? this.x + this.width - this._btnSz - 5 - 4 - bw
+      : this.x + this.width - bw - 5;
+    return { x: rightX, y: this.y + (this._titleH - bh) / 2, w: bw, h: bh };
   }
 
   _inClrBtn(mx, my) {
@@ -6448,7 +6483,7 @@ class ConsolePanel extends ProControl {
   }
 
   _inResizeHandle(mx, my) {
-    if (!this.resizable) return false;
+    if (!this.resizable || this._minimized) return false;
     return mx >= this.x + this.width  - this._gripSz && mx <= this.x + this.width &&
            my >= this.y + this.height - this._gripSz && my <= this.y + this.height;
   }
@@ -6462,7 +6497,6 @@ class ConsolePanel extends ProControl {
     textSize(9);
     if (this.theme.font) textFont(this.theme.font);
 
-    // Invalidate wrapped lines for any message whose cached width is stale
     if (this._lastWidth !== this.width) {
       for (const m of this._msgs) m.lines = null;
       this._lastWidth = this.width;
@@ -6471,7 +6505,8 @@ class ConsolePanel extends ProControl {
     let h = this._padY;
     for (const m of this._msgs) {
       if (!m.lines) {
-        const prefix = this._showTime ? `[${m.time}] ` : '';
+        const countSuffix = m.count > 1 ? ` ×${m.count}` : '';
+        const prefix = this._showTime ? `[${m.time}${countSuffix}] ` : (m.count > 1 ? `×${m.count} ` : '');
         m.lines     = _dialogWrapText(prefix + m.text, availW);
         m.lineCount = m.lines.length || 1;
       }
@@ -6479,7 +6514,7 @@ class ConsolePanel extends ProControl {
     }
     this._contentH = h + this._padY;
 
-    // Re-check scroll need and redo if scrollbar just appeared/disappeared
+    // Re-run if scrollbar appearance changed (affects available width)
     const needsNow = this._contentH > this._bodyH();
     if (needsNow !== this._hadScroll) {
       this._hadScroll = needsNow;
@@ -6508,27 +6543,27 @@ class ConsolePanel extends ProControl {
   draw() {
     this._markDrawn();
     const { x, y, width, theme } = this;
+    const drawnH   = this._drawnH();
     const contentY = y + this._titleH;
 
-    // Background
     push();
     fill(theme.panel);
     stroke(theme.panelStroke);
     strokeWeight(1);
-    rect(x, y, width, this.height, 4);
+    rect(x, y, width, drawnH, 4);
     pop();
 
-    // Title bar
-    _drawBevelTitleBar(theme, x, y, width, this._titleH, false, this.label);
+    _drawBevelTitleBar(theme, x, y, width, this._titleH, this._minimized, this.label);
     this._drawClrBtn();
+    if (this.minimizable) this._drawToggleBtn();
 
-    // Compute layout inside a push() so textWidth() is available
+    if (this._minimized) return;
+
     push();
     textSize(9);
     if (this.theme.font) textFont(this.theme.font);
     if (this._layoutDirty) this._buildLayout();
 
-    // Clip and draw message rows
     const bodyH = this._bodyH();
     const gc    = drawingContext;
     gc.save();
@@ -6552,11 +6587,27 @@ class ConsolePanel extends ProControl {
     gc.restore();
     pop();
 
-    // Scrollbar
     if (this._needsScroll()) this._drawScrollBar(contentY, bodyH);
-
-    // Resize grip
     if (this.resizable) this._drawResizeGrip();
+  }
+
+  _drawToggleBtn() {
+    const { bx, by, bsz } = this._btnRect();
+    const hovered = mouseX >= bx && mouseX <= bx + bsz && mouseY >= by && mouseY <= by + bsz;
+    const { theme } = this;
+    push();
+    noStroke();
+    fill(hovered
+      ? lerpColor(color(theme.capBody), color(theme.capHighlight), 0.5)
+      : lerpColor(color(theme.panel), color(theme.panelStroke), 0.6));
+    rect(bx, by, bsz, bsz, 2);
+    stroke(theme.label);
+    strokeWeight(1.5);
+    noFill();
+    const cx = bx + bsz / 2, cy = by + bsz / 2, arm = bsz * 0.28;
+    line(cx - arm, cy, cx + arm, cy);
+    if (this._minimized) line(cx, cy - arm, cx, cy + arm);
+    pop();
   }
 
   _drawClrBtn() {
@@ -6602,12 +6653,12 @@ class ConsolePanel extends ProControl {
     fill(col);
     const cx = x + width, cy = y + height;
     const d = 1.8, sp = 4;
-    ellipse(cx - 3,       cy - 3,       d, d);
-    ellipse(cx - 3 - sp,  cy - 3,       d, d);
-    ellipse(cx - 3,       cy - 3 - sp,  d, d);
-    ellipse(cx - 3-sp*2,  cy - 3,       d, d);
-    ellipse(cx - 3 - sp,  cy - 3 - sp,  d, d);
-    ellipse(cx - 3,       cy - 3-sp*2,  d, d);
+    ellipse(cx - 3,      cy - 3,      d, d);
+    ellipse(cx - 3 - sp, cy - 3,      d, d);
+    ellipse(cx - 3,      cy - 3 - sp, d, d);
+    ellipse(cx - 3-sp*2, cy - 3,      d, d);
+    ellipse(cx - 3 - sp, cy - 3 - sp, d, d);
+    ellipse(cx - 3,      cy - 3-sp*2, d, d);
     pop();
   }
 
@@ -6638,14 +6689,13 @@ class ConsolePanel extends ProControl {
       if (range > 0) {
         const dy = mouseY - this._dragSBRef.my;
         this._scrollY = constrain(this._dragSBRef.scrollY + dy * (this._maxScrollY() / range), 0, this._maxScrollY());
-        this._autoScroll = this._scrollY >= this._maxScrollY() - 2;
       }
       return;
     }
 
     this._clrHov = this._inClrBtn(mouseX, mouseY);
 
-    if (this.resizable) {
+    if (this.resizable && !this._minimized) {
       const was = this._gripHovered;
       this._gripHovered = this._inResizeHandle(mouseX, mouseY);
       if (this._gripHovered !== was) {
@@ -6658,6 +6708,11 @@ class ConsolePanel extends ProControl {
   mousePressed() {
     if (!this._inBounds(mouseX, mouseY)) return;
 
+    if (this._hitBtn(mouseX, mouseY)) {
+      this._minimized = !this._minimized;
+      return;
+    }
+
     if (this._inClrBtn(mouseX, mouseY)) { this.clear(); return; }
 
     if (this.movable && mouseY < this.y + this._titleH) {
@@ -6665,6 +6720,8 @@ class ConsolePanel extends ProControl {
       this._dragPanelOff  = { dx: mouseX - this.x, dy: mouseY - this.y };
       return;
     }
+
+    if (this._minimized) return;
 
     if (this._inResizeHandle(mouseX, mouseY)) { this._resizing = true; return; }
 
@@ -6687,10 +6744,9 @@ class ConsolePanel extends ProControl {
   }
 
   mouseWheel(e) {
-    if (!this._inBounds(mouseX, mouseY)) return;
+    if (this._minimized || !this._inBounds(mouseX, mouseY)) return;
     const dy = e.deltaY ?? e.delta ?? 0;
-    this._scrollY    = constrain(this._scrollY + dy * 0.4, 0, this._maxScrollY());
-    this._autoScroll = this._scrollY >= this._maxScrollY() - 2;
+    this._scrollY = constrain(this._scrollY + dy * 0.4, 0, this._maxScrollY());
     return false;
   }
 }
