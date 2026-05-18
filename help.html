@@ -573,6 +573,7 @@
       <a href="#adsr">ADSRDisplay</a>
       <a href="#markup">Markup</a>
       <a href="#consolePanel">ConsolePanel</a>
+      <a href="#timeGraphPanel">TimeGraphPanel</a>
     </div>
   </div>
   <span class="sep">·</span>
@@ -2260,6 +2261,76 @@ console.error('Something went wrong');
 for (let i = 0; i &lt; 5; i++) console.log('redraw tick');</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=consolePanel" width="400" height="220" scrolling="no" frameborder="0" loading="lazy" title="ConsolePanel live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- TimeGraphPanel -->
+  <section id="timeGraphPanel">
+    <h2>TimeGraphPanel <span class="tag ext">Display</span></h2>
+    <p class="desc">A scrolling time-series line graph panel. Push data points each frame to plot them against time — the oldest point scrolls off the left edge as new ones arrive on the right. Pass a plain number to plot a single variable, or an object (<code>{key: value, …}</code>) to plot multiple named variables simultaneously, each drawn in its own color with a legend. Y-axis range is auto-scaled to the data with 8% padding, or fixed by setting <code>min</code> and <code>max</code>. The panel is movable, resizable, and minimizable by default.</p>
+
+    <div class="sig">new TimeGraphPanel(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>20, 20</td><td>Canvas position of the panel's top-left corner.</td></tr>
+        <tr><td>width</td><td>number</td><td>360</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>200</td><td>Panel height in pixels.</td></tr>
+        <tr><td>label</td><td>string</td><td>'Time Graph'</td><td>Text shown in the title bar.</td></tr>
+        <tr><td>maxSamples</td><td>number</td><td>200</td><td>Maximum number of data points retained. Oldest points are discarded when the buffer is full.</td></tr>
+        <tr><td>min</td><td>number</td><td>auto</td><td>Fixed Y-axis minimum. Omit for auto-scaling.</td></tr>
+        <tr><td>max</td><td>number</td><td>auto</td><td>Fixed Y-axis maximum. Omit for auto-scaling.</td></tr>
+        <tr><td>lineWidth</td><td>number</td><td>1.5</td><td>Stroke weight for data lines in pixels.</td></tr>
+        <tr><td>grid</td><td>boolean</td><td>true</td><td>Show horizontal grid lines at 25%, 50%, and 75% of the Y range.</td></tr>
+        <tr><td>legend</td><td>boolean</td><td>true</td><td>Show a color legend in the top-right corner of the plot (only visible when graphing multiple variables).</td></tr>
+        <tr><td>movable</td><td>boolean</td><td>true</td><td>Allow repositioning by dragging the title bar.</td></tr>
+        <tr><td>resizable</td><td>boolean</td><td>true</td><td>Show a resize grip in the bottom-right corner.</td></tr>
+        <tr><td>minimizable</td><td>boolean</td><td>true</td><td>Show a −/+ toggle button to collapse the panel to just the title bar.</td></tr>
+        <tr><td>minimized</td><td>boolean</td><td>false</td><td>Initial minimized state.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties &amp; methods</h3>
+    <table class="opts">
+      <thead><tr><th>Name</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.push(value)</code></td><td>Add a data point. Pass a <code>number</code> for single-variable mode, or a plain object (<code>{key: value, …}</code>) for multi-variable mode. Switching between modes resets the data buffer.</td></tr>
+        <tr><td><code>.clear()</code></td><td>Remove all data points and reset variable tracking.</td></tr>
+        <tr><td><code>.data</code></td><td>Read-only getter. Returns a shallow copy of the current data array.</td></tr>
+        <tr><td><code>.minimized</code></td><td>Get/set. Collapses the panel to just the title bar when <code>true</code>.</td></tr>
+        <tr><td><code>.visible</code></td><td>Get/set. Hides the panel and suppresses events when <code>false</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example — single variable</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const g = new TimeGraphPanel({
+  x: 20, y: 18,
+  width: 280, height: 160,
+  label: 'Amplitude',
+  min: -1, max: 1,
+});
+
+// Call g.push() inside draw() to feed live data:
+// g.push(sin(frameCount * 0.05));</textarea>
+      <iframe class="example-frame" src="example.html?c=timeGraphPanel&s=black" width="380" height="220" scrolling="no" frameborder="0" loading="lazy" title="TimeGraphPanel live example"></iframe>
+    </div>
+
+    <h3>Example — multiple variables</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const g = new TimeGraphPanel({
+  x: 20, y: 18,
+  width: 280, height: 160,
+  label: 'Sensors',
+});
+
+// Pass an object to plot named variables together:
+// g.push({ rpm: 3400, temp: 85, load: 0.72 });</textarea>
     </div>
   </section>
 

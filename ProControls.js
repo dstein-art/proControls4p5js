@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-05-18 13:13 — commit 101406c
+// Last updated: 2026-05-18 13:33 — commit 693d54f
 
 // Set ControlStyle before creating controls to choose a built-in look.
 // Per-control overrides still work via opts.theme.
@@ -6756,3 +6756,378 @@ class ConsolePanel extends ProControl {
 }
 
 window.ConsolePanel = ConsolePanel;
+
+// ─── TimeGraphPanel ───────────────────────────────────────────────────────────
+// Scrolling time-series line graph. Push a number for a single variable, or
+// an object {key:value, ...} to graph multiple named variables simultaneously.
+//
+// opts: x, y, width, height, label, movable, resizable, minimizable,
+//       maxSamples, min, max, lineWidth, grid, legend, theme
+
+function _fmtNum(v) {
+  const a = Math.abs(v);
+  if (a === 0)      return '0';
+  if (a >= 10000)   return (v / 1000).toFixed(0) + 'k';
+  if (a >= 1000)    return (v / 1000).toFixed(1) + 'k';
+  if (a >= 100)     return v.toFixed(0);
+  if (a >= 10)      return v.toFixed(1);
+  if (a >= 1)       return v.toFixed(2);
+  if (a >= 0.01)    return v.toFixed(3);
+  return v.toPrecision(2);
+}
+
+class TimeGraphPanel extends ProControl {
+  constructor(opts = {}) {
+    super(Object.assign({ min: 0, max: 1, value: 0 }, opts));
+    this.width       = opts.width       ?? 360;
+    this.height      = opts.height      ?? 200;
+    this.label       = opts.label       ?? 'Time Graph';
+    this._visible    = opts.visible     !== false;
+    this.movable     = opts.movable     !== false;
+    this.resizable   = opts.resizable   !== false;
+    this.minimizable = opts.minimizable !== false;
+    this._minimized  = opts.minimized   ?? false;
+
+    this._maxSamples = opts.maxSamples ?? 200;
+    this._yMin       = opts.min !== undefined ? opts.min : null;
+    this._yMax       = opts.max !== undefined ? opts.max : null;
+    this._lineWidth  = opts.lineWidth  ?? 1.5;
+    this._showGrid   = opts.grid       !== false;
+    this._showLegend = opts.legend     !== false;
+
+    this._data     = [];
+    this._keys     = [];
+    this._isObj    = false;
+    this._colorMap = {};
+
+    this._palette = [
+      '#00ccff', '#ff6644', '#44ee88', '#ffcc00',
+      '#ff44cc', '#88aaff', '#ff8844', '#00ffcc',
+    ];
+
+    this._btnSz  = 10;
+    this._gripSz = 12;
+
+    this._resizing      = false;
+    this._gripHovered   = false;
+    this._draggingPanel = false;
+    this._dragPanelOff  = null;
+  }
+
+  // ── Public API ────────────────────────────────────────────────────────────
+
+  push(value) {
+    if (typeof value === 'object' && value !== null) {
+      if (!this._isObj) { this._data = []; this._keys = []; this._colorMap = {}; }
+      this._isObj = true;
+      for (const k of Object.keys(value)) {
+        if (!this._colorMap[k]) {
+          this._colorMap[k] = this._palette[this._keys.length % this._palette.length];
+          this._keys.push(k);
+        }
+      }
+    } else {
+      if (this._isObj) { this._data = []; this._keys = []; this._colorMap = {}; }
+      this._isObj = false;
+      if (!this._colorMap['value']) {
+        this._colorMap['value'] = this._palette[0];
+        this._keys = ['value'];
+      }
+    }
+    this._data.push(value);
+    if (this._data.length > this._maxSamples) this._data.shift();
+  }
+
+  clear() {
+    this._data = []; this._keys = []; this._colorMap = {}; this._isObj = false;
+  }
+
+  get visible()    { return this._visible; }
+  set visible(v)   { this._visible = !!v; }
+  get minimized()  { return this._minimized; }
+  set minimized(v) { this._minimized = !!v; }
+  get data()       { return [...this._data]; }
+
+  // ── Geometry ──────────────────────────────────────────────────────────────
+
+  get _titleH() { return 20; }
+  _drawnH()     { return this._minimized ? this._titleH : this.height; }
+
+  _inBounds(mx, my) {
+    return mx >= this.x && mx <= this.x + this.width &&
+           my >= this.y && my <= this.y + this._drawnH();
+  }
+
+  _btnRect() {
+    const bx = this.x + this.width - this._btnSz - 5;
+    const by = this.y + (this._titleH - this._btnSz) / 2;
+    return { bx, by, bsz: this._btnSz };
+  }
+
+  _hitBtn(mx, my) {
+    if (!this.minimizable) return false;
+    const { bx, by, bsz } = this._btnRect();
+    return mx >= bx && mx <= bx + bsz && my >= by && my <= by + bsz;
+  }
+
+  _inResizeHandle(mx, my) {
+    if (!this.resizable || this._minimized) return false;
+    return mx >= this.x + this.width  - this._gripSz && mx <= this.x + this.width &&
+           my >= this.y + this.height - this._gripSz && my <= this.y + this.height;
+  }
+
+  // Plot area: leaves a left margin for Y-axis labels
+  _plotRect() {
+    const labW = 32;
+    return {
+      px: this.x + labW,
+      py: this.y + this._titleH + 4,
+      pw: this.width  - labW - 5,
+      ph: this.height - this._titleH - 8,
+    };
+  }
+
+  _dataRange() {
+    if (this._yMin !== null && this._yMax !== null) {
+      return { lo: this._yMin, hi: this._yMax };
+    }
+    let lo = Infinity, hi = -Infinity;
+    for (const d of this._data) {
+      if (this._isObj) {
+        for (const k of this._keys) {
+          const v = d[k];
+          if (typeof v === 'number') { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+        }
+      } else if (typeof d === 'number') {
+        lo = Math.min(lo, d); hi = Math.max(hi, d);
+      }
+    }
+    if (!isFinite(lo))  { lo = 0; hi = 1; }
+    if (lo === hi)       { lo -= 0.5; hi += 0.5; }
+    const pad = (hi - lo) * 0.08;
+    return {
+      lo: this._yMin !== null ? this._yMin : lo - pad,
+      hi: this._yMax !== null ? this._yMax : hi + pad,
+    };
+  }
+
+  // ── Drawing ───────────────────────────────────────────────────────────────
+
+  draw() {
+    if (!this._visible) { this._markDrawn(); return; }
+    this._markDrawn();
+    const { x, y, width, theme } = this;
+
+    push();
+    fill(theme.panel); stroke(theme.panelStroke); strokeWeight(1);
+    rect(x, y, width, this._drawnH(), 4);
+    pop();
+
+    _drawBevelTitleBar(theme, x, y, width, this._titleH, this._minimized, this.label);
+    if (this.minimizable) this._drawToggleBtn();
+    if (this._minimized) return;
+
+    const { px, py, pw, ph } = this._plotRect();
+    const { lo, hi }         = this._dataRange();
+
+    const gc = drawingContext;
+    gc.save();
+    gc.beginPath();
+    gc.rect(px, py, pw, ph);
+    gc.clip();
+
+    // Slightly darkened plot background
+    push();
+    noStroke();
+    fill(lerpColor(color(theme.panel), color('#000000'), 0.12));
+    rect(px, py, pw, ph);
+    pop();
+
+    if (this._showGrid)         this._drawGrid(px, py, pw, ph);
+    if (this._data.length >= 2) this._drawLines(px, py, pw, ph, lo, hi);
+
+    gc.restore();
+
+    this._drawYAxis(px, py, pw, ph, lo, hi);
+    if (this._showLegend && this._keys.length > 1) this._drawLegend(px, py, pw, ph);
+    if (this.resizable) this._drawResizeGrip();
+  }
+
+  _drawGrid(px, py, pw, ph) {
+    const { theme } = this;
+    push();
+    strokeWeight(0.5);
+    stroke(lerpColor(color(theme.panel), color(theme.panelStroke), 0.5));
+    noFill();
+    for (let i = 1; i < 4; i++) {
+      const sy = py + ph * (1 - i / 4);
+      line(px, sy, px + pw, sy);
+    }
+    pop();
+  }
+
+  _drawLines(px, py, pw, ph, lo, hi) {
+    const n  = this._data.length;
+    const dx = pw / (n - 1);
+    for (const key of this._keys) {
+      push();
+      stroke(this._colorMap[key]);
+      strokeWeight(this._lineWidth);
+      noFill();
+      beginShape();
+      let open = false;
+      for (let i = 0; i < n; i++) {
+        const d = this._data[i];
+        const v = this._isObj ? d[key] : d;
+        if (typeof v !== 'number') {
+          if (open) { endShape(); open = false; }
+          continue;
+        }
+        const sy = constrain(py + ph - ((v - lo) / (hi - lo)) * ph, py - 1, py + ph + 1);
+        vertex(px + i * dx, sy);
+        open = true;
+      }
+      if (open) endShape();
+      pop();
+    }
+  }
+
+  _drawYAxis(px, py, pw, ph, lo, hi) {
+    const { theme } = this;
+    push();
+    textSize(8);
+    if (theme.font) textFont(theme.font);
+    textAlign(RIGHT, CENTER);
+    noStroke();
+    fill(theme.label);
+    for (let i = 0; i <= 4; i++) {
+      const t  = i / 4;
+      const sy = py + ph - t * ph;
+      text(_fmtNum(lo + t * (hi - lo)), px - 3, sy);
+    }
+    strokeWeight(0.5);
+    stroke(lerpColor(color(theme.panel), color(theme.panelStroke), 0.7));
+    line(px, py, px, py + ph);
+    pop();
+  }
+
+  _drawLegend(px, py, pw, ph) {
+    const { theme } = this;
+    const swSz = 6, gap = 3, rowH = 10, padX = 5, padY = 3;
+    push();
+    textSize(8);
+    if (theme.font) textFont(theme.font);
+    noStroke();
+
+    let maxLW = 0;
+    for (const k of this._keys) maxLW = Math.max(maxLW, textWidth(k));
+    const bgW = swSz + gap + maxLW + padX * 2;
+    const bgH = this._keys.length * rowH + padY * 2;
+    const lx  = px + pw - 2;
+    const ly  = py + 2;
+
+    const pc = color(theme.panel);
+    fill(red(pc), green(pc), blue(pc), 200);
+    rect(lx - bgW, ly, bgW, bgH, 2);
+
+    textAlign(LEFT, TOP);
+    for (let i = 0; i < this._keys.length; i++) {
+      const k  = this._keys[i];
+      const ry = ly + padY + i * rowH;
+      fill(this._colorMap[k]);
+      rect(lx - bgW + padX, ry + 1, swSz, swSz - 2, 1);
+      fill(theme.label);
+      text(k, lx - bgW + padX + swSz + gap, ry);
+    }
+    pop();
+  }
+
+  _drawToggleBtn() {
+    const { bx, by, bsz } = this._btnRect();
+    const hov = mouseX >= bx && mouseX <= bx + bsz && mouseY >= by && mouseY <= by + bsz;
+    const { theme } = this;
+    push();
+    noStroke();
+    fill(hov
+      ? lerpColor(color(theme.capBody), color(theme.capHighlight), 0.5)
+      : lerpColor(color(theme.panel), color(theme.panelStroke), 0.6));
+    rect(bx, by, bsz, bsz, 2);
+    stroke(theme.label); strokeWeight(1.5); noFill();
+    const cx = bx + bsz / 2, cy = by + bsz / 2, arm = bsz * 0.28;
+    line(cx - arm, cy, cx + arm, cy);
+    if (this._minimized) line(cx, cy - arm, cx, cy + arm);
+    pop();
+  }
+
+  _drawResizeGrip() {
+    const { x, y, width, height, theme } = this;
+    const hov = this._inResizeHandle(mouseX, mouseY) || this._resizing;
+    const col = hov
+      ? theme.capHighlight
+      : lerpColor(color(theme.panel), color(theme.panelStroke), 0.9);
+    push();
+    noStroke(); fill(col);
+    const cx = x + width, cy = y + height;
+    const d = 1.8, sp = 4;
+    ellipse(cx-3,       cy-3,       d, d);
+    ellipse(cx-3-sp,    cy-3,       d, d);
+    ellipse(cx-3,       cy-3-sp,    d, d);
+    ellipse(cx-3-sp*2,  cy-3,       d, d);
+    ellipse(cx-3-sp,    cy-3-sp,    d, d);
+    ellipse(cx-3,       cy-3-sp*2,  d, d);
+    pop();
+  }
+
+  // ── Events ────────────────────────────────────────────────────────────────
+
+  mouseMoved() {
+    if (!this._visible) return;
+
+    if (this._resizing) {
+      this.width  = Math.max(120, mouseX - this.x);
+      this.height = Math.max(80,  mouseY - this.y);
+      const cv = document.querySelector('canvas');
+      if (cv) cv.style.cursor = 'nwse-resize';
+      return;
+    }
+
+    if (this._draggingPanel) {
+      this.x = mouseX - this._dragPanelOff.dx;
+      this.y = mouseY - this._dragPanelOff.dy;
+      return;
+    }
+
+    if (this.resizable && !this._minimized) {
+      const was = this._gripHovered;
+      this._gripHovered = this._inResizeHandle(mouseX, mouseY);
+      if (this._gripHovered !== was) {
+        const cv = document.querySelector('canvas');
+        if (cv) cv.style.cursor = this._gripHovered ? 'nwse-resize' : '';
+      }
+    }
+  }
+
+  mousePressed() {
+    if (!this._inBounds(mouseX, mouseY)) return;
+    if (this._hitBtn(mouseX, mouseY)) { this._minimized = !this._minimized; return; }
+    if (this.movable && mouseY < this.y + this._titleH) {
+      this._draggingPanel = true;
+      this._dragPanelOff  = { dx: mouseX - this.x, dy: mouseY - this.y };
+      return;
+    }
+    if (this._minimized) return;
+    if (this._inResizeHandle(mouseX, mouseY)) this._resizing = true;
+  }
+
+  mouseReleased() {
+    if (this._resizing) {
+      this._resizing = this._gripHovered = false;
+      const cv = document.querySelector('canvas');
+      if (cv) cv.style.cursor = '';
+    }
+    this._draggingPanel = false;
+    this._dragPanelOff  = null;
+  }
+}
+
+window.TimeGraphPanel = TimeGraphPanel;

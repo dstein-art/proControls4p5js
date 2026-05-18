@@ -62,6 +62,7 @@ const SIZES = {
   menu_popup:      [300, 200],
   markup:          [280, 220],
   consolePanel:    [360, 200],
+  timeGraphPanel:  [360, 200],
 };
 
 const [W, H] = SIZES[CTRL] || [300, 200];
@@ -89,6 +90,13 @@ function runCode(code) {
     for (const c of proControls()) {
       const n = c.constructor.name;
       if (n === 'VUMeter' || n === 'VUDial' || n === 'LEDMeter') c.value = _lvl;
+      if (n === 'TimeGraphPanel') {
+        const t = frameCount * 0.05;
+        c._isObj
+          ? c.push({ ch1: 0.5 + 0.45 * sin(t),        ch2: 0.5 + 0.45 * cos(t * 0.71),
+                     ch3: 0.5 + 0.40 * sin(t * 1.30) })
+          : c.push(_lvl);
+      }
     }
     // Controls render themselves via the auto-draw post hook
   };
@@ -625,6 +633,23 @@ const dlg = new MessageDialog({
   buttons: ['Cancel', 'Discard'],
   onButton: (i, lbl) => console.log(i, lbl),
 });`,
+
+  timeGraphPanel: `\
+const g = new TimeGraphPanel({
+  x: 0, y: 0,
+  width: 360, height: 200,
+  label: 'Sensors',
+  movable: false, resizable: false, minimizable: false,
+});
+// Pre-fill 100 samples so the graph is visible immediately.
+// The draw loop continues pushing data each frame via the
+// TimeGraphPanel hook in example.html.
+for (let i = 0; i < 100; i++) {
+  const t = i * 0.05;
+  g.push({ ch1: 0.5 + 0.45 * sin(t),
+           ch2: 0.5 + 0.45 * cos(t * 0.71),
+           ch3: 0.5 + 0.40 * sin(t * 1.30) });
+}`,
 
   consolePanel: `\
 const con = new ConsolePanel({
