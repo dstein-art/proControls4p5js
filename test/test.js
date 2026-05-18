@@ -68,10 +68,13 @@ function setup() {
   myPanel.onRelease = (value) => {
     print('panel changed',myPanel.values);
   }
+
+ // const consolePanel = new ConsolePanel({x:220,y:300,width:240,height:200});
 }
 
 function message() {
   print('message',control.value);
+  x=messy();
 }
 
 function mousePressedX() {
@@ -82,4 +85,5 @@ function mousePressedX() {
 
 function draw() {
   background(220);
+  print("Hello World");
 }
