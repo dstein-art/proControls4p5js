@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProControls — Sliders &amp; Dials Tutorial</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #ffffff;
+      --surface:  #f4f4f6;
+      --surface2: #ebebee;
+      --border:   #e0e0e6;
+      --accent:   #0077cc;
+      --accent2:  #cc5500;
+      --text:     #1a1a22;
+      --muted:    #666680;
+      --code-bg:  #1a1a22;
+      --code-text:#d4d4d8;
+      --nav-bg:   #ffffffee;
+      --nav-h:    52px;
+      --max-w:    1100px;
+      --radius:   6px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      font: 15px/1.65 'Inter', 'Segoe UI', system-ui, sans-serif;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    nav, .hero { width: 100%; }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      gap: 4px;
+      overflow-x: clip;
+      overflow-y: visible;
+      white-space: nowrap;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+      flex-shrink: 0;
+    }
+
+    nav a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    nav .docs-link { color: var(--accent2); margin-left: 6px; }
+    nav .docs-link:hover {
+      color: var(--accent2);
+      border-color: #cc550044;
+      background: #cc55000a;
+    }
+
+    nav .sep { color: var(--border); margin: 0 2px; user-select: none; }
+
+    /* ── Nav submenu ── */
+    .nav-group { position: relative; display: flex; align-items: center; }
+    .nav-submenu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px;
+      padding-top: 10px;
+      min-width: 130px;
+      z-index: 200;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(0,0,0,.1);
+      flex-direction: column;
+      gap: 2px;
+    }
+    .nav-group:hover .nav-submenu { display: flex; }
+    .nav-submenu a {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+    }
+    .nav-submenu a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    /* ── Compact Hero (demo.html style) ── */
+    .hero {
+      background: linear-gradient(135deg, #0f1923 0%, #1a2840 50%, #0f2030 100%);
+      padding: 20px 32px 18px;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -80px; left: 50%;
+      width: 400px; height: 200px;
+      background: radial-gradient(ellipse, #0077cc20 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .hero-left { display: flex; align-items: baseline; gap: 14px; }
+
+    .hero h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -.02em;
+      line-height: 1;
+    }
+
+    .hero h1 .accent { color: #00aaff; }
+    .hero h1 .dim    { color: #6699bb; font-weight: 400; }
+
+    .hero-sub { font-size: 13px; color: #6688aa; }
+
+    .hero-docs {
+      font-size: 12px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid #0077cc66;
+      color: #66bbff;
+      background: #0077cc22;
+      text-decoration: none;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+    .hero-docs:hover { background: #0077cc44; }
+
+    /* ── Page layout ── */
+    .page {
+      width: 100%;
+      max-width: var(--max-w);
+      padding: 52px 32px 100px;
+    }
+
+    /* ── Tutorial intro ── */
+    .intro {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 48px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #444460;
+    }
+    .intro strong { color: var(--text); }
+    .intro .prereq {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .intro code {
+      font: 12px/1 'Fira Code', 'Cascadia Code', monospace;
+      background: #e4e4ec;
+      border: 1px solid #d0d0e0;
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent);
+    }
+
+    /* ── TOC ── */
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+    .toc a {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1px solid #0077cc33;
+      background: #0077cc08;
+      transition: background .15s, border-color .15s;
+    }
+    .toc a:hover { background: #0077cc18; border-color: #0077cc66; }
+
+    /* ── Control section ── */
+    .ctrl-section {
+      margin-bottom: 80px;
+      scroll-margin-top: calc(var(--nav-h) + 20px);
+    }
+
+    .ctrl-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .ctrl-header h2 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -.02em;
+    }
+
+    .ctrl-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc12;
+      border: 1px solid #0077cc33;
+      padding: 2px 9px;
+      border-radius: 20px;
+    }
+
+    .ctrl-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 28px;
+      max-width: 720px;
+    }
+
+    /* ── Step ── */
+    .step {
+      margin-bottom: 40px;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin-bottom: 10px;
+    }
+
+    .step-badge {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc15;
+      border: 1px solid #0077cc44;
+      padding: 3px 10px;
+      border-radius: 20px;
+      flex-shrink: 0;
+    }
+
+    .step-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .step-body {
+      font-size: 14px;
+      color: #555570;
+      line-height: 1.7;
+      margin-bottom: 14px;
+      max-width: 740px;
+    }
+
+    .step-body code {
+      font: 12px/1 'Fira Code', 'Cascadia Code', monospace;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent);
+    }
+
+    /* ── Live examples ── */
+    .example-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin: 0;
+    }
+
+    .live-editor {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .live-hint {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc0d;
+      border: 1px solid #0077cc33;
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      padding: 4px 10px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    .live-hint.readonly {
+      color: var(--muted);
+      background: #f4f4f6;
+      border-color: var(--border);
+    }
+
+    .live-code {
+      background: var(--code-bg);
+      border: 1px solid #2a2a38;
+      border-radius: 0 0 6px 6px;
+      padding: 18px 20px;
+      font: 13px/1.65 'Fira Code', 'Cascadia Code', monospace;
+      color: var(--code-text);
+      resize: none;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: pre;
+      field-sizing: content;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .live-code:focus { border-color: #0077cc88; }
+
+    .example-frame {
+      flex-shrink: 0;
+      border-radius: 6px;
+      overflow: hidden;
+      display: block;
+      box-shadow: 0 2px 10px rgba(0,0,0,.18);
+    }
+
+    /* style showcase row */
+    .styles-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .style-item { text-align: center; }
+    .style-label {
+      font-size: 11px;
+      color: #888;
+      margin-top: 5px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    /* note callout */
+    .note {
+      background: #0077cc0a;
+      border-left: 3px solid var(--accent);
+      padding: 11px 16px;
+      border-radius: 0 6px 6px 0;
+      font-size: 13px;
+      color: #446688;
+      margin: 14px 0 0;
+      line-height: 1.6;
+    }
+    .note strong { color: var(--accent); }
+
+    .tip {
+      background: #22aa4410;
+      border-left: 3px solid #22aa44;
+      padding: 11px 16px;
+      border-radius: 0 6px 6px 0;
+      font-size: 13px;
+      color: #337755;
+      margin: 14px 0 0;
+      line-height: 1.6;
+    }
+    .tip strong { color: #22aa44; }
+
+    code {
+      font: 13px/1 'Fira Code', 'Cascadia Code', monospace;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent);
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 60px 0;
+    }
+
+    @media (max-width: 640px) {
+      .example-row { flex-direction: column; }
+      .example-frame { align-self: center; }
+    }
+
+    /* ── Footer ── */
+    footer {
+      order: 1;
+      width: 100%;
+      padding: 16px 32px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" title="Home" style="padding:5px 8px;font-size:18px;line-height:1;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:20px;">home</span></a>
+  <span class="sep">·</span>
+  <a href="gettingStarted.html">Getting Started</a>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#slider">Sliders &amp; Dials</a>
+    <div class="nav-submenu">
+      <a href="help.html#slider">AnalogSlider</a>
+      <a href="help.html#multislider">MultiSlider</a>
+      <a href="help.html#rangeslider">RangeSlider</a>
+      <a href="help.html#dial">Dial</a>
+      <a href="help.html#multidial">MultiDial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#pads">Pads</a>
+    <div class="nav-submenu">
+      <a href="help.html#xypad">XYPad</a>
+      <a href="help.html#gridpad">GridPad</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#selectors">Selectors</a>
+    <div class="nav-submenu">
+      <a href="help.html#switch">Switch</a>
+      <a href="help.html#iconButton">IconButton</a>
+      <a href="help.html#selector">Selector</a>
+      <a href="help.html#tagSelector">TagSelector</a>
+      <a href="help.html#sliderSelector">SliderSelector</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#panel">Panel</a>
+    <div class="nav-submenu">
+      <a href="help.html#panel">Panel</a>
+      <a href="help.html#messageDialog">MessageDialog</a>
+      <a href="help.html#inputDialog">InputDialog</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <a href="help.html#menu">Menu</a>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#displays">Displays</a>
+    <div class="nav-submenu">
+      <a href="help.html#vumeter">VUMeter</a>
+      <a href="help.html#vudial">VUDial</a>
+      <a href="help.html#ledmeter">LEDMeter</a>
+      <a href="help.html#adsr">ADSRDisplay</a>
+      <a href="help.html#markup">Markup</a>
+      <a href="help.html#consolePanel">ConsolePanel</a>
+      <a href="help.html#timeGraphPanel">TimeGraphPanel</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <a href="help.html#themes">Themes &amp; Styles</a>
+  <span class="sep">·</span>
+  <a href="help.html#touch">Events</a>
+  <span class="sep">·</span>
+  <a href="../LICENSE" target="_blank">License</a>
+  <a href="help.html" class="docs-link">↗ Docs</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div>
+        <h1><span class="accent">Sliders &amp; Dials</span> <span class="dim">Tutorial</span></h1>
+        <div style="font-size:12px;color:#6688aa;margin-top:4px;letter-spacing:.04em;">ProControls for p5.js — by David Stein</div>
+      </div>
+      <span class="hero-sub">Step-by-step guide for beginners — all examples are live and editable</span>
+    </div>
+    <a href="help.html#slider" class="hero-docs">↗ Full Docs</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- Intro -->
+  <div class="intro">
+    <strong>Welcome!</strong> This tutorial walks you through every slider and dial control in ProControls, one step at a time. You do not need any prior experience with JavaScript or p5.js — each example is fully explained, and every code block on this page is <strong>live and editable</strong>. Just click inside the code, make a change, and the preview on the right will update automatically.
+    <div class="prereq">
+      <strong>First time here?</strong> Before running these examples in your own project, visit the
+      <a href="gettingStarted.html">Getting Started</a> page to get the HTML setup and script tags
+      you need to load ProControls.
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <a href="#analogslider">AnalogSlider</a>
+    <a href="#dial">Dial</a>
+    <a href="#multislider">MultiSlider</a>
+    <a href="#multidial">MultiDial</a>
+    <a href="#rangeslider">RangeSlider</a>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  ANALOGSLIDER                                                   -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="ctrl-section" id="analogslider">
+    <div class="ctrl-header">
+      <h2>AnalogSlider</h2>
+      <span class="ctrl-tag">Fader</span>
+    </div>
+    <p class="ctrl-desc">
+      An <strong>AnalogSlider</strong> is a fader — a handle you drag up and down (or left and right) to set a value.
+      Think of it like a volume fader on a mixing board. You can drag the handle, scroll the mouse wheel,
+      or swipe on a touchscreen. Double-click the handle to snap it back to its starting position.
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 1</span>
+        <span class="step-title">Your first slider — no setup needed</span>
+      </div>
+      <p class="step-body">
+        The simplest way to create a slider is to write <code>new AnalogSlider()</code> with no options at all.
+        ProControls will place it on your canvas automatically and give it sensible defaults.
+        Try dragging the handle or scrolling over it!
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">// That's it! One line creates a working slider.
+const mySlider = new AnalogSlider();</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=slider" width="100" height="265" scrolling="no" frameborder="0" loading="lazy" title="AnalogSlider basic"></iframe>
+      </div>
+      <div class="note">
+        <strong>Auto-placement:</strong> When you leave out <code>x</code> and <code>y</code>, ProControls figures out
+        where to put the control so it does not overlap other controls on your canvas. Taller-than-wide controls
+        are placed side by side; wider-than-tall controls stack vertically.
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 2</span>
+        <span class="step-title">Customizing your slider</span>
+      </div>
+      <p class="step-body">
+        Pass options inside <code>{ }</code> curly braces to customize the slider.
+        The most useful ones are <code>label</code> (the text shown on the control),
+        <code>min</code> and <code>max</code> (the range of values), and <code>value</code>
+        (where the handle starts). Try changing the numbers below!
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try changing min, max, value, or label</div>
+          <textarea class="live-code" spellcheck="false">const volume = new AnalogSlider({
+  x: 28, y: 30,
+  label: 'VOLUME',
+  min: 0,    // lowest value
+  max: 100,  // highest value
+  value: 75, // starting position
+  readout: 'raw',  // show the number next to the handle
+  decimals: 0,     // no decimal places
+  showScale: true, // tick marks along the side
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=slider" width="100" height="265" scrolling="no" frameborder="0" loading="lazy" title="AnalogSlider with options"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 3</span>
+        <span class="step-title">Choosing a look with <code>style</code></span>
+      </div>
+      <p class="step-body">
+        The <code>style</code> option changes how the slider looks. There are three choices:
+        <code>'knob'</code> (the default cap handle), <code>'wheel'</code> (a spinning cylinder —
+        great for pitch bend), and <code>'button'</code> (a minimal round puck).
+        Try changing <code>'wheel'</code> to <code>'knob'</code> or <code>'button'</code> in the editor below!
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try 'knob', 'wheel', or 'button' for style</div>
+          <textarea class="live-code" spellcheck="false">const pitchBend = new AnalogSlider({
+  x: 28, y: 30,
+  label: 'PITCH',
+  style: 'wheel', // try: 'knob', 'wheel', 'button'
+  min: -1, max: 1, value: 0,
+  springBack: true,      // snap back when you let go
+  springDuration: 0.5,   // takes 0.5 seconds to snap back
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=slider_wheel" width="100" height="265" scrolling="no" frameborder="0" loading="lazy" title="AnalogSlider wheel style"></iframe>
+      </div>
+      <p class="step-body" style="margin-top:16px">All three styles side by side:</p>
+      <div class="styles-row">
+        <div class="style-item">
+          <iframe class="example-frame" src="example.html?c=slider&lbl=KNOB" width="100" height="265" scrolling="no" frameborder="0" loading="lazy" title="knob style"></iframe>
+          <div class="style-label">'knob'</div>
+        </div>
+        <div class="style-item">
+          <iframe class="example-frame" src="example.html?c=slider_wheel&lbl=WHEEL" width="100" height="265" scrolling="no" frameborder="0" loading="lazy" title="wheel style"></iframe>
+          <div class="style-label">'wheel'</div>
+        </div>
+        <div class="style-item">
+          <iframe class="example-frame" src="example.html?c=slider_button&lbl=BUTTON" width="100" height="265" scrolling="no" frameborder="0" loading="lazy" title="button style"></iframe>
+          <div class="style-label">'button'</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 4</span>
+        <span class="step-title">Reacting to changes with <code>onChange</code> and <code>onRelease</code></span>
+      </div>
+      <p class="step-body">
+        To actually <em>use</em> the slider's value in your sketch, pass a function to <code>onChange</code>.
+        ProControls calls it every time the value changes — giving you the new number as an argument.
+        <code>onRelease</code> fires once when you let go of the handle.
+        In the example below, a <strong>ConsolePanel</strong> on the canvas shows you what's happening
+        as you drag. Try it!
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — drag the slider and watch the console panel</div>
+          <textarea class="live-code" spellcheck="false">// ConsolePanel shows output directly on the canvas
+const log = new ConsolePanel({
+  x: 0, y: 0, width: 320, height: 90,
+  label: 'Output',
+  movable: false, minimizable: false, resizable: false,
+});
+
+const volume = new AnalogSlider({
+  x: 28, y: 100,
+  width: 44, height: 130,
+  label: 'VOLUME',
+  min: 0, max: 100, value: 50,
+  readout: 'raw', decimals: 0,
+  // called every frame while dragging:
+  onChange: v => console.log('Dragging: ' + Math.round(v)),
+  // called once when you release the mouse:
+  onRelease: v => console.log('Stopped at: ' + Math.round(v)),
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=panel" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="AnalogSlider data handling"></iframe>
+      </div>
+      <div class="tip">
+        <strong>Tip:</strong> Use <code>slider.value</code> anywhere in your <code>draw()</code> loop
+        to read the current value without a callback — for example:
+        <code>background(slider.value * 2.55)</code> to set the background brightness from 0–100.
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  DIAL                                                           -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="ctrl-section" id="dial">
+    <div class="ctrl-header">
+      <h2>Dial</h2>
+      <span class="ctrl-tag">Rotary Knob</span>
+    </div>
+    <p class="ctrl-desc">
+      A <strong>Dial</strong> is a rotary knob — exactly like the knobs you see on a synthesizer or guitar amp.
+      Drag up to turn it clockwise, drag down to turn it counter-clockwise, or scroll the mouse wheel.
+      The arc around the knob shows how far it has been turned. Double-click to reset to the starting value.
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 1</span>
+        <span class="step-title">Your first dial</span>
+      </div>
+      <p class="step-body">
+        Just like the slider, you can create a dial with no options. ProControls places it for you
+        and gives it a 0–1 range by default. Drag up and down on the knob to turn it.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">// One line — a fully working rotary knob.
+const myDial = new Dial();</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=dial" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="Dial basic"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 2</span>
+        <span class="step-title">Customizing your dial</span>
+      </div>
+      <p class="step-body">
+        The <code>size</code> option sets how big the dial is in pixels.
+        Setting <code>scale: 'log'</code> makes the range feel more natural for things like frequency —
+        instead of linear steps, the knob moves faster at low values and slower at high values,
+        which matches how human ears perceive pitch. Try turning the knob below!
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try changing size, min, max, or removing scale: 'log'</div>
+          <textarea class="live-code" spellcheck="false">const frequency = new Dial({
+  x: 45, y: 35,
+  size: 80,        // 80×80 pixels
+  label: 'FREQ',
+  min: 20, max: 20000, value: 440,
+  scale: 'log',    // logarithmic — feels natural for audio
+  readout: 'raw',
+  decimals: 0,
+  showScale: true, // draw tick marks around the arc
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=dial" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="Dial with options"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 3</span>
+        <span class="step-title">Choosing a knob style</span>
+      </div>
+      <p class="step-body">
+        The <code>style</code> option changes the look of the knob body. Try <code>'classic'</code>
+        (the default — a polished cap with a dot), <code>'rubber'</code> (textured grip),
+        <code>'grooved'</code> (concentric rings), or <code>'pointer'</code> (a flat disc
+        with a thin line pointing to the value — great for panning knobs). The arc and interaction
+        are identical for all styles.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try 'classic', 'rubber', 'grooved', 'pointer'</div>
+          <textarea class="live-code" spellcheck="false">const pan = new Dial({
+  x: 45, y: 35,
+  size: 80,
+  label: 'PAN',
+  style: 'pointer', // try: 'classic', 'rubber', 'grooved', 'pointer'
+  min: -100, max: 100, value: 0,
+  readout: 'raw', decimals: 0,
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=dialpointer" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="Dial pointer style"></iframe>
+      </div>
+      <p class="step-body" style="margin-top:16px">All four dial styles:</p>
+      <div class="styles-row">
+        <div class="style-item">
+          <iframe class="example-frame" src="example.html?c=dial&lbl=CLASSIC" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="classic dial"></iframe>
+          <div class="style-label">'classic'</div>
+        </div>
+        <div class="style-item">
+          <iframe class="example-frame" src="example.html?c=dialrubber&lbl=RUBBER" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="rubber dial"></iframe>
+          <div class="style-label">'rubber'</div>
+        </div>
+        <div class="style-item">
+          <iframe class="example-frame" src="example.html?c=dialgrooved&lbl=GROOVED" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="grooved dial"></iframe>
+          <div class="style-label">'grooved'</div>
+        </div>
+        <div class="style-item">
+          <iframe class="example-frame" src="example.html?c=dialpointer&lbl=POINTER" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="pointer dial"></iframe>
+          <div class="style-label">'pointer'</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 4</span>
+        <span class="step-title">Reacting to changes</span>
+      </div>
+      <p class="step-body">
+        <code>onChange</code> and <code>onRelease</code> work the same way as on the slider.
+        Here we use them to display the cutoff frequency value every time you turn the knob.
+        Turn the knob to see the value update in the console!
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — turn the knob and watch the console panel</div>
+          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
+  x: 0, y: 0, width: 320, height: 80,
+  label: 'Output',
+  movable: false, minimizable: false, resizable: false,
+});
+
+const cutoff = new Dial({
+  x: 120, y: 95,
+  size: 70,
+  label: 'CUTOFF',
+  min: 20, max: 20000, value: 1000,
+  scale: 'log',
+  readout: 'raw', decimals: 0,
+  onChange: v => console.log('Cutoff: ' + Math.round(v) + ' Hz'),
+  onRelease: v => console.log('Set to: ' + Math.round(v) + ' Hz'),
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=panel" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="Dial data handling"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  MULTISLIDER                                                    -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="ctrl-section" id="multislider">
+    <div class="ctrl-header">
+      <h2>MultiSlider</h2>
+      <span class="ctrl-tag">Fader Bank</span>
+    </div>
+    <p class="ctrl-desc">
+      A <strong>MultiSlider</strong> groups several faders together into one unit — like the channel
+      strip on a mixing board or the band controls on a graphic equalizer. All the sliders share the
+      same settings (range, height, style) but can have independent values. One <code>onChange</code>
+      callback fires whenever any of the sliders moves.
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 1</span>
+        <span class="step-title">A bank of sliders in one line</span>
+      </div>
+      <p class="step-body">
+        Give the <code>sliders</code> option a set of names and starting values.
+        ProControls creates a separate fader for each one and lines them up side by side.
+        The key (e.g. <code>'BASS'</code>) becomes the label; the number is the starting value.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try adding or removing slider entries</div>
+          <textarea class="live-code" spellcheck="false">// Four sliders — try adding a fifth!
+const eq = new MultiSlider({
+  sliders: {
+    'BASS':   0,
+    'MID':    0,
+    'HIGH':   0,
+    'AIR':    0,
+  },
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=multislider" width="350" height="265" scrolling="no" frameborder="0" loading="lazy" title="MultiSlider basic"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 2</span>
+        <span class="step-title">Setting the range and size</span>
+      </div>
+      <p class="step-body">
+        Use <code>min</code> and <code>max</code> to set the shared value range for all sliders.
+        The <code>height</code> option controls how tall each fader is. Notice that for a classic
+        EQ, we use a negative min and positive max so the center represents "flat" (no boost or cut).
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try changing height, min, max, or decimals</div>
+          <textarea class="live-code" spellcheck="false">const eq = new MultiSlider({
+  x: 20, y: 35,
+  height: 180,     // how tall each fader is
+  label: 'EQUALIZER',
+  min: -12,        // negative = cut
+  max: 12,         // positive = boost
+  readout: 'raw',
+  decimals: 1,
+  sliders: {
+    'BASS':    0,
+    'LOW MID': 0,
+    'HI MID':  3,  // starting value of 3 dB boost
+    'TREBLE':  0,
+  },
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=multislider" width="350" height="265" scrolling="no" frameborder="0" loading="lazy" title="MultiSlider with options"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 3</span>
+        <span class="step-title">Mixing styles and using spring-back</span>
+      </div>
+      <p class="step-body">
+        Each individual slider can have its own <code>style</code> by passing an object instead of
+        a plain number. You can also set <code>springBack: true</code> on a per-slider basis —
+        that slider will snap back to its starting value when you release it. Try the pitch
+        slider below: drag it and let go!
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try changing styles or adding springBack to other sliders</div>
+          <textarea class="live-code" spellcheck="false">const controls = new MultiSlider({
+  x: 20, y: 22,
+  width: 180, height: 44,
+  horizontal: true,  // sliders stack vertically, each runs left-to-right
+  min: 0, max: 1,
+  sliders: {
+    'LEVEL':  { value: 0.75, style: 'knob' },
+    'PITCH':  { value: 0.5,  style: 'wheel',
+                springBack: true },  // snaps back on release
+    'REVERB': { value: 0.3,  style: 'button' },
+  },
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=multislider_styles" width="220" height="215" scrolling="no" frameborder="0" loading="lazy" title="MultiSlider mixed styles"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 4</span>
+        <span class="step-title">Reading all values at once</span>
+      </div>
+      <p class="step-body">
+        Unlike a single slider, <code>onChange</code> on a MultiSlider gives you an <em>object</em>
+        with the current value of every slider — not just the one that moved. The keys are the
+        slider labels (spaces and punctuation removed). This makes it easy to read all values in
+        one place, no matter which fader is moving.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — move any slider and watch the console</div>
+          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
+  x: 0, y: 0, width: 350, height: 80,
+  label: 'Output',
+  movable: false, minimizable: false, resizable: false,
+});
+
+const eq = new MultiSlider({
+  x: 20, y: 88,
+  height: 160,
+  min: -12, max: 12,
+  readout: 'raw', decimals: 1,
+  sliders: { '60Hz': 0, '250Hz': 0, '2kHz': 3, '8kHz': 0 },
+  // vals is an object: { '60Hz': 0, '250Hz': 0, ... }
+  onChange: vals => console.log(JSON.stringify(vals)),
+  onRelease: vals => console.log('Final: ' + JSON.stringify(vals)),
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=multislider" width="350" height="265" scrolling="no" frameborder="0" loading="lazy" title="MultiSlider data handling"></iframe>
+      </div>
+      <div class="tip">
+        <strong>Tip:</strong> Access a single slider by name with <code>eq.slider('60Hz').value</code>,
+        or read all values at once with <code>eq.values</code> (returns the same object as <code>onChange</code>).
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  MULTIDIAL                                                      -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="ctrl-section" id="multidial">
+    <div class="ctrl-header">
+      <h2>MultiDial</h2>
+      <span class="ctrl-tag">Knob Bank</span>
+    </div>
+    <p class="ctrl-desc">
+      A <strong>MultiDial</strong> is exactly like a MultiSlider, but uses rotary knobs instead of
+      faders. Think of the bass, mid, and treble knobs on a guitar amp or the EQ section of a
+      synthesizer. The knobs sit on a shared panel, and any knob you turn fires the shared
+      <code>onChange</code> callback.
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 1</span>
+        <span class="step-title">A row of knobs in one line</span>
+      </div>
+      <p class="step-body">
+        Give the <code>dials</code> option a set of names and starting values — same pattern as
+        MultiSlider. ProControls creates a knob for each entry and places them in a row.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try adding a 'PRESENCE' knob</div>
+          <textarea class="live-code" spellcheck="false">// Three knobs on one panel.
+const tone = new MultiDial({
+  dials: {
+    'BASS':   50,
+    'MID':    50,
+    'TREBLE': 50,
+  },
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=multidial" width="280" height="150" scrolling="no" frameborder="0" loading="lazy" title="MultiDial basic"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 2</span>
+        <span class="step-title">Setting size and range</span>
+      </div>
+      <p class="step-body">
+        Use <code>size</code> to control how big each knob is. The <code>min</code>, <code>max</code>,
+        and <code>readout</code> options apply to all knobs at once. Each knob can still have a
+        different starting <code>value</code>.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try changing size or the individual values</div>
+          <textarea class="live-code" spellcheck="false">const tone = new MultiDial({
+  x: 20, y: 20,
+  size: 70,      // each knob is 70×70 px
+  label: 'TONE',
+  min: 0, max: 100,
+  readout: 'raw',
+  decimals: 0,
+  dials: {
+    'BASS':   60,
+    'MID':    50,
+    'TREBLE': 40,
+  },
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=multidial" width="280" height="150" scrolling="no" frameborder="0" loading="lazy" title="MultiDial with options"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 3</span>
+        <span class="step-title">Different knob styles per dial</span>
+      </div>
+      <p class="step-body">
+        Pass an object instead of a number for any dial to override its <code>style</code> (or any
+        other option). This lets you mix different knob looks on the same panel — for example,
+        a rubber knob for volume, a grooved knob for filter cutoff, and a pointer for panning.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try swapping the styles around</div>
+          <textarea class="live-code" spellcheck="false">const synth = new MultiDial({
+  x: 20, y: 20,
+  size: 70,
+  min: 0, max: 100,
+  readout: 'raw', decimals: 0,
+  dials: {
+    'OSC':    { value: 60, style: 'rubber'  },
+    'FILTER': { value: 50, style: 'grooved' },
+    'ENV':    { value: 40, style: 'pointer' },
+  },
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=multidial" width="280" height="150" scrolling="no" frameborder="0" loading="lazy" title="MultiDial mixed styles"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 4</span>
+        <span class="step-title">Reading all values at once</span>
+      </div>
+      <p class="step-body">
+        Just like MultiSlider, the <code>onChange</code> callback receives an object with every
+        knob's current value — no matter which one you turned. Turn any knob in the example
+        below to see all three values update together.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — turn any knob and watch the console</div>
+          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
+  x: 0, y: 0, width: 320, height: 80,
+  label: 'Output',
+  movable: false, minimizable: false, resizable: false,
+});
+
+const tone = new MultiDial({
+  x: 20, y: 95,
+  size: 65,
+  min: 0, max: 100,
+  readout: 'raw', decimals: 0,
+  dials: { 'BASS': 50, 'MID': 50, 'TREBLE': 50 },
+  onChange: vals => console.log(JSON.stringify(vals)),
+  onRelease: vals => console.log('Released: ' + JSON.stringify(vals)),
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=panel" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="MultiDial data handling"></iframe>
+      </div>
+      <div class="tip">
+        <strong>Tip:</strong> Access a single knob by name with <code>tone.dial('BASS').value</code>,
+        or set multiple values at once: <code>tone.values = { BASS: 80, MID: 40 }</code>.
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  RANGESLIDER                                                    -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="ctrl-section" id="rangeslider">
+    <div class="ctrl-header">
+      <h2>RangeSlider</h2>
+      <span class="ctrl-tag">Range Select</span>
+    </div>
+    <p class="ctrl-desc">
+      A <strong>RangeSlider</strong> has <em>two</em> handles — a low one and a high one — that
+      define a range. You might use it to let the user select a frequency range for a filter, a
+      time window to zoom into, or a brightness range for an image. The two handles cannot cross
+      each other. Scroll the mouse wheel over either handle to adjust that end of the range.
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 1</span>
+        <span class="step-title">Your first range slider</span>
+      </div>
+      <p class="step-body">
+        Create a RangeSlider with no options and you get two handles at the bottom and top of the track.
+        The colored region between them is the selected range. Drag either handle to resize the range.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">// Two handles, one slider — selects a range.
+const myRange = new RangeSlider();</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=rangeslider" width="110" height="265" scrolling="no" frameborder="0" loading="lazy" title="RangeSlider basic"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 2</span>
+        <span class="step-title">Customizing the range</span>
+      </div>
+      <p class="step-body">
+        Use <code>valueLow</code> and <code>valueHigh</code> to set where the two handles start.
+        The range is shown numerically next to each handle. Here we model a bandpass filter
+        where you pick a low-cut and high-cut frequency.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try changing valueLow, valueHigh, min, or max</div>
+          <textarea class="live-code" spellcheck="false">const filter = new RangeSlider({
+  x: 28, y: 35,
+  width: 54, height: 195,
+  label: 'FILTER',
+  min: 20,       // lowest selectable frequency (Hz)
+  max: 20000,    // highest selectable frequency (Hz)
+  valueLow:  200,  // low-cut starting position
+  valueHigh: 8000, // high-cut starting position
+  readout: 'raw',
+  decimals: 0,
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=rangeslider" width="110" height="265" scrolling="no" frameborder="0" loading="lazy" title="RangeSlider with options"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 3</span>
+        <span class="step-title">Horizontal orientation</span>
+      </div>
+      <p class="step-body">
+        Set <code>horizontal: true</code> to flip the slider on its side — the left handle sets the
+        low end and the right handle sets the high end. This layout works well for selecting a
+        time window, a brightness range, or anything where left-to-right makes more intuitive sense.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try changing valueLow and valueHigh</div>
+          <textarea class="live-code" spellcheck="false">// Horizontal: left handle = low, right handle = high.
+const timeRange = new RangeSlider({
+  x: 20, y: 18,
+  width: 220, height: 44,
+  horizontal: true,
+  label: 'TIME RANGE (seconds)',
+  min: 0, max: 60,
+  valueLow: 10, valueHigh: 45,
+  readout: 'raw', decimals: 0,
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=rangeslider_h" width="260" height="80" scrolling="no" frameborder="0" loading="lazy" title="RangeSlider horizontal"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 4</span>
+        <span class="step-title">Reading both values</span>
+      </div>
+      <p class="step-body">
+        The <code>onChange</code> callback for a RangeSlider receives <em>two</em> arguments:
+        <code>lo</code> (the low handle value) and <code>hi</code> (the high handle value).
+        Drag either handle in the example below and watch both values update in the console.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — drag either handle and watch the console</div>
+          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
+  x: 0, y: 0, width: 320, height: 80,
+  label: 'Output',
+  movable: false, minimizable: false, resizable: false,
+});
+
+const filter = new RangeSlider({
+  x: 28, y: 90,
+  width: 54, height: 140,
+  label: 'FILTER',
+  min: 0, max: 1,
+  valueLow: 0.2, valueHigh: 0.8,
+  // lo = low handle value, hi = high handle value
+  onChange: (lo, hi) => console.log(
+    'Low: ' + lo.toFixed(2) + '  High: ' + hi.toFixed(2)
+  ),
+  onRelease: (lo, hi) => console.log(
+    'Set: ' + lo.toFixed(2) + ' — ' + hi.toFixed(2)
+  ),
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=panel" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="RangeSlider data handling"></iframe>
+      </div>
+      <div class="tip">
+        <strong>Tip:</strong> Read the handles programmatically at any time with
+        <code>filter.valueLow</code> and <code>filter.valueHigh</code> — for example inside your
+        <code>draw()</code> loop to apply the range to whatever you are drawing.
+      </div>
+    </div>
+
+  </div><!-- /RangeSlider -->
+
+</div><!-- /page -->
+
+<script>
+(function () {
+  document.querySelectorAll('.example-row').forEach(function (row) {
+    var ta = row.querySelector('textarea.live-code');
+    var fr = row.querySelector('iframe.example-frame');
+    if (!ta || !fr) return;
+
+    function resize() {
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    }
+    resize();
+
+    // Push the textarea's code into the iframe as soon as it loads,
+    // so the initial preview matches the source shown — not the ?c= default.
+    fr.addEventListener('load', function () {
+      if (fr.contentWindow) {
+        fr.contentWindow.postMessage({ type: 'run', code: ta.value }, '*');
+      }
+    });
+
+    var timer;
+    ta.addEventListener('input', function () {
+      resize();
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        if (fr.contentWindow) {
+          fr.contentWindow.postMessage({ type: 'run', code: ta.value }, '*');
+        }
+      }, 700);
+    });
+  });
+}());
+</script>
+
+<footer>
+  <span>© 2026 David Stein</span>
+  <span class="footer-promo">
+    Another David Stein Production:
+    <a href="https://procontrols.org" target="_blank">procontrols.org</a> ·
+    <a href="https://indienewyork.com" target="_blank">indienewyork.com</a> ·
+    <a href="https://indieboston.com" target="_blank">indieboston.com</a>
+  </span>
+</footer>
+
+</body>
+</html>

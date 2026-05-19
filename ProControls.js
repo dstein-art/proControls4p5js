@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-05-18 17:30 — commit 0804193
+// Last updated: 2026-05-19 — commit c79513e
 
 // Set ControlStyle before creating controls to choose a built-in look.
 // Per-control overrides still work via opts.theme.
@@ -293,11 +293,49 @@ let   _proControlWired      = false;
 let   _proControlWasPressed = false;
 const _analogWheelQ     = [];
 
+// ── Auto-layout ──────────────────────────────────────────────────────────────
+// Tracks the cursor position for controls created without explicit x/y.
+// Portrait controls (h > w) advance the cursor rightward.
+// Landscape controls (w >= h) advance the cursor downward.
+// When the cursor would overflow the canvas bottom, a new column starts 20px
+// to the right of the rightmost edge reached so far.
+const _autoLayout = { nextX: 20, nextY: 20, rightEdge: 20 };
+
+function _autoNext(w, h) {
+  const GAP    = 8;
+  const startY = 20;
+  const cvH    = typeof height !== 'undefined' ? height : 600;
+
+  if (_autoLayout.nextY + h > cvH - GAP) {
+    // Overflow — start new column
+    _autoLayout.nextX = _autoLayout.rightEdge + 20;
+    _autoLayout.nextY = startY;
+  }
+
+  const x = _autoLayout.nextX;
+  const y = _autoLayout.nextY;
+
+  _autoLayout.rightEdge = Math.max(_autoLayout.rightEdge, x + w);
+
+  if (h > w) {
+    // Portrait: place next control to the right
+    _autoLayout.nextX = x + w + GAP;
+    _autoLayout.nextY = y;
+  } else {
+    // Landscape / square: place next control below
+    _autoLayout.nextX = x;
+    _autoLayout.nextY = y + h + GAP;
+  }
+
+  return { x, y };
+}
+
 // Clear all registrations — call at the top of buildControls() when rebuilding.
 function proControlReset() {
   _proControlRegistry.length = 0;
   _drawnThisFrame.clear();
   _proControlWasPressed = false;
+  Object.assign(_autoLayout, { nextX: 20, nextY: 20, rightEdge: 20 });
 }
 
 // p5.prototype.registerMethod only supports lifecycle hooks (pre/post/init/remove),
@@ -316,6 +354,12 @@ p5.prototype.registerMethod('pre', function () {
         e.preventDefault();
       }, { passive: false });
     }
+  }
+
+  // Resolve auto-placement for any controls still pending, in creation order.
+  // This runs after all setup() constructors have finished so width/height are final.
+  for (const c of _proControlRegistry) {
+    if (c._autoPlacePending) c._resolveAutoPlace();
   }
 
   // Dispatch hover / drag (safe to call every frame — uses current mouseX/mouseY)
@@ -353,11 +397,18 @@ p5.prototype.registerMethod('post', function () {
 
 class ProControl {
   constructor(opts = {}) {
-    this.x        = opts.x        ?? 20;
-    this.y        = opts.y        ?? 20;
+    // x/y: if neither is provided, auto-placement resolves lazily on first
+    // access (after the subclass constructor sets the final width/height).
+    if (opts.x === undefined && opts.y === undefined) {
+      this._x = 0; this._y = 0;
+      this._autoPlacePending = true;
+    } else {
+      this._x = opts.x ?? 20; this._y = opts.y ?? 20;
+      this._autoPlacePending = false;
+    }
     this.min      = opts.min      ?? 0;
     this.max      = opts.max      ?? 1;
-    this.value    = opts.value    ?? this.min;
+    this.value    = Math.max(this.min, Math.min(this.max, opts.value ?? this.min));
     this.label    = opts.label    ?? '';
     this.disabled = opts.disabled ?? false;
     this.onChange  = opts.onChange  ?? null;
@@ -377,6 +428,17 @@ class ProControl {
     this._lastPressTime  = -9999;
 
     _proControlRegistry.push(this);
+  }
+
+  get x() { if (this._autoPlacePending) this._resolveAutoPlace(); return this._x; }
+  set x(v) { this._autoPlacePending = false; this._x = v; }
+  get y() { if (this._autoPlacePending) this._resolveAutoPlace(); return this._y; }
+  set y(v) { this._autoPlacePending = false; this._y = v; }
+
+  _resolveAutoPlace() {
+    const { x, y } = _autoNext(this.width, this.height);
+    this._x = x; this._y = y;
+    this._autoPlacePending = false;
   }
 
   _isDoubleClick() {
@@ -1723,8 +1785,9 @@ window.ControlStyle       = ControlStyle;    // read-only reflection; set via Co
 window.ProControlThemes      = ProControlThemes;
 window.proControlBackground  = proControlBackground;
 window.proControlReset       = proControlReset;
-window.proControls    = function() { return [..._proControlRegistry]; };
-window.proControlFullReset   = function() { _proControlRegistry.length = 0; _drawnThisFrame.clear(); _proControlWasPressed = false; _proControlWired = false; };
+window.proControls         = function() { return [..._proControlRegistry]; };
+window.proControlFullReset = function() { _proControlRegistry.length = 0; _drawnThisFrame.clear(); _proControlWasPressed = false; _proControlWired = false; };
+window.resetAutoLayout     = function() { Object.assign(_autoLayout, { nextX: 20, nextY: 20, rightEdge: 20 }); };
 window.ProControl     = ProControl;
 window.AnalogSlider      = AnalogSlider;
 window.Switch            = Switch;
@@ -3067,8 +3130,8 @@ class MultiSlider extends ProControl {
       theme:          opts.theme          ?? {},
     };
 
-    let curX = this.x;
-    let curY = this.y;
+    // Build children relative to (0,0) — resolved position applied after
+    let curX = 0, curY = 0;
     for (const name of keys) {
       const raw   = sliders[name];
       const isObj = (typeof raw === 'object' && raw !== null);
@@ -3078,8 +3141,8 @@ class MultiSlider extends ProControl {
       const s = new AnalogSlider({
         ...base,
         ...over,
-        x:         this.horizontal ? this.x : curX,
-        y:         this.horizontal ? curY   : this.y,
+        x:         this.horizontal ? 0    : curX,
+        y:         this.horizontal ? curY : 0,
         value:     val,
         label:     name,
         onChange:  () => { if (this.onChange)  this.onChange(this._values()); },
@@ -3093,6 +3156,22 @@ class MultiSlider extends ProControl {
         curX += s.width + gap;
       }
     }
+
+    // If explicit x/y was provided, offset children immediately.
+    // If auto-placement is pending, leave children at (0,0) — the pre-hook
+    // calls _resolveAutoPlace() in creation order before the first draw.
+    if (!this._autoPlacePending) {
+      for (const s of this._children) { s.x += this._x; s.y += this._y; }
+    }
+  }
+
+  _resolveAutoPlace() {
+    const bb = this._bb();
+    if (!bb) return;
+    const { x, y } = _autoNext(bb.w, bb.h);
+    this._x = x; this._y = y;
+    this._autoPlacePending = false;
+    for (const s of this._children) { s.x += x; s.y += y; }
   }
 
   // ── Public API ────────────────────────────────────────────────────────────
@@ -3197,8 +3276,8 @@ class MultiDial extends ProControl {
       theme:          opts.theme          ?? {},
     };
 
-    let curX = this.x;
-    let curY = this.y;
+    // Build children relative to (0,0) — resolved position applied after
+    let curX = 0, curY = 0;
     for (const name of keys) {
       const raw   = dials[name];
       const isObj = (typeof raw === 'object' && raw !== null);
@@ -3208,8 +3287,8 @@ class MultiDial extends ProControl {
       const d = new Dial({
         ...base,
         ...over,
-        x:         this.horizontal ? curX   : this.x,
-        y:         this.horizontal ? this.y : curY,
+        x:         this.horizontal ? curX : 0,
+        y:         this.horizontal ? 0    : curY,
         value:     val,
         label:     name,
         onChange:  () => { if (this.onChange)  this.onChange(this._values()); },
@@ -3223,6 +3302,22 @@ class MultiDial extends ProControl {
         curY += d._panelH() + gap;
       }
     }
+
+    // If explicit x/y was provided, offset children immediately.
+    // If auto-placement is pending, leave children at (0,0) — the pre-hook
+    // calls _resolveAutoPlace() in creation order before the first draw.
+    if (!this._autoPlacePending) {
+      for (const d of this._children) { d.x += this._x; d.y += this._y; }
+    }
+  }
+
+  _resolveAutoPlace() {
+    const bb = this._bb();
+    if (!bb) return;
+    const { x, y } = _autoNext(bb.w, bb.h);
+    this._x = x; this._y = y;
+    this._autoPlacePending = false;
+    for (const d of this._children) { d.x += x; d.y += y; }
   }
 
   // ── Public API ────────────────────────────────────────────────────────────
@@ -6340,6 +6435,29 @@ window.Markup = Markup;
 // opts: x, y, width, height, label, movable, resizable, minimizable,
 //       maxMessages, timestamps, intercept[], theme
 
+// Draws a small LED indicator on the left side of a title bar.
+// brightness is 0–1; call with (millis() - _ledLastFlash) / fadeMs each frame.
+function _drawTitleLED(x, y, titleH, brightness) {
+  const cx = x + 11;
+  const cy = y + titleH / 2;
+  const r  = 3;
+  push();
+  noStroke();
+  const b = Math.max(0, Math.min(1, brightness));
+  // Body: dark green → bright green
+  fill(Math.round(b * 20), Math.round(40 + b * 215), Math.round(b * 100));
+  if (b > 0.05) {
+    drawingContext.shadowBlur  = 7 * b;
+    drawingContext.shadowColor = `rgba(0,255,120,${b * 0.9})`;
+  }
+  ellipse(cx, cy, r * 2, r * 2);
+  drawingContext.shadowBlur = 0;
+  // Specular highlight
+  fill(255, 255, 255, b > 0.15 ? b * 110 : 30);
+  ellipse(cx - 0.6, cy - 0.9, r * 0.9, r * 0.9);
+  pop();
+}
+
 class ConsolePanel extends ProControl {
   constructor(opts = {}) {
     super(Object.assign({ min: 0, max: 1, value: 0 }, opts));
@@ -6360,6 +6478,7 @@ class ConsolePanel extends ProControl {
     this._layoutDirty   = true;
     this._lastWidth     = this.width;
     this._pendingBottom = false;
+    this._ledLastFlash  = -Infinity;
 
     this._rowH   = 13;
     this._padX   = 6;
@@ -6443,6 +6562,7 @@ class ConsolePanel extends ProControl {
     if (this._msgs.length > this._maxMsgs) this._msgs.shift();
     this._layoutDirty   = true;
     this._pendingBottom = true;
+    this._ledLastFlash  = millis();
   }
 
   // ── Geometry ──────────────────────────────────────────────────────────────
@@ -6558,6 +6678,7 @@ class ConsolePanel extends ProControl {
     pop();
 
     _drawBevelTitleBar(theme, x, y, width, this._titleH, this._minimized, this.label);
+    _drawTitleLED(x, y, this._titleH, 1 - (millis() - this._ledLastFlash) / 400);
     this._drawClrBtn();
     if (this.minimizable) this._drawToggleBtn();
 
@@ -6757,6 +6878,27 @@ class ConsolePanel extends ProControl {
 
 window.ConsolePanel = ConsolePanel;
 
+// ── Global ConsolePanel helpers ───────────────────────────────────────────────
+// openConsolePanel(opts) — creates the panel on first call (accepting any
+// ConsolePanel constructor options), then shows it on every subsequent call.
+// closeConsolePanel()    — hides the panel without destroying it or its data.
+// The panel object itself is accessible via the returned reference if needed.
+
+let _globalConsolePanel = null;
+
+window.openConsolePanel = function(opts = {}) {
+  if (!_globalConsolePanel) {
+    _globalConsolePanel = new ConsolePanel(opts);
+  } else {
+    _globalConsolePanel.visible = true;
+  }
+  return _globalConsolePanel;
+};
+
+window.closeConsolePanel = function() {
+  if (_globalConsolePanel) _globalConsolePanel.visible = false;
+};
+
 // ─── TimeGraphPanel ───────────────────────────────────────────────────────────
 // Scrolling time-series line graph. Push a number for a single variable, or
 // an object {key:value, ...} to graph multiple named variables simultaneously.
@@ -6820,10 +6962,11 @@ class TimeGraphPanel extends ProControl {
     this._draggingPanel = false;
     this._dragPanelOff  = null;
 
-    this._startTime  = null;
-    this._times      = [];
-    this._hoverFrac  = null;
+    this._startTime   = null;
+    this._times       = [];
+    this._hoverFrac   = null;
     this._hoverMouseX = null;
+    this._ledLastFlash = -Infinity;
   }
 
   // ── Public API ────────────────────────────────────────────────────────────
@@ -6852,6 +6995,7 @@ class TimeGraphPanel extends ProControl {
     this._times.push(ts);
     if (this._data.length  > this._maxSamples) this._data.shift();
     if (this._times.length > this._maxSamples) this._times.shift();
+    this._ledLastFlash = millis();
   }
 
   clear() {
@@ -6955,6 +7099,7 @@ class TimeGraphPanel extends ProControl {
     pop();
 
     _drawBevelTitleBar(theme, x, y, width, this._titleH, this._minimized, this.label);
+    _drawTitleLED(x, y, this._titleH, 1 - (millis() - this._ledLastFlash) / 400);
     if (this.minimizable) this._drawToggleBtn();
     if (this._minimized) return;
 

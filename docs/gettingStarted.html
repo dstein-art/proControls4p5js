@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProControls — Getting Started</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #ffffff;
+      --surface:  #f4f4f6;
+      --surface2: #ebebee;
+      --border:   #e0e0e6;
+      --accent:   #0077cc;
+      --accent2:  #cc5500;
+      --text:     #1a1a22;
+      --muted:    #666680;
+      --code-bg:  #1a1a22;
+      --code-text:#d4d4d8;
+      --nav-bg:   #ffffffee;
+      --nav-h:    52px;
+      --max-w:    900px;
+      --radius:   6px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      font: 15px/1.65 'Inter', 'Segoe UI', system-ui, sans-serif;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    nav, .hero { width: 100%; }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      gap: 4px;
+      overflow-x: clip;
+      overflow-y: visible;
+      white-space: nowrap;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+      flex-shrink: 0;
+    }
+
+    nav a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    nav .docs-link { color: var(--accent2); margin-left: 6px; }
+    nav .docs-link:hover {
+      color: var(--accent2);
+      border-color: #cc550044;
+      background: #cc55000a;
+    }
+
+    nav .sep { color: var(--border); margin: 0 2px; user-select: none; }
+
+    /* ── Nav submenu ── */
+    .nav-group { position: relative; display: flex; align-items: center; }
+    .nav-submenu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px;
+      padding-top: 10px;
+      min-width: 130px;
+      z-index: 200;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(0,0,0,.1);
+      flex-direction: column;
+      gap: 2px;
+    }
+    .nav-group:hover .nav-submenu { display: flex; }
+    .nav-submenu a {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+    }
+    .nav-submenu a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    /* ── Compact Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #0f1923 0%, #1a2840 50%, #0f2030 100%);
+      padding: 20px 32px 18px;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -80px; left: 50%;
+      width: 400px; height: 200px;
+      background: radial-gradient(ellipse, #0077cc20 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .hero-left { display: flex; align-items: baseline; gap: 14px; }
+
+    .hero h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -.02em;
+      line-height: 1;
+    }
+
+    .hero h1 .accent { color: #00aaff; }
+    .hero h1 .dim    { color: #6699bb; font-weight: 400; }
+
+    .hero-sub { font-size: 13px; color: #6688aa; }
+
+    .hero-docs {
+      font-size: 12px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid #0077cc66;
+      color: #66bbff;
+      background: #0077cc22;
+      text-decoration: none;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+    .hero-docs:hover { background: #0077cc44; }
+
+    /* ── Page layout ── */
+    .page {
+      width: 100%;
+      max-width: var(--max-w);
+      padding: 52px 32px 100px;
+    }
+
+    /* ── Section headings ── */
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 44px 0 6px;
+    }
+
+    h2:first-child { margin-top: 0; }
+
+    h3 {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #9999b0;
+      margin: 32px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .desc {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 14px;
+    }
+
+    /* ── Code blocks ── */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid #2a2a38;
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      font: 13px/1.65 'Fira Code', 'Cascadia Code', monospace;
+      overflow-x: auto;
+      margin: 0 0 4px;
+      color: var(--code-text);
+    }
+
+    code {
+      font: 13px/1 'Fira Code', 'Cascadia Code', monospace;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent);
+    }
+
+    pre code { background: none; border: none; padding: 0; color: inherit; }
+
+    .kw   { color: #c792ea; }
+    .fn   { color: #82aaff; }
+    .str  { color: #c3e88d; }
+    .num  { color: #f78c6c; }
+    .cmt  { color: #546e7a; font-style: italic; }
+    .prop { color: #89ddff; }
+
+    /* ── Option table ── */
+    .opts {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .opts thead th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 14px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .opts tbody tr:nth-child(even) td { background: #f9f9fc; }
+    .opts tbody tr:hover td { background: #f0f0f8; }
+
+    .opts td {
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+    .opts tbody tr:last-child td { border-bottom: none; }
+    .opts td:first-child  { font-family: monospace; color: var(--accent); white-space: nowrap; font-size: 13px; }
+    .opts td:nth-child(2) { font-family: monospace; color: #8888aa; white-space: nowrap; font-size: 13px; }
+    .opts td:nth-child(3) { font-family: monospace; color: var(--accent2); white-space: nowrap; font-size: 13px; }
+    .opts td:last-child   { color: var(--muted); white-space: normal; }
+
+    /* ── Callouts ── */
+    .note {
+      background: #0077cc0a;
+      border-left: 3px solid var(--accent);
+      padding: 11px 16px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 14px;
+      color: #446688;
+      margin: 16px 0 0;
+      line-height: 1.65;
+    }
+    .note strong { color: var(--accent); }
+
+    hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+    /* ── Tutorial promo card ── */
+    .promo-card {
+      margin-top: 0;
+      background: linear-gradient(135deg, #0f1923 0%, #1c2d44 100%);
+      border: 1px solid #2a4060;
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .promo-card-text h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0 0 6px;
+      letter-spacing: 0;
+      text-transform: none;
+      border: none;
+      padding: 0;
+      text-transform: none;
+    }
+
+    .promo-card-text p {
+      font-size: 13px;
+      color: #7799bb;
+      line-height: 1.6;
+    }
+
+    .promo-card-link {
+      font-size: 12px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      padding: 7px 16px;
+      border-radius: 20px;
+      border: 1px solid #0077cc66;
+      color: #66bbff;
+      background: #0077cc22;
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background .15s;
+    }
+    .promo-card-link:hover { background: #0077cc44; }
+
+    /* ── Footer ── */
+    footer {
+      order: 1;
+      width: 100%;
+      padding: 16px 32px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" title="Home" style="padding:5px 8px;font-size:18px;line-height:1;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:20px;">home</span></a>
+  <span class="sep">·</span>
+  <a href="gettingStarted.html" style="color:var(--accent)">Getting Started</a>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#slider">Sliders &amp; Dials</a>
+    <div class="nav-submenu">
+      <a href="help.html#slider">AnalogSlider</a>
+      <a href="help.html#multislider">MultiSlider</a>
+      <a href="help.html#rangeslider">RangeSlider</a>
+      <a href="help.html#dial">Dial</a>
+      <a href="help.html#multidial">MultiDial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#pads">Pads</a>
+    <div class="nav-submenu">
+      <a href="help.html#xypad">XYPad</a>
+      <a href="help.html#gridpad">GridPad</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#selectors">Selectors</a>
+    <div class="nav-submenu">
+      <a href="help.html#switch">Switch</a>
+      <a href="help.html#iconButton">IconButton</a>
+      <a href="help.html#selector">Selector</a>
+      <a href="help.html#tagSelector">TagSelector</a>
+      <a href="help.html#sliderSelector">SliderSelector</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#panel">Panel</a>
+    <div class="nav-submenu">
+      <a href="help.html#panel">Panel</a>
+      <a href="help.html#messageDialog">MessageDialog</a>
+      <a href="help.html#inputDialog">InputDialog</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <a href="help.html#menu">Menu</a>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#displays">Displays</a>
+    <div class="nav-submenu">
+      <a href="help.html#vumeter">VUMeter</a>
+      <a href="help.html#vudial">VUDial</a>
+      <a href="help.html#ledmeter">LEDMeter</a>
+      <a href="help.html#adsr">ADSRDisplay</a>
+      <a href="help.html#markup">Markup</a>
+      <a href="help.html#consolePanel">ConsolePanel</a>
+      <a href="help.html#timeGraphPanel">TimeGraphPanel</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <a href="help.html#themes">Themes &amp; Styles</a>
+  <span class="sep">·</span>
+  <a href="help.html#touch">Events</a>
+  <span class="sep">·</span>
+  <a href="../LICENSE" target="_blank">License</a>
+  <a href="help.html" class="docs-link">↗ Docs</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div>
+        <h1><span class="accent">Getting</span> <span class="dim">Started</span></h1>
+        <div style="font-size:12px;color:#6688aa;margin-top:4px;letter-spacing:.04em;">ProControls for p5.js — by David Stein</div>
+      </div>
+      <span class="hero-sub">Set up your HTML, write your first sketch, and run your first control in minutes</span>
+    </div>
+    <a href="help.html" class="hero-docs">↗ Full Docs</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- HTML Setup -->
+  <h2>1. Add the script tags</h2>
+  <p class="desc">
+    ProControls requires p5.js. Add these three lines to your HTML <code>&lt;head&gt;</code> — the icons font
+    is optional but used by several controls. Load them in order: p5.js first, then ProControls.
+  </p>
+  <pre><code><span class="cmt">&lt;!-- Google icon font (optional — used by IconButton and nav icons) --&gt;</span>
+<span class="kw">&lt;link</span> href=<span class="str">"https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&amp;display=block"</span> rel=<span class="str">"stylesheet"</span><span class="kw">&gt;</span>
+
+<span class="cmt">&lt;!-- p5.js --&gt;</span>
+<span class="kw">&lt;script</span> src=<span class="str">"https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"</span><span class="kw">&gt;&lt;/script&gt;</span>
+
+<span class="cmt">&lt;!-- ProControls (CDN) --&gt;</span>
+<span class="kw">&lt;script</span> src=<span class="str">"https://cdn.jsdelivr.net/gh/dstein-art/proControls4p5js@master/ProControls.js"</span><span class="kw">&gt;&lt;/script&gt;</span>
+
+<span class="cmt">&lt;!-- Your sketch --&gt;</span>
+<span class="kw">&lt;script</span> src=<span class="str">"sketch.js"</span><span class="kw">&gt;&lt;/script&gt;</span></code></pre>
+
+  <div class="note">
+    <strong>Local copy:</strong> Download <code>ProControls.js</code> from
+    <a href="https://github.com/dstein-art/proControls4p5js" target="_blank">GitHub</a>
+    and change the <code>src</code> to a relative path if you prefer not to use the CDN.
+  </div>
+
+  <!-- Minimal sketch -->
+  <h2>2. Write your first sketch</h2>
+  <p class="desc">
+    Set <code>ControlStyle</code> once before creating any controls. Create controls in <code>setup()</code>.
+    Call <code>proControlBackground()</code> at the top of <code>draw()</code> — controls render themselves
+    automatically after that via a built-in post hook. No event handlers needed.
+  </p>
+  <pre><code><span class="cmt">// sketch.js</span>
+<span class="prop">ControlStyle</span> = <span class="str">'black'</span>;  <span class="cmt">// set before creating any controls</span>
+                          <span class="cmt">// options: 'black' 'stainless' 'white' 'brushed'</span>
+                          <span class="cmt">//          'red' 'blue' 'yellow' 'dimpled'</span>
+
+<span class="kw">let</span> vol, pan, pwr;
+
+<span class="kw">function</span> <span class="fn">setup</span>() {
+  <span class="fn">createCanvas</span>(<span class="num">600</span>, <span class="num">300</span>);
+  vol = <span class="kw">new</span> <span class="fn">AnalogSlider</span>({ x: <span class="num">40</span>,  y: <span class="num">50</span>, label: <span class="str">'VOL'</span> });
+  pan = <span class="kw">new</span> <span class="fn">Dial</span>({         x: <span class="num">120</span>, y: <span class="num">60</span>, label: <span class="str">'PAN'</span> });
+  pwr = <span class="kw">new</span> <span class="fn">Switch</span>({      x: <span class="num">220</span>, y: <span class="num">80</span>, label: <span class="str">'PWR'</span>, states: [<span class="str">'OFF'</span>, <span class="str">'ON'</span>] });
+}
+
+<span class="kw">function</span> <span class="fn">draw</span>() {
+  <span class="fn">proControlBackground</span>();  <span class="cmt">// fills canvas with the style's background colour</span>
+  <span class="cmt">// Controls draw themselves — nothing else needed here.</span>
+}
+
+<span class="cmt">// Reading values anywhere in draw():</span>
+<span class="cmt">// vol.value  → 0–1</span>
+<span class="cmt">// pan.value  → 0–1</span>
+<span class="cmt">// pwr.state  → 0 or 1</span></code></pre>
+
+  <!-- Auto-placement -->
+  <h3>Auto-placement</h3>
+  <p class="desc">
+    Leave out <code>x</code> and <code>y</code> and ProControls places the control automatically,
+    advancing the cursor based on each control's shape. Portrait controls tile left-to-right;
+    landscape controls stack top-to-bottom. When the column runs out of vertical space a new column starts.
+  </p>
+  <pre><code><span class="cmt">// No coordinates — ProControls figures out where to put them.</span>
+<span class="kw">const</span> vol = <span class="kw">new</span> <span class="fn">AnalogSlider</span>();
+<span class="kw">const</span> pan = <span class="kw">new</span> <span class="fn">Dial</span>();
+<span class="kw">const</span> eq  = <span class="kw">new</span> <span class="fn">MultiSlider</span>({ sliders: { <span class="str">'LO'</span>: <span class="num">0</span>, <span class="str">'MID'</span>: <span class="num">0</span>, <span class="str">'HI'</span>: <span class="num">0</span> } });</code></pre>
+
+  <!-- Rebuilding -->
+  <h3>Rebuilding controls at runtime</h3>
+  <p class="desc">
+    Call <code>proControlReset()</code> before rebuilding all controls — for example when the user
+    switches style. Read current values first to preserve them across the rebuild.
+  </p>
+  <pre><code><span class="kw">function</span> <span class="fn">buildControls</span>() {
+  <span class="fn">proControlReset</span>();              <span class="cmt">// clear old registrations</span>
+  ControlStyle = currentStyle;
+  mySlider = <span class="kw">new</span> <span class="fn">AnalogSlider</span>({ value: mySlider?.value ?? <span class="num">0.5</span> });
+}</code></pre>
+
+  <!-- Removing -->
+  <h3>Removing a single control</h3>
+  <pre><code>mySlider.<span class="fn">remove</span>(); <span class="cmt">// deregisters from events; stop calling .draw() to remove visually</span></code></pre>
+
+  <hr>
+
+  <!-- Common options -->
+  <h2>Common options</h2>
+  <p class="desc">Every control inherits these from the <code>ProControl</code> base class.</p>
+  <table class="opts">
+    <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td>x</td><td>number</td><td>auto</td><td>Left edge of the control in canvas pixels. Omit to use auto-placement.</td></tr>
+      <tr><td>y</td><td>number</td><td>auto</td><td>Top edge of the control in canvas pixels. Omit to use auto-placement.</td></tr>
+      <tr><td>min</td><td>number</td><td>0</td><td>Minimum value of the range.</td></tr>
+      <tr><td>max</td><td>number</td><td>1</td><td>Maximum value of the range.</td></tr>
+      <tr><td>value</td><td>number</td><td>min</td><td>Initial value. Writable at any time via <code>ctrl.value = v</code>.</td></tr>
+      <tr><td>label</td><td>string</td><td>''</td><td>Text label drawn on the control.</td></tr>
+      <tr><td>scale</td><td>string</td><td>'linear'</td><td><code>'linear'</code> or <code>'log'</code>. Log requires <code>min &gt; 0</code>. Affects dragging, scrolling, and tick labels.</td></tr>
+      <tr><td>disabled</td><td>boolean</td><td>false</td><td>Draws a translucent overlay and blocks all interaction.</td></tr>
+      <tr><td>onChange</td><td>function</td><td>null</td><td>Called with the new value whenever it changes during interaction.</td></tr>
+      <tr><td>onRelease</td><td>function</td><td>null</td><td>Called once with the final value on mouse/touch release.</td></tr>
+      <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override merged on top of the active style. See <a href="help.html#themes">Themes</a>.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <!-- Tutorial promos -->
+  <h2>Next: Explore the Tutorials</h2>
+  <p class="desc">
+    Each tutorial walks through a family of controls step by step — from a one-line example to
+    styling options and data callbacks. Every code block is live and editable directly in the browser.
+  </p>
+  <div class="promo-card">
+    <div class="promo-card-text">
+      <h3>Sliders &amp; Dials Tutorial</h3>
+      <p>Covers AnalogSlider, Dial, MultiSlider, MultiDial, and RangeSlider — four steps each,
+         beginner-friendly explanations, all examples interactive.</p>
+    </div>
+    <a href="slidersTutorial.html" class="promo-card-link">Start Tutorial →</a>
+  </div>
+
+  <div class="promo-card">
+    <div class="promo-card-text">
+      <h3>Pads Tutorial</h3>
+      <p>Covers XYPad and GridPad — four steps each, from a one-liner to custom modes and
+         data callbacks, all examples live and editable.</p>
+    </div>
+    <a href="padsTutorial.html" class="promo-card-link">Start Tutorial →</a>
+  </div>
+
+  <div class="promo-card">
+    <div class="promo-card-text">
+      <h3>Selectors Tutorial</h3>
+      <p>Covers Switch, Selector, TagSelector, and SliderSelector — four steps each, from
+         a one-liner to multi-state layouts and data callbacks.</p>
+    </div>
+    <a href="selectorsTutorial.html" class="promo-card-link">Start Tutorial →</a>
+  </div>
+
+</div>
+
+<footer>
+  <span>© 2026 David Stein</span>
+  <span class="footer-promo">
+    Another David Stein Production:
+    <a href="https://procontrols.org" target="_blank">procontrols.org</a> ·
+    <a href="https://indienewyork.com" target="_blank">indienewyork.com</a> ·
+    <a href="https://indieboston.com" target="_blank">indieboston.com</a>
+  </span>
+</footer>
+
+</body>
+</html>

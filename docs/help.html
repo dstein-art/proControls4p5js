@@ -1,0 +1,2502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProControls — Documentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #ffffff;
+      --surface:   #f4f4f6;
+      --surface2:  #ebebee;
+      --border:    #e0e0e6;
+      --accent:    #0077cc;
+      --accent2:   #cc5500;
+      --text:      #1a1a22;
+      --muted:     #666680;
+      --code-bg:   #1a1a22;
+      --code-text: #d4d4d8;
+      --nav-bg:    #ffffffee;
+      --nav-h:     52px;
+      --max-w:     1100px;
+      --radius:    6px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.7 'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      gap: 4px;
+      overflow-x: clip;
+      overflow-y: visible;
+      white-space: nowrap;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+      flex-shrink: 0;
+    }
+
+    nav a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    nav .demo-link {
+      color: var(--accent2);
+      border-color: transparent;
+      margin-left: 6px;
+    }
+    nav .demo-link:hover {
+      color: var(--accent2);
+      border-color: #cc550044;
+      background: #cc55000a;
+    }
+
+    nav .sep { color: var(--border); margin: 0 2px; user-select: none; }
+
+    /* ── Nav submenu ── */
+    .nav-group { position: relative; display: flex; align-items: center; }
+    .nav-submenu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 4px;
+      padding-top: 10px;
+      min-width: 130px;
+      z-index: 200;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(0,0,0,.1);
+      flex-direction: column;
+      gap: 2px;
+    }
+    .nav-group:hover .nav-submenu { display: flex; }
+    .nav-submenu a {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: calc(var(--radius) - 1px);
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+    }
+    .nav-submenu a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #0f1923 0%, #1a2840 50%, #0f2030 100%);
+      padding: 80px 32px 72px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* subtle grid overlay */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    /* glow blob */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -60px; left: 40%;
+      width: 500px; height: 400px;
+      background: radial-gradient(ellipse, #0077cc28 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: #0099ee;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      letter-spacing: -.02em;
+    }
+
+    .hero h1 .accent { color: #00aaff; }
+    .hero h1 .dim    { color: #6699bb; font-weight: 400; }
+
+    .hero-desc {
+      font-size: 17px;
+      line-height: 1.6;
+      color: #8aaccc;
+      max-width: 66%;
+      margin-bottom: 32px;
+    }
+
+    .hero-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chip {
+      font-size: 12px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid #ffffff22;
+      color: #aaccee;
+      background: #ffffff0a;
+    }
+
+    .chip-demo {
+      background: #0077cc22;
+      border-color: #0077cc66;
+      color: #66bbff;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .chip-demo:hover { background: #0077cc44; }
+
+    /* ── Page layout ── */
+    .page { max-width: var(--max-w); margin: 0 auto; padding: 56px 32px 100px; }
+
+    /* ── Sections ── */
+    section { margin-bottom: 72px; scroll-margin-top: calc(var(--nav-h) + 20px); }
+    h2[id] { scroll-margin-top: calc(var(--nav-h) + 20px); }
+    section h2 + h2 { margin-top: 40px; }
+
+    section h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    section h2 .tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc12;
+      border: 1px solid #0077cc33;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    section h2 .tag.ext {
+      color: var(--accent2);
+      background: #cc550012;
+      border-color: #cc550033;
+    }
+
+    .desc { color: var(--muted); margin-bottom: 20px; line-height: 1.65; }
+
+    section h3 {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #9999b0;
+      margin: 32px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Option tables ── */
+    .opts {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .opts thead th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 14px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .opts tbody tr:nth-child(even) td { background: #f9f9fc; }
+    .opts tbody tr:hover td { background: #f0f0f8; }
+
+    .opts td {
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+    .opts tbody tr:last-child td { border-bottom: none; }
+
+    .opts td:first-child  { font-family: monospace; color: var(--accent); white-space: nowrap; font-size: 13px; }
+    .opts td:nth-child(2) { font-family: monospace; color: #8888aa; white-space: nowrap; font-size: 13px; }
+    .opts td:nth-child(3) { font-family: monospace; color: var(--accent2); white-space: nowrap; font-size: 13px; }
+    .opts td:last-child   { color: var(--muted); white-space: normal; }
+
+    /* ── Code blocks ── */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid #2a2a38;
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      font: 13px/1.65 'Fira Code', 'Cascadia Code', monospace;
+      overflow-x: auto;
+      margin: 10px 0 0;
+      color: var(--code-text);
+    }
+
+    code {
+      font: 13px/1 'Fira Code', 'Cascadia Code', monospace;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent);
+    }
+
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: inherit;
+    }
+
+    .kw  { color: #c792ea; }
+    .fn  { color: #82aaff; }
+    .str { color: #c3e88d; }
+    .num { color: #f78c6c; }
+    .cmt { color: #546e7a; font-style: italic; }
+    .prop{ color: #89ddff; }
+
+    /* ── Callouts ── */
+    .note {
+      background: #0077cc0a;
+      border-left: 3px solid var(--accent);
+      padding: 11px 16px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 14px;
+      color: #446688;
+      margin: 16px 0 0;
+    }
+    .note strong { color: var(--accent); }
+
+    .warn {
+      background: #cc55000a;
+      border-left: 3px solid var(--accent2);
+      padding: 11px 16px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 14px;
+      color: #885533;
+      margin: 16px 0 0;
+    }
+    .warn strong { color: var(--accent2); }
+
+    /* ── Theme swatches ── */
+    .swatches { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+
+    .swatch {
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      font-size: 13px;
+      min-width: 130px;
+      background: var(--bg);
+    }
+
+    .swatch .name { font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--text); }
+
+    .swatch .bg-chip {
+      width: 100%;
+      height: 22px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(0,0,0,.12);
+    }
+
+    .swatch .accent-chip {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+
+    .swatch .label { color: var(--muted); font-size: 12px; }
+
+    /* ── Signature ── */
+    .sig {
+      font: 13px/1.6 'Fira Code', 'Cascadia Code', monospace;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 16px;
+      color: var(--text);
+    }
+
+    hr { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+
+    /* ── Live examples ── */
+    .example-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin: 10px 0 0;
+    }
+
+    .live-editor {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .live-hint {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc0d;
+      border: 1px solid #0077cc33;
+      border-bottom: none;
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: 4px 10px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    .live-code {
+      background: var(--code-bg);
+      border: 1px solid #2a2a38;
+      border-radius: 0 0 var(--radius) var(--radius);
+      padding: 18px 20px;
+      font: 13px/1.65 'Fira Code', 'Cascadia Code', monospace;
+      color: var(--code-text);
+      resize: none;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: pre;
+      field-sizing: content;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .live-code:focus {
+      border-color: #0077cc88;
+    }
+
+    .example-frame {
+      flex-shrink: 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: block;
+      box-shadow: 0 2px 10px rgba(0,0,0,.18);
+    }
+    .themes-frames {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    @media (max-width: 640px) {
+      .example-row { flex-direction: column; }
+      .example-frame { align-self: center; }
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 32px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    footer a:hover { text-decoration: underline; }
+
+    .footer-promo { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+
+    /* ── Pre-release badge ── */
+    .prerelease-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #ff990018;
+      border: 1px solid #ff990055;
+      color: #ffbb44;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 4px;
+      margin-bottom: 22px;
+    }
+    .prerelease-badge::before {
+      content: '';
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #ffaa33;
+      box-shadow: 0 0 6px #ffaa33aa;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Nav ── -->
+<nav>
+  <a href="../index.html" title="Home" style="padding:5px 8px;font-size:18px;line-height:1;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:20px;">home</span></a>
+  <span class="sep">·</span>
+  <a href="gettingStarted.html">Getting Started</a>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="#slider">Sliders &amp; Dials</a>
+    <div class="nav-submenu">
+      <a href="#slider">AnalogSlider</a>
+      <a href="#multislider">MultiSlider</a>
+      <a href="#rangeslider">RangeSlider</a>
+      <a href="#dial">Dial</a>
+      <a href="#multidial">MultiDial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="#pads">Pads</a>
+    <div class="nav-submenu">
+      <a href="#xypad">XYPad</a>
+      <a href="#gridpad">GridPad</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="#selectors">Selectors</a>
+    <div class="nav-submenu">
+      <a href="#switch">Switch</a>
+      <a href="#iconButton">IconButton</a>
+      <a href="#selector">Selector</a>
+      <a href="#tagSelector">TagSelector</a>
+      <a href="#sliderSelector">SliderSelector</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="#panel">Panel</a>
+    <div class="nav-submenu">
+      <a href="#panel">Panel</a>
+      <a href="#messageDialog">MessageDialog</a>
+      <a href="#inputDialog">InputDialog</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <a href="#menu">Menu</a>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="#displays">Displays</a>
+    <div class="nav-submenu">
+      <a href="#vumeter">VUMeter</a>
+      <a href="#vudial">VUDial</a>
+      <a href="#ledmeter">LEDMeter</a>
+      <a href="#adsr">ADSRDisplay</a>
+      <a href="#markup">Markup</a>
+      <a href="#consolePanel">ConsolePanel</a>
+      <a href="#timeGraphPanel">TimeGraphPanel</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <a href="#themes">Themes &amp; Styles</a>
+  <span class="sep">·</span>
+  <a href="#touch">Events</a>
+  <span class="sep">·</span>
+  <a href="../LICENSE" target="_blank">License</a>
+  <a href="demo.html" class="demo-link" target="_blank">↗ Live Demo</a>
+</nav>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="prerelease-badge">Pre-Release — API subject to change</div>
+    <h1>
+      <span class="accent">Pro</span><span class="dim">Controls</span> <span class="dim">for p5.js</span>
+    </h1>
+    <div style="font-size:15px;color:#6688aa;margin-top:-14px;margin-bottom:6px;letter-spacing:.04em;">by David Stein</div>
+    <p class="hero-desc">
+      An open source library of hardware-inspired UI controls for p5.js sketches — faders, rotary knobs, XY pads, step-sequencer grids, VU meters, LED displays, ADSR envelopes, menus, dialogs, and more. Built by David Stein and hosted at <a href="https://procontrols.org" style="color:#66bbff;text-decoration:none;border-bottom:1px solid #66bbff44;">procontrols.org</a>. Drop in one script tag, set a style, and your controls wire themselves up — no event handlers, no layout math, no boilerplate. Eight built-in themes (black, stainless, white, brushed, red, blue, yellow, dimpled) plus touch support out of the box.
+    </p>
+    <div class="hero-chips">
+      <span class="chip">ProControls.js</span>
+      <span class="chip">p5.js 1.9+</span>
+      <span class="chip">MIT License</span>
+      <a href="demo.html" class="chip chip-demo" target="_blank">↗ Live Demo</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Content ── -->
+<div class="page">
+
+  <!-- Getting Started — moved to gettingStarted.html -->
+  <section id="getting-started">
+    <div class="note" style="margin:0 0 0">
+      <strong>New here?</strong> See the <a href="gettingStarted.html">Getting Started</a> page for
+      HTML setup, script tags, a minimal sketch, and the common options table.
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- AnalogSlider -->
+  <section id="slider">
+    <h2>AnalogSlider <span class="tag">Input</span></h2>
+    <p class="desc">A vertical fader with a draggable cap, optional scale ticks, and a live readout. Drag the cap or scroll the mouse wheel to change value. Double-click the cap to reset to the initial value.</p>
+
+    <div class="sig" style="margin-top:14px">new AnalogSlider(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>horizontal</td><td>boolean</td><td>false</td><td>When <code>true</code>, the fader runs left-to-right instead of bottom-to-top. Default <code>width</code> becomes 180 and default <code>height</code> becomes 44. <code>showScale</code> defaults to <code>false</code> in horizontal mode.</td></tr>
+        <tr><td>width</td><td>number</td><td>auto / 180</td><td>Panel width. Vertical: auto-sized to fit tick labels when <code>showScale</code> is true. Horizontal: defaults to 180.</td></tr>
+        <tr><td>height</td><td>number</td><td>180 / 44</td><td>Panel height. Vertical default 180, horizontal default 44.</td></tr>
+        <tr><td>readout</td><td>string</td><td>'raw'</td><td><code>'raw'</code> — numeric value · <code>'percent'</code> — 0–100% · <code>'db'</code> — dB relative to max (shows <code>-∞</code> at min).</td></tr>
+        <tr><td>decimals</td><td>number</td><td>2</td><td>Decimal places for the <code>'raw'</code> readout.</td></tr>
+        <tr><td>showScale</td><td>boolean</td><td>true / false</td><td>Draw tick marks and numeric labels along the track. Defaults <code>true</code> vertical, <code>false</code> horizontal.</td></tr>
+        <tr><td>style</td><td>string</td><td>'knob'</td><td>Visual style — <code>'knob'</code> (default), <code>'wheel'</code> (cylinder with scrolling ribs), <code>'button'</code> (minimal circular cap). Works for both vertical and horizontal orientations. See slider styles below.</td></tr>
+        <tr><td>showFader</td><td>boolean</td><td>true</td><td>Show or hide the draggable cap. <code>false</code> = display-only meter.</td></tr>
+        <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, the fader animates back to its initial value after mouse/touch release.</td></tr>
+        <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete.</td></tr>
+        <tr><td>springDefault</td><td>number</td><td>value</td><td>Value to restore on double-click reset (and spring-back target). Defaults to the initial <code>value</code>. Override when the control is rebuilt dynamically to pin the reset point.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const vol = new AnalogSlider({
+  x: 28, y: 35,
+  width: 44, height: 180,
+  min: 0, max: 1, value: 0.8,
+  label: 'VOLUME',
+  readout: 'db',
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=slider" width="100" height="265" scrolling="no" frameborder="0" loading="lazy" title="AnalogSlider live example"></iframe>
+    </div>
+
+    <div class="note"><strong>Log scale:</strong> Set <code>scale: 'log'</code> with a small positive <code>min</code> (e.g. <code>0.001</code>) for a perceptually even frequency fader.</div>
+
+    <h3>Slider styles</h3>
+    <p class="desc">Set <code>style</code> on any vertical <code>AnalogSlider</code> to change its visual. Interaction is identical across all styles.</p>
+    <div class="themes-frames">
+      <div style="text-align:center">
+        <iframe class="example-frame" src="example.html?c=slider&lbl=KNOB" width="100" height="265" scrolling="no" frameborder="0" loading="lazy" title="knob slider"></iframe>
+        <div style="font-size:11px;color:#888;margin-top:4px">knob (default)</div>
+      </div>
+      <div style="text-align:center">
+        <iframe class="example-frame" src="example.html?c=slider_wheel" width="100" height="265" scrolling="no" frameborder="0" loading="lazy" title="wheel slider"></iframe>
+        <div style="font-size:11px;color:#888;margin-top:4px">wheel</div>
+      </div>
+      <div style="text-align:center">
+        <iframe class="example-frame" src="example.html?c=slider_button" width="100" height="265" scrolling="no" frameborder="0" loading="lazy" title="button slider"></iframe>
+        <div style="font-size:11px;color:#888;margin-top:4px">button</div>
+      </div>
+    </div>
+    <p class="desc"><strong>wheel</strong> — a cylinder visible through a slot. Ribs scroll with the value position; center notches mark the midpoint. Vertical: horizontal ribs, width defaults to 50px. Horizontal: vertical ribs, full slot is draggable. Scale defaults to off.</p>
+    <p class="desc"><strong>button</strong> — a minimal thin-groove track with a spherical circular cap. Works in both orientations. Width defaults to 40px and scale defaults to off.</p>
+
+    <hr>
+
+    <h2 id="multislider">MultiSlider <span class="tag ext">Input</span></h2>
+    <p class="desc">Several <code>AnalogSlider</code> faders arranged side-by-side in a single unit — useful for equalizers, mixer channel strips, or any bank of related faders. A single <code>onChange</code>/<code>onRelease</code> fires whenever any child slider changes, receiving a <code>name → value</code> object covering all sliders at once.</p>
+
+    <div class="sig">new MultiSlider(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>sliders</td><td>object</td><td>{}</td><td>Each key is a slider name/label. The value is either a number (initial value) or an object with per-slider overrides (<code>value</code>, <code>min</code>, <code>max</code>, <code>readout</code>, …).</td></tr>
+        <tr><td>x</td><td>number</td><td>20</td><td>Left edge of the first slider.</td></tr>
+        <tr><td>y</td><td>number</td><td>20</td><td>Top edge of all sliders.</td></tr>
+        <tr><td>height</td><td>number</td><td>180</td><td>Slider height in pixels (shared by all children unless overridden per-slider).</td></tr>
+        <tr><td>min</td><td>number</td><td>0</td><td>Shared minimum (overridable per-slider).</td></tr>
+        <tr><td>max</td><td>number</td><td>1</td><td>Shared maximum (overridable per-slider).</td></tr>
+        <tr><td>readout</td><td>string</td><td>'raw'</td><td>Shared readout format — <code>'raw'</code>, <code>'db'</code>, or <code>'pct'</code> (overridable per-slider).</td></tr>
+        <tr><td>decimals</td><td>number</td><td>2</td><td>Shared decimal places (overridable per-slider).</td></tr>
+        <tr><td>scale</td><td>string</td><td>'linear'</td><td>Shared scale — <code>'linear'</code> or <code>'log'</code> (overridable per-slider).</td></tr>
+        <tr><td>horizontal</td><td>boolean</td><td>false</td><td>When <code>true</code>, each child is a horizontal slider and the group stacks them vertically. Default <code>width</code> becomes 180 and default <code>height</code> becomes 44 per slider.</td></tr>
+        <tr><td>gap</td><td>number</td><td>4</td><td>Pixel gap between adjacent sliders.</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Group label (not drawn — available for identification).</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with a <code>{ key: value, … }</code> object when any slider changes. Keys are slider labels with spaces and punctuation removed.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with a <code>{ key: value, … }</code> object on mouse/touch release.</td></tr>
+        <tr><td>style</td><td>string</td><td>'knob'</td><td>Shared slider style — <code>'knob'</code>, <code>'wheel'</code>, or <code>'button'</code>. Can be overridden per-slider.</td></tr>
+        <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, all sliders animate back to their initial values after release. Can be overridden per-slider.</td></tr>
+        <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete. Can be overridden per-slider.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Shared theme override applied to all children. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties &amp; methods</h3>
+    <table class="opts">
+      <thead><tr><th>Property / method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.values</code></td><td>Getter — returns <code>{ key: value, … }</code> for all sliders (keys are labels with spaces/punctuation stripped). Setter accepts the same format to update any subset.</td></tr>
+        <tr><td><code>.slider(name)</code></td><td>Returns the named child <code>AnalogSlider</code> for direct access (e.g. <code>.value</code>, <code>.disabled</code>).</td></tr>
+        <tr><td><code>.disabled</code></td><td>Getter/setter — propagates to all child sliders.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Per-slider overrides</h3>
+    <p class="desc">Pass an object instead of a plain number for any slider to override shared options for that specific channel.</p>
+    <pre><code><span class="kw">const</span> eq = <span class="kw">new</span> <span class="fn">MultiSlider</span>({
+  x: <span class="num">20</span>, y: <span class="num">40</span>, height: <span class="num">180</span>,
+  min: <span class="num">-12</span>, max: <span class="num">12</span>, readout: <span class="str">'raw'</span>, decimals: <span class="num">1</span>,
+  sliders: {
+    <span class="str">'60Hz'</span>:  <span class="num">0</span>,           <span class="cmt">// plain number → uses shared min/max</span>
+    <span class="str">'250Hz'</span>: <span class="num">0</span>,
+    <span class="str">'2kHz'</span>:  { value: <span class="num">3</span>, theme: { capIndicator: <span class="str">'#ff6600'</span> } }, <span class="cmt">// object → per-slider overrides</span>
+    <span class="str">'8kHz'</span>:  <span class="num">0</span>,
+  },
+  <span class="fn">onChange</span>:  v => console.<span class="fn">log</span>(<span class="str">'eq changed'</span>, v),
+  <span class="fn">onRelease</span>: v => console.<span class="fn">log</span>(<span class="str">'eq released'</span>, v),
+});</code></pre>
+
+    <h3>Example — vertical (default)</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const eq = new MultiSlider({
+  x: 20, y: 35,
+  height: 180,
+  min: -12, max: 12,
+  readout: 'raw', decimals: 1,
+  label: 'EQ',
+  sliders: {
+    '60Hz':  0,
+    '250Hz': 0,
+    '2kHz':  0,
+    '8kHz':  0,
+  },
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=multislider" width="350" height="265" scrolling="no" frameborder="0" loading="lazy" title="MultiSlider vertical live example"></iframe>
+    </div>
+
+    <h3>Example — horizontal with a spring-back override on one slider</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const eq = new MultiSlider({
+  x: 20, y: 22,
+  width: 180, height: 44,
+  horizontal: true,
+  min: -12, max: 12,
+  readout: 'raw', decimals: 1,
+  label: 'EQ',
+  sliders: {
+    '60Hz':  0,
+    '250Hz': 0,
+    // 2kHz springs back to 0 after 0.8s — others stay put
+    '2kHz':  { value: 0, springBack: true, springDuration: 0.8 },
+    '8kHz':  0,
+  },
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=multislider_h_spring" width="220" height="230" scrolling="no" frameborder="0" loading="lazy" title="MultiSlider horizontal spring live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- RangeSlider -->
+  <section id="rangeslider">
+    <h2 id="rangeslider">RangeSlider <span class="tag ext">Input</span></h2>
+    <p class="desc">A fader with two draggable caps that define a low/high range. Drag either cap independently; caps constrain each other so they never cross. The region between the caps is filled with the accent colour. Scroll-wheel adjusts the cap nearest the cursor. Double-click a cap to reset it to its initial value.</p>
+
+    <div class="sig">new RangeSlider(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>20, 20</td><td>Top-left position.</td></tr>
+        <tr><td>width</td><td>number</td><td>50 (v) / 180 (h)</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>180 (v) / 44 (h)</td><td>Panel height in pixels.</td></tr>
+        <tr><td>min</td><td>number</td><td>0</td><td>Minimum value.</td></tr>
+        <tr><td>max</td><td>number</td><td>1</td><td>Maximum value.</td></tr>
+        <tr><td>valueLow</td><td>number</td><td>min</td><td>Initial lower handle value.</td></tr>
+        <tr><td>valueHigh</td><td>number</td><td>max</td><td>Initial upper handle value.</td></tr>
+        <tr><td>horizontal</td><td>boolean</td><td>false</td><td>When <code>true</code>, renders as a horizontal slider. Width/height defaults swap accordingly.</td></tr>
+        <tr><td>readout</td><td>string</td><td>'raw'</td><td>Value format — <code>'raw'</code>, <code>'percent'</code>, or <code>'db'</code>.</td></tr>
+        <tr><td>decimals</td><td>number</td><td>2</td><td>Decimal places for <code>'raw'</code> readout.</td></tr>
+        <tr><td>showScale</td><td>boolean</td><td>true (v) / false (h)</td><td>Draw tick marks and value labels alongside the track.</td></tr>
+        <tr><td>showFader</td><td>boolean</td><td>true</td><td>Draw the cap handles. Set to <code>false</code> to show only the range fill (display-only mode).</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Caption drawn at the top of the panel.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(valueLow, valueHigh)</code> whenever either handle moves.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with <code>(valueLow, valueHigh)</code> on mouse/touch release.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.valueLow</code></td><td>Current lower value (read/write). Setting it programmatically will not fire <code>onChange</code>.</td></tr>
+        <tr><td><code>.valueHigh</code></td><td>Current upper value (read/write).</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example — vertical</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const range = new RangeSlider({
+  x: 28, y: 35,
+  width: 54, height: 195,
+  min: 0, max: 1,
+  valueLow: 0.2, valueHigh: 0.8,
+  label: 'RANGE',
+  readout: 'raw', decimals: 2,
+  onChange: (lo, hi) => console.log(lo, hi),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=rangeslider" width="110" height="265" scrolling="no" frameborder="0" loading="lazy" title="RangeSlider vertical live example"></iframe>
+    </div>
+
+    <h3>Example — horizontal</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const range = new RangeSlider({
+  x: 20, y: 18,
+  width: 220, height: 44,
+  min: 0, max: 1,
+  valueLow: 0.2, valueHigh: 0.8,
+  horizontal: true,
+  label: 'RANGE',
+  readout: 'raw', decimals: 2,
+  onChange: (lo, hi) => console.log(lo, hi),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=rangeslider_h" width="260" height="80" scrolling="no" frameborder="0" loading="lazy" title="RangeSlider horizontal live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- Dial -->
+  <section id="dial">
+    <h2>Dial <span class="tag">Input</span></h2>
+    <p class="desc">A rotary knob with a 270° arc sweep. Drag up/down or scroll the mouse wheel to turn it. A tooltip shows the live value while dragging. Double-click to reset to the initial value.</p>
+
+    <div class="sig">new Dial(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>size</td><td>number</td><td>70</td><td>Square panel size in pixels. Knob, arc, and scale all scale proportionally.</td></tr>
+        <tr><td>readout</td><td>string</td><td>'raw'</td><td>Same as AnalogSlider: <code>'raw'</code>, <code>'percent'</code>, <code>'db'</code>.</td></tr>
+        <tr><td>decimals</td><td>number</td><td>2</td><td>Decimal places for the <code>'raw'</code> readout.</td></tr>
+        <tr><td>showScale</td><td>boolean</td><td>false</td><td>Draw tick marks and labels around the arc. Increase <code>size</code> if labels clip.</td></tr>
+        <tr><td>showKnob</td><td>boolean</td><td>true</td><td>Show or hide the knob body. <code>false</code> = arc-only display (used by VUDial).</td></tr>
+        <tr><td>style</td><td>string</td><td>'classic'</td><td>Knob visual style — <code>'classic'</code> · <code>'rubber'</code> · <code>'grooved'</code> · <code>'pointer'</code>. See dial styles below.</td></tr>
+        <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, the knob animates back to its initial value after mouse/touch release.</td></tr>
+        <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const freq = new Dial({
+  x: 45, y: 35,
+  size: 80,
+  min: 20, max: 20000, value: 440,
+  scale: 'log',
+  label: 'FREQ',
+  readout: 'raw',
+  decimals: 0,
+  showScale: true,
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=dial" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="Dial live example"></iframe>
+    </div>
+
+    <h3>Dial styles</h3>
+    <p class="desc">Set <code>style</code> to choose a knob visual. All styles share the same interaction and arc track — only the knob body rendering changes.</p>
+    <div class="themes-frames">
+      <div style="text-align:center">
+        <iframe class="example-frame" src="example.html?c=dial&lbl=CLASSIC" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="classic dial"></iframe>
+        <div style="font-size:11px;color:#888;margin-top:4px">classic (default)</div>
+      </div>
+      <div style="text-align:center">
+        <iframe class="example-frame" src="example.html?c=dialrubber" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="rubber dial"></iframe>
+        <div style="font-size:11px;color:#888;margin-top:4px">rubber</div>
+      </div>
+      <div style="text-align:center">
+        <iframe class="example-frame" src="example.html?c=dialgrooved" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="grooved dial"></iframe>
+        <div style="font-size:11px;color:#888;margin-top:4px">grooved</div>
+      </div>
+      <div style="text-align:center">
+        <iframe class="example-frame" src="example.html?c=dialpointer" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="pointer dial"></iframe>
+        <div style="font-size:11px;color:#888;margin-top:4px">pointer</div>
+      </div>
+    </div>
+
+    <hr>
+
+    <h2 id="multidial">MultiDial <span class="tag ext">Input</span></h2>
+    <p class="desc">Several <code>Dial</code> knobs arranged side-by-side in a single unit. A single <code>onChange</code>/<code>onRelease</code> fires whenever any dial changes, receiving a <code>name → value</code> object. A raised bevel panel frames the group. All dials share options by default; individual dials can override with per-dial objects.</p>
+
+    <div class="sig">new MultiDial(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>dials</td><td>object</td><td>{}</td><td>Each key is a dial name/label. Value is a number (initial value) or an object with per-dial overrides (<code>value</code>, <code>min</code>, <code>max</code>, <code>style</code>, …).</td></tr>
+        <tr><td>x</td><td>number</td><td>20</td><td>Left edge of the first dial.</td></tr>
+        <tr><td>y</td><td>number</td><td>20</td><td>Top edge of all dials.</td></tr>
+        <tr><td>size</td><td>number</td><td>70</td><td>Shared dial panel size in pixels (overridable per-dial).</td></tr>
+        <tr><td>min</td><td>number</td><td>0</td><td>Shared minimum (overridable per-dial).</td></tr>
+        <tr><td>max</td><td>number</td><td>1</td><td>Shared maximum (overridable per-dial).</td></tr>
+        <tr><td>readout</td><td>string</td><td>'raw'</td><td>Shared readout format (overridable per-dial).</td></tr>
+        <tr><td>decimals</td><td>number</td><td>2</td><td>Shared decimal places (overridable per-dial).</td></tr>
+        <tr><td>horizontal</td><td>boolean</td><td>true</td><td>When <code>true</code> (default), dials are arranged in a horizontal row. When <code>false</code>, dials are stacked in a vertical column.</td></tr>
+        <tr><td>style</td><td>string</td><td>'classic'</td><td>Shared knob style — <code>'classic'</code>, <code>'rubber'</code>, <code>'grooved'</code>, <code>'pointer'</code> (overridable per-dial).</td></tr>
+        <tr><td>gap</td><td>number</td><td>4</td><td>Pixel gap between adjacent dials.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>{ key: value, … }</code> when any dial changes. Keys are dial labels with spaces and punctuation removed.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with <code>{ key: value, … }</code> on mouse/touch release.</td></tr>
+        <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, all dials animate back to their initial values after release. Can be overridden per-dial.</td></tr>
+        <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete. Can be overridden per-dial.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Shared theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties &amp; methods</h3>
+    <table class="opts">
+      <thead><tr><th>Property / method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.values</code></td><td>Getter — returns <code>{ key: value, … }</code> (keys are labels with spaces/punctuation stripped). Setter accepts same format.</td></tr>
+        <tr><td><code>.dial(name)</code></td><td>Returns the named child <code>Dial</code> for direct access.</td></tr>
+        <tr><td><code>.disabled</code></td><td>Getter/setter — propagates to all child dials.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example — horizontal row (default)</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const tone = new MultiDial({
+  x: 20, y: 20,
+  size: 70,
+  min: 0, max: 100,
+  readout: 'raw', decimals: 0,
+  label: 'TONE',
+  dials: {
+    'BASS':   50,
+    'MID':    50,
+    'TREBLE': 50,
+  },
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=multidial" width="280" height="150" scrolling="no" frameborder="0" loading="lazy" title="MultiDial horizontal live example"></iframe>
+    </div>
+
+    <h3>Example — vertical column with an individual dial override</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const tone = new MultiDial({
+  x: 20, y: 20,
+  size: 70,
+  horizontal: false,
+  min: 0, max: 100,
+  readout: 'raw', decimals: 0,
+  label: 'TONE',
+  dials: {
+    'BASS':   50,
+    'MID':    50,
+    // TREBLE overrides range, decimals, and style
+    'TREBLE': { value: 8000, min: 20, max: 20000,
+                decimals: 0, style: 'pointer' },
+  },
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=multidial_v" width="150" height="340" scrolling="no" frameborder="0" loading="lazy" title="MultiDial vertical live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- Pads: XYPad, GridPad -->
+  <section id="pads">
+    <h2>Pads <span class="tag">Input</span></h2>
+
+    <h2 id="xypad">XYPad <span class="tag">Input</span></h2>
+    <p class="desc">A two-axis drag surface. Click or drag to set X and Y values independently. Fires separate callbacks per axis. Y increases upward to match musical convention. Double-click to reset both axes to their initial values.</p>
+
+    <div class="sig">new XYPad(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>width</td><td>number</td><td>160</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>160</td><td>Panel height in pixels.</td></tr>
+        <tr><td>minX / maxX</td><td>number</td><td>0 / 1</td><td>Value range for the horizontal axis.</td></tr>
+        <tr><td>minY / maxY</td><td>number</td><td>0 / 1</td><td>Value range for the vertical axis.</td></tr>
+        <tr><td>valueX / valueY</td><td>number</td><td>center</td><td>Current X and Y position within the pad's range. Read or set at any time to get or move the crosshair programmatically.</td></tr>
+        <tr><td>scaleX</td><td>string</td><td>'linear'</td><td><code>'linear'</code> or <code>'log'</code>. Log requires <code>minX &gt; 0</code>.</td></tr>
+        <tr><td>scaleY</td><td>string</td><td>'linear'</td><td><code>'linear'</code> or <code>'log'</code>. Log requires <code>minY &gt; 0</code>.</td></tr>
+        <tr><td>crosshairColor</td><td>string</td><td>theme accent</td><td>Color of the crosshair dot and lines.</td></tr>
+        <tr><td>onChangeX</td><td>function</td><td>null</td><td>Called with the new X value when it changes.</td></tr>
+        <tr><td>onChangeY</td><td>function</td><td>null</td><td>Called with the new Y value when it changes.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(valueX, valueY)</code> when either axis changes.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with <code>(valueX, valueY)</code> on release.</td></tr>
+        <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, both axes animate back to their initial values after mouse/touch release.</td></tr>
+        <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const pad = new XYPad({
+  x: 20, y: 22,
+  width: 220, height: 200,
+  minX: -1, maxX: 1,
+  minY: -1, maxY: 1,
+  valueX: 0, valueY: 0,
+  label: 'XY',
+  crosshairColor: '#ff6600',
+  onChange: (vx, vy) => console.log(vx, vy),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=xypad" width="260" height="260" scrolling="no" frameborder="0" loading="lazy" title="XYPad live example"></iframe>
+    </div>
+
+    <h3>Example — spring back to center</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const pad = new XYPad({
+  x: 20, y: 22,
+  width: 220, height: 200,
+  minX: -1, maxX: 1,
+  minY: -1, maxY: 1,
+  valueX: 0, valueY: 0,
+  label: 'XY  (spring)',
+  crosshairColor: '#ff6600',
+  springBack: true,
+  springDuration: 0.6,
+  onChange: (vx, vy) => console.log(vx, vy),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=xypad_spring" width="260" height="260" scrolling="no" frameborder="0" loading="lazy" title="XYPad spring-back live example"></iframe>
+    </div>
+
+    <hr>
+
+    <h2 id="gridpad">GridPad <span class="tag ext">Input</span></h2>
+    <p class="desc">A 2-D grid of cells with four modes: <strong>toggle</strong> flips each cell 0 ↔ 1 on click; <strong>percent</strong> raises or lowers each cell's 0–1 value while the mouse is held; <strong>button</strong> treats each cell as a momentary key with press/release callbacks and no stored value; <strong>colorselect</strong> cycles each cell through a list of colours on each click, with each colour mapped to a semantic value. Optional horizontal and vertical grouping draws a bevel separator every N cells. Double-click the label to reset all cells to their initial values.</p>
+
+    <div class="sig">new GridPad(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>0</td><td>Top-left position.</td></tr>
+        <tr><td>rows</td><td>number</td><td>4</td><td>Number of rows.</td></tr>
+        <tr><td>cols</td><td>number</td><td>4</td><td>Number of columns.</td></tr>
+        <tr><td>mode</td><td>string</td><td>'toggle'</td><td><code>'toggle'</code> — click to flip 0/1 · <code>'percent'</code> — hold to raise/lower · <code>'button'</code> — momentary press · <code>'colorselect'</code> — click to cycle through colours.</td></tr>
+        <tr><td>options</td><td>array</td><td>[]</td><td><em>colorselect mode only.</em> Each entry is either a colour string (<code>'red'</code>, <code>'#ff0000'</code>) or an object <code>{ color, value }</code> where <code>value</code> is the semantic value returned by <code>onChange</code>. When <code>value</code> is omitted it defaults to the colour string.</td></tr>
+        <tr><td>cellSize</td><td>number</td><td>20</td><td>Pixel size of each square cell.</td></tr>
+        <tr><td>cellGap</td><td>number</td><td>2</td><td>Gap in pixels between cells.</td></tr>
+        <tr><td>hGroup</td><td>number</td><td>0</td><td>Draw a bevel separator every N columns. 0 disables.</td></tr>
+        <tr><td>vGroup</td><td>number</td><td>0</td><td>Draw a bevel separator every N rows. 0 disables.</td></tr>
+        <tr><td>groupGap</td><td>number</td><td>4</td><td>Extra pixels added at each group boundary.</td></tr>
+        <tr><td>values</td><td>array</td><td>all 0</td><td>Initial 2-D array <code>[[row][col]]</code>. For colorselect, pass indices <em>or</em> semantic values — both are accepted. Ignored in button mode.</td></tr>
+        <tr><td>rate</td><td>number</td><td>0.02</td><td>Percent change per frame while mouse is held (percent mode only).</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Label drawn below the grid.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+        <tr><td>onChange(values)</td><td>function</td><td>null</td><td>Called with a 2-D copy of values when any cell changes. In colorselect mode the grid contains the semantic <code>value</code> for each cell.</td></tr>
+        <tr><td>onRelease(…)</td><td>function</td><td>null</td><td>Toggle/percent: called with values on release. Button mode: called with <code>(row, col)</code> on release.</td></tr>
+        <tr><td>onPress(row, col)</td><td>function</td><td>null</td><td>Button mode only — called with the row and column of the pressed cell.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Interaction — toggle mode</h3>
+    <table class="opts">
+      <thead><tr><th>Action</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td>Click cell</td><td>Flip value between 0 and 1.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Interaction — percent mode</h3>
+    <table class="opts">
+      <thead><tr><th>Action</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td>Hold left click</td><td>Raise value toward 1 at <code>rate</code> per frame.</td></tr>
+        <tr><td>Hold right click</td><td>Lower value toward 0 at <code>rate</code> per frame.</td></tr>
+        <tr><td>Double-click at 0</td><td>Snap to 1.</td></tr>
+        <tr><td>Double-click at 1</td><td>Snap to 0.</td></tr>
+        <tr><td>Double-click mid-range</td><td>Snap to whichever boundary is closer.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Interaction — button mode</h3>
+    <table class="opts">
+      <thead><tr><th>Action</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td>Press cell</td><td>Cell highlights; <code>onPress(row, col)</code> fires.</td></tr>
+        <tr><td>Release</td><td>Cell returns to default; <code>onRelease(row, col)</code> fires.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Interaction — colorselect mode</h3>
+    <table class="opts">
+      <thead><tr><th>Action</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td>Left click</td><td>Advance to the next colour in <code>options</code>, wrapping around.</td></tr>
+        <tr><td>Right click</td><td>Step back to the previous colour.</td></tr>
+        <tr><td>Double-click label</td><td>Reset all cells to their initial colour (index 0 by default).</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Public API</h3>
+    <table class="opts">
+      <thead><tr><th>Member</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>values</code> (getter)</td><td>Returns a deep copy of the 2-D values array. In colorselect mode returns semantic values, not indices.</td></tr>
+        <tr><td><code>getValue(r, c)</code></td><td>Returns the value at row <code>r</code>, column <code>c</code>. In colorselect mode returns the semantic value of the current colour.</td></tr>
+        <tr><td><code>setValue(r, c, v)</code></td><td>Sets the value at <code>(r, c)</code>. In toggle mode snapped to 0/1; percent clamped 0–1; colorselect accepts an index integer.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example — toggle mode (step sequencer)</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const seq = new GridPad({
+  x: 20, y: 22,
+  rows: 4, cols: 4,
+  mode: 'toggle',
+  cellSize: 20,
+  hGroup: 2, vGroup: 2,
+  label: 'PATTERN',
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=gridpad_toggle" width="160" height="155" scrolling="no" frameborder="0" loading="lazy" title="GridPad toggle live example"></iframe>
+    </div>
+
+    <h3>Example — percent mode (velocity matrix)</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const vel = new GridPad({
+  x: 20, y: 22,
+  rows: 4, cols: 4,
+  mode: 'percent',
+  cellSize: 20,
+  hGroup: 2, vGroup: 2,
+  label: 'VELOCITY',
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=gridpad_percent" width="160" height="155" scrolling="no" frameborder="0" loading="lazy" title="GridPad percent live example"></iframe>
+    </div>
+
+    <h3>Example — colorselect mode</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const seq = new GridPad({
+  x: 20, y: 22,
+  rows: 4, cols: 4,
+  mode: 'colorselect',
+  cellSize: 20,
+  hGroup: 2, vGroup: 2,
+  label: 'COLOR',
+  options: [
+    { color: '#222222', value: 'off'   },
+    { color: '#cc3300', value: 'red'   },
+    { color: '#0055cc', value: 'blue'  },
+    { color: '#22aa44', value: 'green' },
+  ],
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=gridpad_colorselect" width="160" height="155" scrolling="no" frameborder="0" loading="lazy" title="GridPad colorselect live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- Selectors: Switch, Selector, TagSelector -->
+  <section id="selectors">
+    <h2>Selectors <span class="tag ext">Input</span></h2>
+
+    <h2 id="switch">Switch <span class="tag">Input</span></h2>
+    <p class="desc">An illuminated discrete selector. Two states renders as a rocker toggle — click to flip. Three or more states renders as a vertical button stack — click any slot to select it. The active slot glows with the style's accent color. Double-click any slot or the label to reset to the initial state.</p>
+
+    <div class="sig">new Switch(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>states</td><td>string[]</td><td>['OFF','ON']</td><td>Array of state labels. 2 entries = rocker. 3+ entries = selector stack.</td></tr>
+        <tr><td>state</td><td>number</td><td>0</td><td>Index of the initially active state.</td></tr>
+        <tr><td>springDefault</td><td>number</td><td>state</td><td>State index to restore on double-click reset. Defaults to <code>state</code>. Useful when the control is rebuilt dynamically and you want reset to always target a fixed index.</td></tr>
+        <tr><td>width</td><td>number</td><td>48</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>auto</td><td>Defaults to <code>70</code> for 2-state; <code>states.length × 26 + 20</code> for N-state.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(stateIndex, stateLabel)</code> on every click.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Reading state</h3>
+    <pre><code>sw.state            <span class="cmt">// active index (readable/writable)</span>
+sw.states[sw.state]  <span class="cmt">// active label string</span></code></pre>
+
+    <h3>Two-state rocker</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const pwr = new Switch({
+  x: 36, y: 22,
+  width: 48,
+  states: ['OFF', 'ON'],
+  label: 'POWER',
+  state: 1,
+  onChange: (i, s) => console.log(s),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=switch2" width="120" height="130" scrolling="no" frameborder="0" loading="lazy" title="Switch 2-state live example"></iframe>
+    </div>
+
+    <h3>N-state selector</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const sel = new Switch({
+  x: 39, y: 18,
+  width: 52,
+  states: ['BLACK', 'STEEL', 'WHITE', 'BRUSH'],
+  state: 0,
+  label: 'STYLE',
+  onChange: (i, s) => console.log(s),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=switchn" width="130" height="175" scrolling="no" frameborder="0" loading="lazy" title="Switch N-state live example"></iframe>
+    </div>
+
+    <hr>
+
+    <h2 id="iconButton">IconButton <span class="tag ext">Input</span></h2>
+    <p class="desc">A square push button that renders a <a href="https://fonts.google.com/icons" target="_blank">Material Symbols</a> icon at its centre. Pass any icon name from the Material Symbols Outlined set as the <code>icon</code> option — the font is already included via the page's <code>&lt;link&gt;</code> tag. Supports momentary (default) and toggle modes. An optional text label is drawn inside the button below the icon.</p>
+
+    <div class="sig">new IconButton(opts)</div>
+
+    <div class="note"><strong>Material Symbols font required.</strong> Add this to your <code>&lt;head&gt;</code>:<br>
+      <code>&lt;link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&amp;display=block" rel="stylesheet"&gt;</code>
+    </div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>icon</td><td>string</td><td>'star'</td><td>Material Symbols icon name, e.g. <code>'play_arrow'</code>, <code>'volume_up'</code>, <code>'settings'</code>. Full list at <a href="https://fonts.google.com/icons" target="_blank">fonts.google.com/icons</a>.</td></tr>
+        <tr><td>size</td><td>number</td><td>44</td><td>Width and height of the button in pixels. Both dimensions are equal.</td></tr>
+        <tr><td>toggle</td><td>boolean</td><td>false</td><td>When <code>true</code> the button latches on each click, toggling <code>.state</code> between <code>true</code> and <code>false</code>. When <code>false</code> (default) the button fires once per click and does not latch.</td></tr>
+        <tr><td>state</td><td>boolean</td><td>false</td><td>Initial toggle state. Only meaningful when <code>toggle: true</code>.</td></tr>
+        <tr><td>iconSize</td><td>number</td><td>auto</td><td>Icon font size in pixels. Defaults to <code>round(size × 0.58)</code>.</td></tr>
+        <tr><td>x, y</td><td>number</td><td>0, 0</td><td>Canvas position of the top-left corner.</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Text caption drawn inside the button below the icon.</td></tr>
+        <tr><td>onClick</td><td>function</td><td>null</td><td>Called on release. For toggle buttons receives the new <code>state</code> (<code>true</code>/<code>false</code>); for momentary buttons called with no arguments.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Suppresses all interaction and draws a disabled overlay.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.state</code></td><td>Read/write. Current toggle state (<code>true</code>/<code>false</code>). Setting programmatically does not fire <code>onClick</code>.</td></tr>
+        <tr><td><code>.icon</code></td><td>Read/write. Change the displayed icon at any time.</td></tr>
+        <tr><td><code>.disabled</code></td><td>Read/write. Disables or re-enables the button.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const play = new IconButton({
+  x: 20, y: 20,
+  icon: 'play_arrow',
+  size: 52,
+  label: 'PLAY',
+  onClick: () => console.log('play'),
+});
+const stop = new IconButton({
+  x: 90, y: 20,
+  icon: 'stop',
+  size: 52,
+  label: 'STOP',
+  onClick: () => console.log('stop'),
+});
+const loop = new IconButton({
+  x: 160, y: 20,
+  icon: 'loop',
+  size: 52,
+  toggle: true,
+  label: 'LOOP',
+  onClick: s => console.log('loop', s),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=iconButton" width="220" height="180" scrolling="no" frameborder="0" loading="lazy" title="IconButton live example"></iframe>
+    </div>
+
+    <hr>
+
+    <h2 id="selector">Selector <span class="tag ext">Input</span></h2>
+    <p class="desc">A multi-style option selector. Set <code>style</code> to choose the visual style. Scroll wheel and touch work for all styles. Double-click the selection display or the label to reset to the initial option (double-clicking the arrow buttons or gear wheel advances state as normal).</p>
+
+    <div class="sig">new Selector(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>options</td><td>string[]</td><td>['A','B','C']</td><td>Array of option labels.</td></tr>
+        <tr><td>state</td><td>number</td><td>0</td><td>Initial selected index into <code>options</code>.</td></tr>
+        <tr><td>style</td><td>string</td><td>'rotary'</td><td>Visual style — <code>'rotary'</code> or <code>'arrow'</code>. See style descriptions below.</td></tr>
+        <tr><td>width</td><td>number</td><td>140</td><td>Total panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>40</td><td>Panel height in pixels.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(index, label)</code> whenever the selection changes.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with <code>(index, label)</code> when the mouse/touch is released.</td></tr>
+        <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, the selection snaps back to its initial state after <code>springDuration</code> seconds.</td></tr>
+        <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds before snapping back when <code>springBack</code> is enabled.</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Caption drawn below the panel.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.state</code></td><td>Current selected index (read/write).</td></tr>
+        <tr><td><code>.options</code></td><td>Array of option labels (read/write).</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Style — rotary (default)</h3>
+    <p class="desc">A mechanical drum-style selector inspired by vintage rotary counters. A display window shows the selected option; the drum's serrated edge is exposed on the right — horizontal ridges scroll as the drum rotates, giving a tactile feel. Adjacent options are visible while scrolling. Drag up/down, scroll wheel, or touch.</p>
+    <div class="note"><strong>Teeth column sizing:</strong> width is <code>max(14, round(height × 0.28))</code> px. The display window occupies the remaining panel width to the left.</div>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const waveform = new Selector({
+  x: 40, y: 22,
+  options: ['SINE', 'SQUARE', 'SAW', 'TRI', 'NOISE'],
+  state: 0,
+  label: 'WAVE',
+  onChange: (i, lbl) => console.log(lbl),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=selector" width="220" height="100" scrolling="no" frameborder="0" loading="lazy" title="Selector rotary live example"></iframe>
+    </div>
+
+    <h3>Style — arrow</h3>
+    <p class="desc">A compact left/right arrow selector. Pressing either arrow button steps to the adjacent option; the new selection slides into the display window from the direction of travel. Scroll wheel also works.</p>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const waveform = new Selector({
+  x: 20, y: 22,
+  width: 180,
+  style: 'arrow',
+  options: ['SINE', 'SQUARE', 'SAW', 'TRI', 'NOISE'],
+  state: 0,
+  label: 'WAVE',
+  onChange: (i, lbl) => console.log(lbl),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=selector_arrow" width="220" height="100" scrolling="no" frameborder="0" loading="lazy" title="Selector arrow live example"></iframe>
+    </div>
+
+    <hr>
+
+    <h2 id="tagSelector">TagSelector <span class="tag ext">Input</span></h2>
+    <p class="desc">A multi-select chip panel. Each string in <code>words</code> is displayed as a rounded pill inside a box. Click any pill to toggle its selection; multiple pills can be selected simultaneously. Double-click the label to reset to the initial selection.</p>
+
+    <div class="sig">new TagSelector(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>words</td><td>string[]</td><td>[]</td><td>Array of strings to display as selectable chips. Each string may contain spaces (multi-word phrases are treated as one chip).</td></tr>
+        <tr><td>selected</td><td>string[]</td><td>[]</td><td>Initially selected words. Must be members of <code>words</code>.</td></tr>
+        <tr><td>width</td><td>number</td><td>200</td><td>Panel width in pixels. Chips wrap to new rows when they exceed this width.</td></tr>
+        <tr><td>height</td><td>number</td><td>auto</td><td>Panel height. Omit to auto-size to fit all chips. Provide a fixed value to enable vertical scrolling when chips overflow — a thin scrollbar appears automatically and mouse-wheel or drag scrolls the content.</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Caption shown at the bottom of the panel. Double-click it to reset selection.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(selectedArray, addedWord, removedWord)</code> on each toggle. Exactly one of <code>addedWord</code> / <code>removedWord</code> is non-null per click; both are null on a label double-click reset.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.selected</code></td><td>Getter — returns current selection as <code>string[]</code>. Setter accepts a <code>string[]</code> to programmatically set selection.</td></tr>
+        <tr><td><code>.words</code></td><td>Array of all chip strings (read/write). Reassigning marks layout dirty so chips reflow on next draw.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const tags = new TagSelector({
+  x: 20, y: 22,
+  width: 220,
+  words: ['REVERB', 'DELAY', 'CHORUS', 'FLANGER', 'PHASER',
+          'DISTORT', 'COMPRESS', 'EQ', 'GATE', 'LIMITER'],
+  label: 'FX',
+  onChange: (sel, added, removed) => console.log(sel, added, removed),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=tagSelector" width="260" height="130" scrolling="no" frameborder="0" loading="lazy" title="TagSelector live example"></iframe>
+    </div>
+    <hr>
+
+    <h2 id="sliderSelector">SliderSelector <span class="tag ext">Input</span></h2>
+    <p class="desc">A vertical fader that snaps to discrete string options. It looks and behaves like an <a href="#slider">AnalogSlider</a> — same panel, track, and brushed-metal cap — but instead of a continuous numeric range the slider clicks into one of the provided option strings. Tick marks at each position are drawn to the right of the track, and the active option's tick and label are highlighted in the accent colour. Scroll-wheel steps through options when hovering.</p>
+
+    <div class="sig">new SliderSelector(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>options</td><td>string[]</td><td>[]</td><td>The ordered list of selectable strings. Index 0 appears at the top of the track, the last index at the bottom.</td></tr>
+        <tr><td>state</td><td>number</td><td>0</td><td>Initial selected index.</td></tr>
+        <tr><td>style</td><td>string</td><td>'knob'</td><td><code>'knob'</code> — brushed-metal rectangular fader cap. <code>'button'</code> — circular cap with a radial gradient, matching the AnalogSlider button style.</td></tr>
+        <tr><td>x, y</td><td>number</td><td>20, 20</td><td>Canvas position.</td></tr>
+        <tr><td>width</td><td>number</td><td>auto</td><td>Panel width. Defaults to a size that fits the longest option label with padding.</td></tr>
+        <tr><td>height</td><td>number</td><td>auto</td><td>Panel height. Defaults to enough vertical space for all options at 22 px spacing (min 80 px).</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Caption rendered at the top of the panel.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(index, string)</code> whenever the selection changes during drag or scroll.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with <code>(index, string)</code> on mouse release.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.state</code></td><td>Current selected index (read/write).</td></tr>
+        <tr><td><code>.value</code></td><td>Getter — returns <code>options[state]</code> as a string. Setter accepts a string and updates <code>state</code> to its index (no-op if not found).</td></tr>
+        <tr><td><code>.options</code></td><td>The options array (read/write). Reassign to change the available choices; update <code>.state</code> if needed.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Interaction</h3>
+    <table class="opts">
+      <thead><tr><th>Gesture</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td>Drag cap</td><td>Moves the cap; snaps to the nearest option tick as you drag.</td></tr>
+        <tr><td>Scroll wheel</td><td>Steps one option up or down when hovering over the control.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const mode = new SliderSelector({
+  x: 20, y: 14,
+  options: ['REVERB', 'DELAY', 'CHORUS', 'FLANGER', 'PHASER'],
+  state: 1,
+  label: 'FX MODE',
+  onChange: (i, v) => console.log(i, v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=sliderSelector" width="260" height="160" scrolling="no" frameborder="0" loading="lazy" title="SliderSelector live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- Panel -->
+  <section id="panel">
+    <h2>Panel <span class="tag ext">Container</span></h2>
+    <p class="desc">A clipping container that groups ProControls into a positioned, optionally scrollable surface. Controls added with <code>.add()</code> are positioned relative to the panel's top-left corner — a slider at <code>(10, 10)</code> appears 10px from the panel edge, not the canvas edge. When child controls extend beyond the panel bounds, thin scrollbars appear automatically; the scroll wheel pans the view when no child control is hovered.</p>
+
+    <h3>Constructor options</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>x, y</td><td>number</td><td>20, 20</td><td>Panel top-left position on the canvas.</td></tr>
+          <tr><td>width</td><td>number</td><td>300</td><td>Panel width in pixels.</td></tr>
+          <tr><td>height</td><td>number</td><td>200</td><td>Panel height in pixels.</td></tr>
+          <tr><td>visible</td><td>boolean</td><td>true</td><td>Initial visibility. Set <code>panel.visible = false</code> to hide the panel and suppress all child events.</td></tr>
+          <tr><td>label</td><td>string</td><td>''</td><td>Title shown in a bar at the top of the panel. When set, the scrollable content area starts below the bar and a minimize/maximize button appears on the right side of the bar. No title bar is shown when empty.</td></tr>
+          <tr><td>minimized</td><td>boolean</td><td>false</td><td>Initial minimized state. When <code>true</code> the panel starts collapsed to just the title bar.</td></tr>
+          <tr><td>minimizable</td><td>boolean</td><td>true</td><td>When <code>false</code> the <strong>−/+</strong> toggle button is hidden and the panel cannot be collapsed.</td></tr>
+          <tr><td>movable</td><td>boolean</td><td>true</td><td>When <code>false</code> dragging the title bar does not reposition the panel.</td></tr>
+          <tr><td>resizable</td><td>boolean</td><td>false</td><td>When <code>true</code> a resize grip appears in the bottom-right corner; drag it to change the panel's <code>width</code> and <code>height</code> at runtime.</td></tr>
+          <tr><td>onChange</td><td>function</td><td>null</td><td>Called with a <code>{ fieldName: value, … }</code> snapshot object whenever any child control's value changes. See <em>onChange / values</em> below.</td></tr>
+          <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with the same snapshot object when the user releases a child control.</td></tr>
+          <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Methods &amp; properties</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>.add(control)</code></td><td>Attach a ProControl to the panel. The control is removed from the global registry and managed by the panel from that point on. Returns <code>this</code> for chaining.</td></tr>
+          <tr><td><code>.onChange</code></td><td>Callback fired with the full <code>{ fieldName: value, … }</code> snapshot whenever any child changes. Can be set at construction or assigned later.</td></tr>
+          <tr><td><code>.onRelease</code></td><td>Callback fired with the same snapshot when the user releases any child control. Can be set at construction or assigned later.</td></tr>
+          <tr><td><code>.values</code></td><td>Read-only getter. Returns a fresh <code>{ fieldName: value, … }</code> snapshot of every child control's current value — same object shape as the <code>onChange</code> and <code>onRelease</code> arguments. Useful for polling the panel state without setting up a callback.</td></tr>
+          <tr><td><code>.visible</code></td><td>Get/set panel visibility. When set to <code>false</code> the panel and all children stop drawing and receiving events.</td></tr>
+          <tr><td><code>.minimized</code></td><td>Get/set minimized state. When <code>true</code> the panel collapses to only the title bar; the small <strong>−/+</strong> button in the title bar also toggles this.</td></tr>
+          <tr><td><code>.minimizable</code></td><td>Read/write. Hides the toggle button and disables collapse when <code>false</code>.</td></tr>
+          <tr><td><code>.movable</code></td><td>Read/write. Prevents title-bar dragging when <code>false</code>.</td></tr>
+          <tr><td><code>.resizable</code></td><td>Read/write. When <code>true</code>, a grip appears in the bottom-right corner allowing the user to drag-resize the panel.</td></tr>
+          <tr><td><code>.scrollX / .scrollY</code></td><td>Current scroll offset in pixels. Read or write to programmatically scroll the panel.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>onChange / onRelease / values</h3>
+    <p class="desc">When <code>onChange</code> or <code>onRelease</code> are set, the panel listens to every child control and fires the respective callback — with a single snapshot object — on change or release. The same object is always available via <code>panel.values</code>.</p>
+    <p class="desc"><strong>Field names</strong> are derived from each control's <code>label</code> option with spaces and punctuation stripped (e.g. <code>"Low Cut"</code> → <code>LowCut</code>). Controls without a label are named by class and a per-class counter: the first unlabelled <code>AnalogSlider</code> becomes <code>AnalogSlider1</code>, the second <code>AnalogSlider2</code>, and so on. <code>MultiSlider</code> and <code>MultiDial</code> follow the same rule — the slider/dial keys within their own <code>values</code> object also have spaces and punctuation stripped from the label.</p>
+    <p class="desc"><strong>Values</strong> per control type:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Control</th><th>Value in snapshot</th></tr></thead>
+        <tbody>
+          <tr><td>AnalogSlider, Dial</td><td><code>number</code></td></tr>
+          <tr><td>Switch</td><td>Current state label string (e.g. <code>"On"</code>)</td></tr>
+          <tr><td>Selector, SliderSelector</td><td>Selected option string</td></tr>
+          <tr><td>MultiSlider, MultiDial</td><td><code>{ name: value, … }</code> object</td></tr>
+          <tr><td>GridPad</td><td>2-D array of cell values</td></tr>
+          <tr><td>TagSelector</td><td>Array of selected tag strings</td></tr>
+          <tr><td>RangeSlider</td><td><code>{ low, high }</code></td></tr>
+          <tr><td>XYPad</td><td><code>{ x, y }</code></td></tr>
+          <tr><td>IconButton</td><td><code>boolean</code> state</td></tr>
+          <tr><td>Markup, Menu, VUMeter, LEDMeter, ADSRDisplay</td><td><em>omitted</em></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="desc"><strong>Note:</strong> set any per-control <code>onChange</code> callbacks <em>before</em> calling <code>panel.add()</code>. Callbacks assigned after <code>add()</code> will work for the individual control but the panel notification will wrap the value that was set at add-time.</p>
+
+    <h3>Scrolling</h3>
+    <p class="desc">Scrollbars appear automatically when children extend beyond the panel boundaries. The scroll wheel scrolls the panel when the pointer is over the panel but not over a focused child control. If a child control (e.g. a Dial) is hovered, the scroll wheel is forwarded to that child instead. You can also drag the scrollbar thumbs directly.</p>
+
+    <h3>Example — onChange</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const pnl = new Panel({
+  x: 20, y: 18,
+  width: 280, height: 180,
+  label: 'SYNTH',
+  onChange: data => console.log(data),
+});
+pnl.add(new Dial({
+  x: 20, y: 20,
+  size: 70, min: 20, max: 20000, value: 440,
+  label: 'Freq', readout: 'raw', decimals: 0,
+}));
+pnl.add(new AnalogSlider({
+  x: 120, y: 20,
+  width: 44, height: 140,
+  min: 0, max: 1, value: 0.8,
+  label: 'Gain', readout: 'db',
+}));
+pnl.add(new Switch({
+  x: 190, y: 50,
+  width: 52,
+  states: ['OFF', 'ON'], state: 1,
+  label: 'Power',
+}));
+// Read all values at any time:
+// pnl.values  →  { Freq: 440, Gain: 0.8, Power: 'ON' }</textarea>
+      <iframe class="example-frame" src="example.html?c=panel_onchange" width="320" height="220" scrolling="no" frameborder="0" loading="lazy" title="Panel onChange live example"></iframe>
+    </div>
+
+    <h3>Example — grouped controls</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const pnl = new Panel({
+  x: 20, y: 18,
+  width: 280, height: 200,
+  label: 'PANEL',
+});
+pnl.add(new Dial({
+  x: 20, y: 20,
+  size: 70, min: 0, max: 100, value: 65,
+  label: 'FREQ', readout: 'raw', decimals: 0,
+}));
+pnl.add(new AnalogSlider({
+  x: 120, y: 20,
+  width: 44, height: 150,
+  min: 0, max: 1, value: 0.75,
+  label: 'GAIN', readout: 'db',
+}));
+pnl.add(new AnalogSwitch({
+  x: 190, y: 50,
+  width: 52,
+  states: ['OFF', 'ON'],
+  state: 1,
+  label: 'POWER',
+}));</textarea>
+      <iframe class="example-frame" src="example.html?c=panel" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="Panel live example"></iframe>
+    </div>
+
+    <h3>Example — scrollable content</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const pnl = new Panel({
+  x: 20, y: 18,
+  width: 220, height: 160,
+  label: 'SCROLL',
+});
+// 8 dials arranged in two rows — wider than the panel
+for (let i = 0; i &lt; 4; i++) {
+  pnl.add(new Dial({
+    x: 20 + i * 80, y: 20,
+    size: 65, min: 0, max: 100, value: 40 + i * 15,
+    label: ['BASS','MID','TREB','PRES'][i],
+    readout: 'raw', decimals: 0,
+  }));
+  pnl.add(new Dial({
+    x: 20 + i * 80, y: 120,
+    size: 65, min: 0, max: 100, value: 60 - i * 10,
+    label: ['VOL','PAN','SND','RET'][i],
+    readout: 'raw', decimals: 0,
+  }));
+}</textarea>
+      <iframe class="example-frame" src="example.html?c=panel_scroll" width="260" height="200" scrolling="no" frameborder="0" loading="lazy" title="Panel scrollable live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- MessageDialog -->
+  <section id="messageDialog">
+    <h2>MessageDialog <span class="tag ext">Container</span></h2>
+    <p class="desc">A self-sizing, movable dialog that displays a formatted text message and optional action buttons. The message string is word-wrapped to fit the dialog width. Buttons are arranged in a single row at the bottom; if multiple buttons are provided the dialog widens automatically to fit them all on one line. Drag the title bar to reposition.</p>
+
+    <div class="sig">new MessageDialog(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>message</td><td>string</td><td>''</td><td>The text to display. Use <code>\n</code> for explicit line breaks. Long lines are wrapped automatically to fit the dialog width.</td></tr>
+        <tr><td>buttons</td><td>string[]</td><td>[]</td><td>Button labels shown in a row at the bottom of the dialog. Omit or pass an empty array for a message-only dialog.</td></tr>
+        <tr><td>x, y</td><td>number</td><td>20, 20</td><td>Canvas position.</td></tr>
+        <tr><td>width</td><td>number</td><td>auto</td><td>Dialog width. Defaults to at least 220 px or wide enough to fit all buttons on one row, whichever is larger.</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Title bar text. When set a styled title bar is shown at the top and the dialog can be repositioned by dragging it.</td></tr>
+        <tr><td>movable</td><td>boolean</td><td>true</td><td>When <code>false</code> the dialog cannot be dragged.</td></tr>
+        <tr><td>onButton</td><td>function</td><td>null</td><td>Called with <code>(index, label)</code> when a button is clicked.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.message</code></td><td>Read/write. Reassigning triggers a layout rebuild on the next draw so the dialog resizes to fit the new text.</td></tr>
+        <tr><td><code>.buttons</code></td><td>Read/write. Reassigning the array rebuilds the button row on the next draw.</td></tr>
+        <tr><td><code>.movable</code></td><td>Read/write. Toggle whether the dialog can be dragged at runtime.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const dlg = new MessageDialog({
+  x: 20, y: 20,
+  label: 'Confirm',
+  message: 'Are you sure you want to discard all unsaved changes? This cannot be undone.',
+  buttons: ['Cancel', 'Discard'],
+  onButton: (i, lbl) => console.log(i, lbl),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=messageDialog" width="290" height="175" scrolling="no" frameborder="0" loading="lazy" title="MessageDialog live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- InputDialog -->
+  <section id="inputDialog">
+    <h2>InputDialog <span class="tag ext">Container</span></h2>
+    <p class="desc">Extends <a href="#messageDialog">MessageDialog</a> with a single-line text input field between the message and the buttons. Clicking the input field captures keyboard events for typing, cursor movement, and editing. The cursor blinks and the text scrolls horizontally when the value overflows the field width. Pressing <kbd>Enter</kbd> fires <code>onSubmit</code>; clicking outside the field removes focus.</p>
+
+    <div class="sig">new InputDialog(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>message</td><td>string</td><td>''</td><td>Instructional text above the input. Supports <code>\n</code> and auto word-wraps.</td></tr>
+        <tr><td>inputValue</td><td>string</td><td>''</td><td>Initial text in the input field.</td></tr>
+        <tr><td>inputPlaceholder</td><td>string</td><td>''</td><td>Greyed hint text shown when the field is empty and unfocused.</td></tr>
+        <tr><td>buttons</td><td>string[]</td><td>[]</td><td>Button labels in a row at the bottom.</td></tr>
+        <tr><td>x, y</td><td>number</td><td>20, 20</td><td>Canvas position.</td></tr>
+        <tr><td>width</td><td>number</td><td>auto</td><td>Dialog width. Defaults to at least 220 px or wide enough to fit all buttons.</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Title bar text. When set the dialog can be dragged.</td></tr>
+        <tr><td>movable</td><td>boolean</td><td>true</td><td>When <code>false</code> the dialog cannot be dragged.</td></tr>
+        <tr><td>onButton</td><td>function</td><td>null</td><td>Called with <code>(index, label)</code> when a button is clicked.</td></tr>
+        <tr><td>onSubmit</td><td>function</td><td>null</td><td>Called with the current <code>inputValue</code> string when <kbd>Enter</kbd> is pressed.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables all interaction.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.inputValue</code></td><td>Read/write. The current text in the field. Reassign to change it programmatically.</td></tr>
+        <tr><td><code>.inputPlaceholder</code></td><td>Read/write. Hint text shown when the field is empty and unfocused.</td></tr>
+        <tr><td><code>.message</code></td><td>Read/write. Reassigning triggers a layout rebuild on the next draw.</td></tr>
+        <tr><td><code>.buttons</code></td><td>Read/write. Reassigning rebuilds the button row on the next draw.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Keyboard interaction</h3>
+    <table class="opts">
+      <thead><tr><th>Key</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td>Printable characters</td><td>Inserted at the cursor position.</td></tr>
+        <tr><td><kbd>Backspace</kbd> / <kbd>Delete</kbd></td><td>Removes the character before / after the cursor.</td></tr>
+        <tr><td><kbd>←</kbd> / <kbd>→</kbd></td><td>Moves the cursor one character.</td></tr>
+        <tr><td><kbd>Home</kbd> / <kbd>End</kbd></td><td>Jumps to the start or end of the text.</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>Fires <code>onSubmit(inputValue)</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const dlg = new InputDialog({
+  x: 20, y: 20,
+  label: 'Rename',
+  message: 'Enter a new name for the channel:',
+  inputPlaceholder: 'Channel name...',
+  buttons: ['Cancel', 'OK'],
+  onSubmit: v => console.log('submit', v),
+  onButton: (i, lbl) => console.log(i, lbl),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=inputDialog" width="290" height="195" scrolling="no" frameborder="0" loading="lazy" title="InputDialog live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <section id="menu">
+    <h2>Menu <span class="tag ext">Input</span></h2>
+    <p class="desc">A menu bar that runs either along the top (<code>orientation: 'horizontal'</code>) or down the left side (<code>orientation: 'vertical'</code>). Items are defined as an array of strings; replace any string with an array to create a submenu — the first element of the array becomes the top-level label and the remaining elements are the submenu entries. Clicking a leaf item fires <code>onChange</code>; clicking a submenu parent toggles it open or closed.</p>
+
+    <div class="sig">new Menu(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>items</td><td>Array</td><td>[]</td><td>Menu definition. Each entry is a <code>string</code> (leaf item) or a <code>string[]</code> (submenu) where <code>array[0]</code> is the top-level label and <code>array[1…n]</code> are the submenu entries.</td></tr>
+        <tr><td>orientation</td><td>string</td><td>'top'</td><td>Where the bar sits and which way submenus open: <code>'top'</code> — bar across the top, submenus open downward. <code>'bottom'</code> — bar across the bottom, submenus open upward. <code>'left'</code> — bar down the left side, submenus open rightward. <code>'right'</code> — bar down the right side, submenus open leftward. <code>'popup'</code> — floating vertical menu positioned at <code>x, y</code>; submenus and their arrow indicators automatically flip left or right depending on which half of the canvas the menu sits in.</td></tr>
+        <tr><td>x, y</td><td>number</td><td>0, 0</td><td>Canvas position of the top-left corner of the menu bar.</td></tr>
+        <tr><td>width</td><td>number</td><td>auto</td><td>Bar width. Horizontal: defaults to the total of all item widths. Vertical: defaults to the widest item label.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(label, path)</code> when a leaf item is selected. <code>label</code> is the selected item's text; <code>path</code> is an array of labels from root to selection, e.g. <code>['Edit', 'Undo']</code>.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Suppresses all interaction and draws a disabled overlay.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.items</code></td><td>Read/write. Reassign to change the menu structure. Set <code>_layoutDirty = true</code> after changing to force a layout rebuild.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example — top</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const menu = new Menu({
+  x: 0, y: 0,
+  width: 400,
+  items: [
+    'File',
+    ['Edit', 'Undo', 'Redo', 'Cut', 'Copy', 'Paste'],
+    'View',
+    ['Help', 'About', 'Docs'],
+  ],
+  onChange: (lbl, path) => console.log(path),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=menu_top" width="400" height="120" scrolling="no" frameborder="0" loading="lazy" title="Menu top live example"></iframe>
+    </div>
+
+    <h3>Example — left</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const menu = new Menu({
+  x: 0, y: 0,
+  orientation: 'left',
+  items: [
+    'File',
+    ['Edit', 'Undo', 'Redo', 'Cut', 'Copy', 'Paste'],
+    'View',
+    ['Help', 'About', 'Docs'],
+  ],
+  onChange: (lbl, path) => console.log(path),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=menu_left" width="200" height="240" scrolling="no" frameborder="0" loading="lazy" title="Menu left live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- Displays: VUMeter, VUDial, LEDMeter, ADSRDisplay -->
+  <section id="displays">
+    <h2>Displays</h2>
+    <p class="desc">Read-only meters and display panels. Assign <code>.value</code> (or individual properties) each frame to drive them — no event wiring required.</p>
+
+    <h2 id="vumeter">VUMeter <span class="tag ext">Display</span></h2>
+    <p class="desc">Extends <strong>AnalogSlider</strong>. Overlays a segmented LED column (green → yellow → red) with peak hold on top of the fader track. Drive it each frame by assigning <code>.value</code> from audio analysis.</p>
+
+    <div class="sig">new VUMeter(opts)</div>
+
+    <div class="note"><strong>Inherits all AnalogSlider options.</strong> Defaults overridden: <code>readout: 'db'</code>, <code>showScale: false</code>, <code>min: 0</code>, <code>max: 1</code>.</div>
+
+    <h3>Additional options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>segCount</td><td>number</td><td>20</td><td>Number of LED segments.</td></tr>
+        <tr><td>meterWidth</td><td>number</td><td>8</td><td>Pixel width of the LED column.</td></tr>
+        <tr><td>colorLow</td><td>string</td><td>'#00cc44'</td><td>Segment color for the lower 60%.</td></tr>
+        <tr><td>colorMid</td><td>string</td><td>'#cccc00'</td><td>Segment color for 60–85%.</td></tr>
+        <tr><td>colorHigh</td><td>string</td><td>'#cc2200'</td><td>Segment color for the top 15%.</td></tr>
+        <tr><td>showFader</td><td>boolean</td><td>true</td><td><code>false</code> = hide the fader cap entirely for a pure display meter.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const vu = new VUMeter({
+  x: 23, y: 35,
+  width: 44, height: 180,
+  label: 'L',
+  showFader: false,
+  segCount: 24, meterWidth: 12,
+});
+// .value is driven automatically in this preview</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=vumeter" width="90" height="265" scrolling="no" frameborder="0" loading="lazy" title="VUMeter live example"></iframe>
+    </div>
+
+    <hr>
+
+    <h2 id="vudial">VUDial <span class="tag ext">Display</span></h2>
+    <p class="desc">Extends <strong>Dial</strong>. Replaces the filled arc with a ring of segmented LEDs with peak hold. Use <code>showKnob: false</code> for a pure meter ring, or <code>true</code> to show both the set position and the live level.</p>
+
+    <div class="sig">new VUDial(opts)</div>
+
+    <div class="note"><strong>Inherits all Dial options.</strong> Defaults overridden: <code>readout: 'db'</code>, <code>showScale: false</code>, <code>min: 0</code>, <code>max: 1</code>.</div>
+
+    <h3>Additional options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>segCount</td><td>number</td><td>24</td><td>Number of LED arc segments.</td></tr>
+        <tr><td>colorLow</td><td>string</td><td>'#00cc44'</td><td>Color for the lower 60%.</td></tr>
+        <tr><td>colorMid</td><td>string</td><td>'#cccc00'</td><td>Color for 60–85%.</td></tr>
+        <tr><td>colorHigh</td><td>string</td><td>'#cc2200'</td><td>Color for the top 15%.</td></tr>
+        <tr><td>showKnob</td><td>boolean</td><td>true</td><td><code>false</code> = pure LED ring with no knob body.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const vuDial = new VUDial({
+  x: 43, y: 35,
+  size: 80,
+  label: 'VU',
+  showKnob: false,
+  segCount: 30,
+});
+// .value is driven automatically in this preview</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=vudial" width="165" height="165" scrolling="no" frameborder="0" loading="lazy" title="VUDial live example"></iframe>
+    </div>
+
+    <hr>
+
+    <h2 id="ledmeter">LEDMeter <span class="tag ext">Display</span></h2>
+    <p class="desc">A 7-segment numeric display. Segments are drawn as beveled hexagons with a canvas glow. Values are right-aligned; if the number is too wide for the digit slots, all segments show <code>-----</code>. Assign <code>.value</code> each frame.</p>
+
+    <div class="sig">new LEDMeter(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>digits</td><td>number</td><td>5</td><td>Number of digit positions (including sign).</td></tr>
+        <tr><td>readout</td><td>string</td><td>'raw'</td><td><code>'raw'</code>, <code>'percent'</code>, or <code>'db'</code>. dB clamps at −99 at min.</td></tr>
+        <tr><td>decimals</td><td>number</td><td>2</td><td>Decimal places. The dot is drawn in the gap between digits — no extra slot needed.</td></tr>
+        <tr><td>digitW</td><td>number</td><td>14</td><td>Width of each digit character in pixels.</td></tr>
+        <tr><td>digitH</td><td>number</td><td>26</td><td>Height of each digit. Segment thickness scales with this.</td></tr>
+        <tr><td>digitGap</td><td>number</td><td>4</td><td>Gap between digits. Decimal point is centered here.</td></tr>
+        <tr><td>ledColor</td><td>string</td><td>null</td><td>LED color. <code>null</code> uses <code>theme.capIndicator</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const display = new LEDMeter({
+  x: 20, y: 25,
+  min: 0, max: 1,
+  readout: 'db', decimals: 1, digits: 5,
+  label: 'dB',
+  ledColor: '#00ff88',
+});
+// .value is driven automatically in this preview</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=ledmeter" width="200" height="110" scrolling="no" frameborder="0" loading="lazy" title="LEDMeter live example"></iframe>
+    </div>
+    <div class="note"><strong>Panel width</strong> = <code>padding×2 + digits×digitW + (digits−1)×digitGap</code>. With defaults a 5-digit meter is <strong>106 px</strong> wide.</div>
+
+    <hr>
+
+    <h2 id="adsr">ADSRDisplay <span class="tag ext">Display</span></h2>
+    <p class="desc">A display-only ADSR envelope graph inside a beveled panel. The envelope shape updates live whenever any property changes — pair it with dials or sliders to visualise synth parameters in real time.</p>
+
+    <div class="sig">new ADSRDisplay(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>0</td><td>Top-left position of the panel.</td></tr>
+        <tr><td>width</td><td>number</td><td>220</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>120</td><td>Panel height in pixels.</td></tr>
+        <tr><td>attack</td><td>number</td><td>0.1</td><td>Attack time — any consistent unit (seconds, ms, etc.). Relative to decay and release.</td></tr>
+        <tr><td>decay</td><td>number</td><td>0.2</td><td>Decay time.</td></tr>
+        <tr><td>sustain</td><td>number</td><td>0.7</td><td>Sustain amplitude level, 0–1.</td></tr>
+        <tr><td>release</td><td>number</td><td>0.3</td><td>Release time.</td></tr>
+        <tr><td>envelopeColor</td><td>string</td><td>null</td><td>Line and fill tint. <code>null</code> uses <code>theme.capIndicator</code>.</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Label drawn below the panel.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Visual layout</h3>
+    <p class="desc">Attack, Decay, and Release are displayed proportionally across 70% of the plot width. The sustain hold occupies the remaining 30% as a fixed visual segment. <strong>A</strong>, <strong>D</strong>, <strong>S</strong>, <strong>R</strong> labels appear below each segment; dashed dividers mark the phase boundaries.</p>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const env = new ADSRDisplay({
+  x: 20, y: 22,
+  width: 220, height: 120,
+  attack: 0.1, decay: 0.2,
+  sustain: 0.7, release: 0.4,
+  label: 'ENV',
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=adsr" width="260" height="160" scrolling="no" frameborder="0" loading="lazy" title="ADSRDisplay live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- Markup -->
+  <section id="markup">
+    <h2 id="markup">Markup <span class="tag ext">Display</span></h2>
+    <p class="desc">A scrollable text panel that renders a subset of Wiki Markup syntax — headings, bold, italic, bullet and numbered lists, indented blocks, horizontal rules, and links. Set <code>text</code> at any time to update the content; the panel re-parses and scrolls to the top automatically.</p>
+
+    <div class="sig">new Markup(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>0</td><td>Top-left position of the panel.</td></tr>
+        <tr><td>width</td><td>number</td><td>280</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>200</td><td>Panel height (visible viewport) in pixels.</td></tr>
+        <tr><td>text</td><td>string</td><td>''</td><td>Wiki Markup source. Can be set at any time.</td></tr>
+        <tr><td>fontSize</td><td>number</td><td>12</td><td>Base font size in pixels. Headings scale relative to this.</td></tr>
+        <tr><td>padding</td><td>number</td><td>10</td><td>Inner padding on all sides.</td></tr>
+        <tr><td>lineSpacing</td><td>number</td><td>1.5</td><td>Line-height multiplier applied to <code>fontSize</code>.</td></tr>
+        <tr><td>onClick</td><td>function</td><td>null</td><td>Called on any click inside the panel. Receives the link's URL string when a link is clicked, or <code>null</code> when clicking non-link text.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>text</td><td>string (get/set)</td><td>Current markup source. Setting resets scroll to top.</td></tr>
+        <tr><td>scrollY</td><td>number (get/set)</td><td>Current vertical scroll offset in pixels. Clamped to valid range automatically.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Wiki Markup syntax</h3>
+    <table class="opts">
+      <thead><tr><th>Syntax</th><th>Renders as</th></tr></thead>
+      <tbody>
+        <tr><td><code>= Heading 1 =</code></td><td>Large heading with underline rule</td></tr>
+        <tr><td><code>== Heading 2 ==</code></td><td>Medium heading</td></tr>
+        <tr><td><code>=== Heading 3 ===</code></td><td>Small heading</td></tr>
+        <tr><td><code>'''bold'''</code></td><td><strong>Bold</strong> text</td></tr>
+        <tr><td><code>''italic''</code></td><td><em>Italic</em> text</td></tr>
+        <tr><td><code>'''''bold italic'''''</code></td><td><strong><em>Bold italic</em></strong> text</td></tr>
+        <tr><td><code>[[label]]</code> or <code>[[url|label]]</code></td><td>Link text (rendered in accent color)</td></tr>
+        <tr><td><code>* item</code></td><td>Bullet list item</td></tr>
+        <tr><td><code>** item</code></td><td>Sub-bullet list item</td></tr>
+        <tr><td><code># item</code></td><td>Numbered list item</td></tr>
+        <tr><td><code>## item</code></td><td>Sub-numbered list item</td></tr>
+        <tr><td><code>: text</code></td><td>Indented block with left bar</td></tr>
+        <tr><td><code>----</code></td><td>Horizontal rule</td></tr>
+        <tr><td><em>(blank line)</em></td><td>Paragraph gap</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Scrolling</h3>
+    <p class="desc">When content is taller than the panel, a thin scrollbar appears on the right edge. Scroll with the mouse wheel while hovering the panel. Set <code>scrollY</code> programmatically to jump to any position.</p>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const doc = new Markup({
+  x: 20, y: 15,
+  width: 240, height: 190,
+  fontSize: 11,
+  text: `= ProControls =
+A hardware-inspired UI library for [[https://p5js.org|p5.js]].
+
+== Features ==
+* '''Real-time''' audio controls
+* '''8 built-in''' themes
+** black, stainless, white, brushed
+** red, blue, yellow, dimpled
+
+== Usage ==
+# Add the script tag
+# Call ''new AnalogSlider()''
+# Wire up '''onChange'''
+
+----
+: '''''Scroll for more'''''
+This panel supports '''bold''', ''italic'', and '''''bold italic''''' text inline with normal paragraphs. Long lines wrap automatically within the panel width.\`,
+  onClick: (href) => {
+    if (href) window.open(href, '_blank');
+  },
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=markup&s=black" width="280" height="220" scrolling="no" frameborder="0" loading="lazy" title="Markup live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ConsolePanel -->
+  <section id="consolePanel">
+    <h2>ConsolePanel <span class="tag ext">Display</span></h2>
+    <p class="desc">A floating, scrollable log panel that intercepts <code>console.log</code>, <code>console.warn</code>, <code>console.error</code>, and <code>console.info</code> calls as well as uncaught runtime errors and unhandled promise rejections. Messages are color-coded by type, timestamped, and always auto-scroll so the most recently added line is visible at the bottom. Consecutive identical messages (same type and text) are collapsed into a single entry showing the repeat count and the most recent timestamp — e.g. <code>[12:04:31 ×5] redraw tick</code>. A <strong>CLR</strong> button clears the log; a <strong>−/+</strong> toggle minimizes the panel to just its title bar. The panel is movable, resizable, and minimizable by default.</p>
+
+    <div class="sig">new ConsolePanel(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>20, 20</td><td>Canvas position of the panel's top-left corner.</td></tr>
+        <tr><td>width</td><td>number</td><td>400</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>200</td><td>Panel height in pixels.</td></tr>
+        <tr><td>label</td><td>string</td><td>'Console'</td><td>Text shown in the title bar.</td></tr>
+        <tr><td>movable</td><td>boolean</td><td>true</td><td>When <code>false</code> the panel cannot be repositioned by dragging.</td></tr>
+        <tr><td>resizable</td><td>boolean</td><td>true</td><td>A resize grip appears in the bottom-right corner; drag it to resize the panel at runtime.</td></tr>
+        <tr><td>minimizable</td><td>boolean</td><td>true</td><td>A <strong>−/+</strong> toggle button appears in the title bar; clicking it collapses the panel to just the title bar.</td></tr>
+        <tr><td>minimized</td><td>boolean</td><td>false</td><td>Initial minimized state.</td></tr>
+        <tr><td>maxMessages</td><td>number</td><td>100</td><td>Maximum number of messages retained. Oldest messages are dropped when the buffer is full.</td></tr>
+        <tr><td>timestamps</td><td>boolean</td><td>true</td><td>Prefix each message with a <code>[HH:MM:SS]</code> timestamp. Set to <code>false</code> to suppress.</td></tr>
+        <tr><td>intercept</td><td>string[]</td><td><code>['log','warn','error','info']</code></td><td>The <code>console</code> methods to intercept. Pass a subset to limit capture, e.g. <code>['error','warn']</code>.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties &amp; methods</h3>
+    <table class="opts">
+      <thead><tr><th>Name</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.clear()</code></td><td>Clears all messages and resets scroll. Same as clicking the CLR button.</td></tr>
+        <tr><td><code>.messages</code></td><td>Read-only getter. Returns a shallow copy of the message array. Each entry is <code>{ type, text, time, count }</code>; <code>count</code> is ≥ 1 when consecutive identical messages have been collapsed.</td></tr>
+        <tr><td><code>.remove()</code></td><td>Removes the panel and restores all intercepted <code>console</code> methods to their originals.</td></tr>
+        <tr><td><code>.minimized</code></td><td>Get/set. When <code>true</code> the panel collapses to just the title bar.</td></tr>
+        <tr><td><code>.label</code></td><td>Read/write. Text shown in the title bar.</td></tr>
+        <tr><td><code>.resizable</code></td><td>Read/write. Enables or disables the resize grip at runtime.</td></tr>
+        <tr><td><code>.minimizable</code></td><td>Read/write. Shows or hides the minimize toggle button.</td></tr>
+        <tr><td><code>.movable</code></td><td>Read/write. Enables or disables title-bar dragging at runtime.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Global helpers</h3>
+    <p class="desc" style="margin-bottom:10px;">For quick use, two standalone functions manage a single shared ConsolePanel without you needing to hold a reference to it. The panel is created the first time <code>openConsolePanel()</code> is called and reused on every subsequent call — the log history is preserved across open/close cycles.</p>
+    <table class="opts">
+      <thead><tr><th>Function</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>openConsolePanel(opts?)</code></td>
+          <td>Creates the global ConsolePanel on the first call, passing any <a href="#consolePanel">ConsolePanel options</a> you like (<code>label</code>, <code>width</code>, <code>resizable</code>, etc.). On every subsequent call it simply makes the panel visible again — <code>opts</code> is ignored after the panel already exists. Returns the ConsolePanel instance.</td>
+        </tr>
+        <tr>
+          <td><code>closeConsolePanel()</code></td>
+          <td>Hides the panel (<code>visible = false</code>). The object and all its log data are preserved — calling <code>openConsolePanel()</code> again brings it back exactly as it was.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="example-row" style="margin-top:12px;">
+      <div class="live-editor" style="flex:1;">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">// Open (or show) the shared panel
+openConsolePanel({ label: 'Debug', width: 360 });
+
+console.log('Panel created once');
+console.warn('Reused on every open call');
+
+// Later — hide without losing data:
+// closeConsolePanel();
+// openConsolePanel(); // brings it back</textarea>
+      </div>
+    </div>
+
+    <h3>Message colors</h3>
+    <table class="opts">
+      <thead><tr><th>Source</th><th>Color</th></tr></thead>
+      <tbody>
+        <tr><td><code>console.log</code></td><td>Theme label color (default text)</td></tr>
+        <tr><td><code>console.info</code></td><td>Theme accent / indicator color</td></tr>
+        <tr><td><code>console.warn</code></td><td>Amber <code>#cc8800</code></td></tr>
+        <tr><td><code>console.error</code> / uncaught errors</td><td>Red <code>#dd3333</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3>Interaction</h3>
+    <table class="opts">
+      <thead><tr><th>Gesture</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td>Drag title bar</td><td>Repositions the panel (when <code>movable</code> is <code>true</code>).</td></tr>
+        <tr><td>Click −/+ button</td><td>Minimizes or restores the panel (when <code>minimizable</code> is <code>true</code>).</td></tr>
+        <tr><td>Scroll wheel</td><td>Scrolls the message log. The next incoming message will always snap back to the bottom.</td></tr>
+        <tr><td>Drag scrollbar</td><td>Scrolls by dragging the thin scrollbar on the right edge (visible when content overflows).</td></tr>
+        <tr><td>Click CLR button</td><td>Clears all messages.</td></tr>
+        <tr><td>Drag resize grip</td><td>Resizes the panel from the bottom-right corner (when <code>resizable</code> is <code>true</code>).</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note"><strong>Console passthrough:</strong> intercepted methods still call the original browser console functions, so DevTools output is unaffected. Call <code>.remove()</code> to fully restore the originals.</div>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const con = new ConsolePanel({
+  x: 20, y: 20,
+  width: 360, height: 180,
+});
+
+// Any console.log / warn / error appears in the panel:
+console.log('Sketch started');
+console.warn('Low memory');
+console.error('Something went wrong');
+// Repeated identical calls are collapsed:
+for (let i = 0; i &lt; 5; i++) console.log('redraw tick');</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=consolePanel" width="400" height="220" scrolling="no" frameborder="0" loading="lazy" title="ConsolePanel live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- TimeGraphPanel -->
+  <section id="timeGraphPanel">
+    <h2>TimeGraphPanel <span class="tag ext">Display</span></h2>
+    <p class="desc">A scrolling time-series line graph panel. Push data points each frame to plot them against time — the oldest point scrolls off the left edge as new ones arrive on the right. Pass a plain number to plot a single variable, or an object (<code>{key: value, …}</code>) to plot multiple named variables simultaneously, each drawn in its own color with a legend. Y-axis range is auto-scaled to the data with 8% padding, or fixed by setting <code>min</code> and <code>max</code>. The panel is movable, resizable, and minimizable by default.</p>
+
+    <div class="sig">new TimeGraphPanel(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>20, 20</td><td>Canvas position of the panel's top-left corner.</td></tr>
+        <tr><td>width</td><td>number</td><td>360</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>200</td><td>Panel height in pixels.</td></tr>
+        <tr><td>label</td><td>string</td><td>'Time Graph'</td><td>Text shown in the title bar.</td></tr>
+        <tr><td>maxSamples</td><td>number</td><td>200</td><td>Maximum number of data points retained. Oldest points are discarded when the buffer is full.</td></tr>
+        <tr><td>autoAdjustY</td><td>boolean</td><td>true</td><td>Automatically fit the Y axis to the min/max of the data currently in the buffer. Set to <code>false</code> to use fixed <code>min</code>/<code>max</code> bounds instead.</td></tr>
+        <tr><td>min</td><td>number</td><td>0</td><td>Fixed Y-axis minimum. Only used when <code>autoAdjustY</code> is <code>false</code>.</td></tr>
+        <tr><td>max</td><td>number</td><td>1</td><td>Fixed Y-axis maximum. Only used when <code>autoAdjustY</code> is <code>false</code>.</td></tr>
+        <tr><td>lineWidth</td><td>number</td><td>1.5</td><td>Stroke weight for data lines in pixels.</td></tr>
+        <tr><td>grid</td><td>boolean</td><td>true</td><td>Show horizontal grid lines at 25%, 50%, and 75% of the Y range.</td></tr>
+        <tr><td>legend</td><td>boolean</td><td>true</td><td>Show a color legend in the top-right corner of the plot (only visible when graphing multiple variables).</td></tr>
+        <tr><td>movable</td><td>boolean</td><td>true</td><td>Allow repositioning by dragging the title bar.</td></tr>
+        <tr><td>resizable</td><td>boolean</td><td>true</td><td>Show a resize grip in the bottom-right corner.</td></tr>
+        <tr><td>minimizable</td><td>boolean</td><td>true</td><td>Show a −/+ toggle button to collapse the panel to just the title bar.</td></tr>
+        <tr><td>minimized</td><td>boolean</td><td>false</td><td>Initial minimized state.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties &amp; methods</h3>
+    <table class="opts">
+      <thead><tr><th>Name</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.push(value)</code></td><td>Add a data point. Pass a <code>number</code> for single-variable mode, or a plain object (<code>{key: value, …}</code>) for multi-variable mode. Switching between modes resets the data buffer.</td></tr>
+        <tr><td><code>.clear()</code></td><td>Remove all data points and reset variable tracking.</td></tr>
+        <tr><td><code>.autoAdjustY</code></td><td>Get or set whether the Y axis auto-fits to the data range (<code>true</code>) or uses fixed bounds (<code>false</code>).</td></tr>
+        <tr><td><code>.data</code></td><td>Read-only getter. Returns a shallow copy of the current data array.</td></tr>
+        <tr><td><code>.minimized</code></td><td>Get/set. Collapses the panel to just the title bar when <code>true</code>.</td></tr>
+        <tr><td><code>.visible</code></td><td>Get/set. Hides the panel and suppresses events when <code>false</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example — single variable</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const g = new TimeGraphPanel({
+  x: 20, y: 18,
+  width: 280, height: 160,
+  label: 'Amplitude',
+  min: -1, max: 1,
+});
+
+// Call g.push() inside draw() to feed live data:
+// g.push(sin(frameCount * 0.05));</textarea>
+      <iframe class="example-frame" src="example.html?c=timeGraphPanel&s=black" width="380" height="220" scrolling="no" frameborder="0" loading="lazy" title="TimeGraphPanel live example"></iframe>
+    </div>
+
+    <h3>Example — multiple variables</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const g = new TimeGraphPanel({
+  x: 20, y: 18,
+  width: 280, height: 160,
+  label: 'Sensors',
+});
+
+// Pass an object to plot named variables together:
+// g.push({ rpm: 3400, temp: 85, load: 0.72 });</textarea>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- Themes -->
+  <section id="themes">
+    <h2>Themes &amp; Styles</h2>
+    <p class="desc">Set <code>ControlStyle</code> before creating controls. The style is captured at construction time, so controls built before a change keep their original look.</p>
+
+    <pre><code>ControlStyle = <span class="str">'brushed'</span>; <span class="cmt">// before any new controls</span></code></pre>
+
+    <h3>Built-in styles</h3>
+    <div class="swatches">
+      <div class="swatch">
+        <div class="bg-chip" style="background:#1a1a1a"></div>
+        <div class="name">black</div>
+        <div class="label"><span class="accent-chip" style="background:#00ccff"></span>cyan accent</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:linear-gradient(180deg,#d8dfe6 0%,#f0f4f8 22%,#c8d0d8 100%)"></div>
+        <div class="name">stainless</div>
+        <div class="label"><span class="accent-chip" style="background:#005fa3"></span>navy accent · polished chrome texture</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:#e8e8e8;border-color:#ccc"></div>
+        <div class="name">white</div>
+        <div class="label"><span class="accent-chip" style="background:#cc2200"></span>red accent</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:linear-gradient(180deg,#8e9099 0%,#aab0b8 40%,#8e9099 100%)"></div>
+        <div class="name">brushed</div>
+        <div class="label"><span class="accent-chip" style="background:#ff8800"></span>orange accent · sine-wave grain</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:linear-gradient(180deg,#8e9099 0%,#aab0b8 40%,#8e9099 100%)"></div>
+        <div class="name">dimpled</div>
+        <div class="label"><span class="accent-chip" style="background:#0088cc"></span>blue accent · dimpled circle texture</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:#cc0000"></div>
+        <div class="name">red</div>
+        <div class="label"><span class="accent-chip" style="background:#ffdd00"></span>yellow accent</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:#0000cc"></div>
+        <div class="name">blue</div>
+        <div class="label"><span class="accent-chip" style="background:#ffdd00"></span>yellow accent</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:#e0d000"></div>
+        <div class="name">yellow</div>
+        <div class="label"><span class="accent-chip" style="background:#cc0000"></span>red accent · dark text</div>
+      </div>
+    </div>
+
+    <div class="themes-frames">
+      <iframe class="example-frame" src="example.html?c=dialtheme&s=black&lbl=BLACK" width="140" height="140" scrolling="no" frameborder="0" loading="lazy" title="black theme"></iframe>
+      <iframe class="example-frame" src="example.html?c=dialtheme&s=stainless&lbl=STEEL" width="140" height="140" scrolling="no" frameborder="0" loading="lazy" title="stainless theme"></iframe>
+      <iframe class="example-frame" src="example.html?c=dialtheme&s=white&lbl=WHITE" width="140" height="140" scrolling="no" frameborder="0" loading="lazy" title="white theme"></iframe>
+      <iframe class="example-frame" src="example.html?c=dialtheme&s=brushed&lbl=BRUSH" width="140" height="140" scrolling="no" frameborder="0" loading="lazy" title="brushed theme"></iframe>
+      <iframe class="example-frame" src="example.html?c=dialtheme&s=dimpled&lbl=DIMPL" width="140" height="140" scrolling="no" frameborder="0" loading="lazy" title="dimpled theme"></iframe>
+      <iframe class="example-frame" src="example.html?c=dialtheme&s=red&lbl=RED" width="140" height="140" scrolling="no" frameborder="0" loading="lazy" title="red theme"></iframe>
+      <iframe class="example-frame" src="example.html?c=dialtheme&s=blue&lbl=BLUE" width="140" height="140" scrolling="no" frameborder="0" loading="lazy" title="blue theme"></iframe>
+      <iframe class="example-frame" src="example.html?c=dialtheme&s=yellow&lbl=YLW" width="140" height="140" scrolling="no" frameborder="0" loading="lazy" title="yellow theme"></iframe>
+    </div>
+
+    <h3>proControlBackground()</h3>
+    <p class="desc">Use instead of p5's <code>background()</code>. Fills the canvas with the style color. <code>'brushed'</code> and <code>'stainless'</code> also draw per-row texture overlays via the native Canvas 2D API.</p>
+
+    <table class="opts" style="margin-top:10px">
+      <thead><tr><th>Style</th><th>Texture</th></tr></thead>
+      <tbody>
+        <tr><td>black</td><td>Flat fill — <code>#1a1a1a</code>.</td></tr>
+        <tr><td>stainless</td><td>Gaussian highlight profile: sharp specular band near the top third, soft secondary reflection below center, edge darkening, and a thin pure-white specular line at the peak.</td></tr>
+        <tr><td>white</td><td>Flat fill — <code>#e8e8e8</code>.</td></tr>
+        <tr><td>brushed</td><td>Three layered sine-wave frequencies (fine grain, visible stroke bands, slow tonal drift) plus a directional sheen band — simulates brushed aluminum.</td></tr>
+        <tr><td>dimpled</td><td>Brushed aluminum base with a grid of small dimpled circles (12 px spacing) — each dot has a dark outer ring and a lighter inner highlight. Blue accent.</td></tr>
+        <tr><td>red</td><td>Flat fill — <code>#cc0000</code>. Primary red background, darker red controls, yellow accent.</td></tr>
+        <tr><td>blue</td><td>Flat fill — <code>#0000cc</code>. Primary blue background, darker blue controls, yellow accent.</td></tr>
+        <tr><td>yellow</td><td>Flat fill — <code>#e0d000</code>. Warm yellow background, golden controls, red accent · dark text.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Runtime style switching</h3>
+    <p class="desc">Rebuild controls with <code>proControlReset()</code> when switching styles. The <a href="demo.html" target="_blank">Live Demo</a> uses an <code>AnalogSwitch</code> to cycle all four styles.</p>
+    <pre><code><span class="kw">const</span> STYLES = [<span class="str">'black'</span>, <span class="str">'stainless'</span>, <span class="str">'white'</span>, <span class="str">'brushed'</span>, <span class="str">'dimpled'</span>, <span class="str">'red'</span>, <span class="str">'blue'</span>, <span class="str">'yellow'</span>];
+<span class="kw">const</span> LABELS = [<span class="str">'BLACK'</span>, <span class="str">'STEEL'</span>, <span class="str">'WHITE'</span>, <span class="str">'BRUSH'</span>, <span class="str">'DIMPL'</span>, <span class="str">'RED'</span>, <span class="str">'BLUE'</span>, <span class="str">'YLW'</span>];
+<span class="kw">let</span> currentStyle = <span class="str">'black'</span>;
+
+<span class="kw">function</span> <span class="fn">buildControls</span>() {
+  <span class="fn">proControlReset</span>();
+  ControlStyle = currentStyle;
+  mySlider    = <span class="kw">new</span> <span class="fn">AnalogSlider</span>({ value: mySlider?.value ?? <span class="num">0.5</span> });
+  styleSwitch = <span class="kw">new</span> <span class="fn">AnalogSwitch</span>({
+    states: LABELS,
+    state:  STYLES.<span class="fn">indexOf</span>(currentStyle),
+    label:  <span class="str">'STYLE'</span>,
+    <span class="fn">onChange</span>: i => { currentStyle = STYLES[i]; <span class="fn">buildControls</span>(); },
+  });
+}</code></pre>
+
+    <h3>Per-control theme overrides</h3>
+    <p class="desc">Pass a partial <code>theme</code> object to override individual color keys while keeping the rest of the active style.</p>
+    <table class="opts">
+      <thead><tr><th>Key</th><th>Affects</th></tr></thead>
+      <tbody>
+        <tr><td>panel</td><td>Panel background fill.</td></tr>
+        <tr><td>panelStroke</td><td>Panel border and knob outline.</td></tr>
+        <tr><td>track</td><td>Slider groove / dial arc background.</td></tr>
+        <tr><td>capHighlight</td><td>Top gradient color of the fader cap or knob.</td></tr>
+        <tr><td>capShadow</td><td>Bottom gradient color of the fader cap or knob.</td></tr>
+        <tr><td>capIndicator</td><td>Accent line / filled arc color / LED glow color.</td></tr>
+        <tr><td>scaleText</td><td>Scale label text color.</td></tr>
+        <tr><td>scaleTick</td><td>Scale tick mark color.</td></tr>
+        <tr><td>label</td><td>Control label text color.</td></tr>
+        <tr><td>readout</td><td>Readout value text color.</td></tr>
+        <tr><td>readoutBg</td><td>Readout pill background.</td></tr>
+        <tr><td>hoverGlow</td><td>Hover highlight fill (include alpha).</td></tr>
+        <tr><td>disabledOverlay</td><td>Overlay when <code>disabled: true</code>.</td></tr>
+        <tr><td>font</td><td>p5 font object from <code>loadFont()</code>. <code>null</code> = canvas default.</td></tr>
+      </tbody>
+    </table>
+    <pre><code><span class="kw">new</span> <span class="fn">Dial</span>({ label: <span class="str">'MASTER'</span>, theme: { capIndicator: <span class="str">'#ffcc00'</span> } });</code></pre>
+  </section>
+
+  <hr>
+
+  <!-- Events -->
+  <section id="touch">
+    <h2>Touch &amp; Events</h2>
+    <p class="desc">All mouse, wheel, touch events, and rendering are handled automatically by the library. No event functions and no draw loop are needed in your sketch. <code>touch-action: none</code> is applied to the canvas automatically to prevent iOS scroll conflicts.</p>
+
+    <div class="note"><strong>Nothing to wire up.</strong> Just create controls — they start receiving events and drawing themselves immediately. Call <code>.remove()</code> when done.</div>
+
+    <h3>How it works</h3>
+    <p class="desc">Each control self-registers on construction into a shared array. Two <code>p5.prototype.registerMethod</code> hooks handle everything: a <code>'pre'</code> hook fires at the start of every frame to dispatch mouse/wheel/touch events; a <code>'post'</code> hook fires at the end of every frame and draws any control that wasn't already drawn explicitly that frame. This means you can still call <code>c.draw()</code> manually for z-order control — the post hook simply skips controls already rendered.</p>
+
+    <h3>Coexisting with your own handlers</h3>
+    <p class="desc">Registered library methods and sketch-level event functions both fire independently — they don't conflict. You can still define <code>mousePressed()</code> in your sketch for other logic.</p>
+
+    <div class="note"><strong>Multi-touch:</strong> p5.js maps only the first touch to <code>mouseX/mouseY</code>, so only one control can be manipulated at a time. Two-finger gestures are unaffected.</div>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  // Wire each editable textarea to its sibling iframe
+  document.querySelectorAll('.example-row').forEach(function (row) {
+    var ta = row.querySelector('textarea.live-code');
+    var fr = row.querySelector('iframe.example-frame');
+    if (!ta || !fr) return;
+
+    // Auto-size textarea to content on load
+    function resize() {
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    }
+    resize();
+
+    // Debounced postMessage to the iframe
+    var timer;
+    ta.addEventListener('input', function () {
+      resize();
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        if (fr.contentWindow) {
+          fr.contentWindow.postMessage({ type: 'run', code: ta.value }, '*');
+        }
+      }, 700);
+    });
+  });
+}());
+</script>
+
+<footer>
+  <span>© 2026 David Stein</span>
+  <span class="footer-promo">
+    Another David Stein Production:
+    <a href="https://procontrols.org" target="_blank">procontrols.org</a> ·
+    <a href="https://indienewyork.com" target="_blank">indienewyork.com</a> ·
+    <a href="https://indieboston.com" target="_blank">indieboston.com</a>
+  </span>
+</footer>
+
+</body>
+</html>

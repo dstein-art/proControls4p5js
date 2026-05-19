@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProControls — Selectors Tutorial</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #ffffff;
+      --surface:  #f4f4f6;
+      --surface2: #ebebee;
+      --border:   #e0e0e6;
+      --accent:   #0077cc;
+      --accent2:  #cc5500;
+      --text:     #1a1a22;
+      --muted:    #666680;
+      --code-bg:  #1a1a22;
+      --code-text:#d4d4d8;
+      --nav-bg:   #ffffffee;
+      --nav-h:    52px;
+      --max-w:    1100px;
+      --radius:   6px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      font: 15px/1.65 'Inter', 'Segoe UI', system-ui, sans-serif;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    nav, .hero { width: 100%; }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      gap: 4px;
+      overflow-x: clip;
+      overflow-y: visible;
+      white-space: nowrap;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+      flex-shrink: 0;
+    }
+
+    nav a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    nav .docs-link { color: var(--accent2); margin-left: 6px; }
+    nav .docs-link:hover {
+      color: var(--accent2);
+      border-color: #cc550044;
+      background: #cc55000a;
+    }
+
+    nav .sep { color: var(--border); margin: 0 2px; user-select: none; }
+
+    /* ── Nav submenu ── */
+    .nav-group { position: relative; display: flex; align-items: center; }
+    .nav-submenu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px;
+      padding-top: 10px;
+      min-width: 130px;
+      z-index: 200;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(0,0,0,.1);
+      flex-direction: column;
+      gap: 2px;
+    }
+    .nav-group:hover .nav-submenu { display: flex; }
+    .nav-submenu a {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+    }
+    .nav-submenu a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    /* ── Compact Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #0f1923 0%, #1a2840 50%, #0f2030 100%);
+      padding: 20px 32px 18px;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -80px; left: 50%;
+      width: 400px; height: 200px;
+      background: radial-gradient(ellipse, #0077cc20 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .hero-left { display: flex; align-items: baseline; gap: 14px; }
+
+    .hero h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -.02em;
+      line-height: 1;
+    }
+
+    .hero h1 .accent { color: #00aaff; }
+    .hero h1 .dim    { color: #6699bb; font-weight: 400; }
+
+    .hero-sub { font-size: 13px; color: #6688aa; }
+
+    .hero-docs {
+      font-size: 12px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid #0077cc66;
+      color: #66bbff;
+      background: #0077cc22;
+      text-decoration: none;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+    .hero-docs:hover { background: #0077cc44; }
+
+    /* ── Page layout ── */
+    .page {
+      width: 100%;
+      max-width: var(--max-w);
+      padding: 52px 32px 100px;
+    }
+
+    /* ── Tutorial intro ── */
+    .intro {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 48px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #444460;
+    }
+    .intro strong { color: var(--text); }
+    .intro .prereq {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .intro code {
+      font: 12px/1 'Fira Code', 'Cascadia Code', monospace;
+      background: #e4e4ec;
+      border: 1px solid #d0d0e0;
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent);
+    }
+
+    /* ── TOC ── */
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+    .toc a {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1px solid #0077cc33;
+      background: #0077cc08;
+      transition: background .15s, border-color .15s;
+    }
+    .toc a:hover { background: #0077cc18; border-color: #0077cc66; }
+
+    /* ── Control section ── */
+    .ctrl-section {
+      margin-bottom: 80px;
+      scroll-margin-top: calc(var(--nav-h) + 20px);
+    }
+
+    .ctrl-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .ctrl-header h2 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -.02em;
+    }
+
+    .ctrl-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc12;
+      border: 1px solid #0077cc33;
+      padding: 2px 9px;
+      border-radius: 20px;
+    }
+
+    .ctrl-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 28px;
+      max-width: 720px;
+    }
+
+    /* ── Step ── */
+    .step {
+      margin-bottom: 40px;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin-bottom: 10px;
+    }
+
+    .step-badge {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc15;
+      border: 1px solid #0077cc44;
+      padding: 3px 10px;
+      border-radius: 20px;
+      flex-shrink: 0;
+    }
+
+    .step-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .step-body {
+      font-size: 14px;
+      color: #555570;
+      line-height: 1.7;
+      margin-bottom: 14px;
+      max-width: 740px;
+    }
+
+    .step-body code {
+      font: 12px/1 'Fira Code', 'Cascadia Code', monospace;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent);
+    }
+
+    /* ── Live examples ── */
+    .example-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin: 0;
+    }
+
+    .live-editor {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .live-hint {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc0d;
+      border: 1px solid #0077cc33;
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      padding: 4px 10px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    .live-hint.readonly {
+      color: var(--muted);
+      background: #f4f4f6;
+      border-color: var(--border);
+    }
+
+    .live-code {
+      background: var(--code-bg);
+      border: 1px solid #2a2a38;
+      border-radius: 0 0 6px 6px;
+      padding: 18px 20px;
+      font: 13px/1.65 'Fira Code', 'Cascadia Code', monospace;
+      color: var(--code-text);
+      resize: none;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: pre;
+      field-sizing: content;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .live-code:focus { border-color: #0077cc88; }
+
+    .example-frame {
+      flex-shrink: 0;
+      border-radius: 6px;
+      overflow: hidden;
+      display: block;
+      box-shadow: 0 2px 10px rgba(0,0,0,.18);
+    }
+
+    /* style showcase row */
+    .styles-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .style-item { text-align: center; }
+    .style-label {
+      font-size: 11px;
+      color: #888;
+      margin-top: 5px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    /* note callout */
+    .note {
+      background: #0077cc0a;
+      border-left: 3px solid var(--accent);
+      padding: 11px 16px;
+      border-radius: 0 6px 6px 0;
+      font-size: 13px;
+      color: #446688;
+      margin: 14px 0 0;
+      line-height: 1.6;
+    }
+    .note strong { color: var(--accent); }
+
+    .tip {
+      background: #22aa4410;
+      border-left: 3px solid #22aa44;
+      padding: 11px 16px;
+      border-radius: 0 6px 6px 0;
+      font-size: 13px;
+      color: #337755;
+      margin: 14px 0 0;
+      line-height: 1.6;
+    }
+    .tip strong { color: #22aa44; }
+
+    code {
+      font: 13px/1 'Fira Code', 'Cascadia Code', monospace;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent);
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 60px 0;
+    }
+
+    @media (max-width: 640px) {
+      .example-row { flex-direction: column; }
+      .example-frame { align-self: center; }
+    }
+
+    /* ── Footer ── */
+    footer {
+      order: 1;
+      width: 100%;
+      padding: 16px 32px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" title="Home" style="padding:5px 8px;font-size:18px;line-height:1;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:20px;">home</span></a>
+  <span class="sep">·</span>
+  <a href="gettingStarted.html">Getting Started</a>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#slider">Sliders &amp; Dials</a>
+    <div class="nav-submenu">
+      <a href="help.html#slider">AnalogSlider</a>
+      <a href="help.html#multislider">MultiSlider</a>
+      <a href="help.html#rangeslider">RangeSlider</a>
+      <a href="help.html#dial">Dial</a>
+      <a href="help.html#multidial">MultiDial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#pads">Pads</a>
+    <div class="nav-submenu">
+      <a href="help.html#xypad">XYPad</a>
+      <a href="help.html#gridpad">GridPad</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#selectors" style="color:var(--accent)">Selectors</a>
+    <div class="nav-submenu">
+      <a href="help.html#switch">Switch</a>
+      <a href="help.html#iconButton">IconButton</a>
+      <a href="help.html#selector">Selector</a>
+      <a href="help.html#tagSelector">TagSelector</a>
+      <a href="help.html#sliderSelector">SliderSelector</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#panel">Panel</a>
+    <div class="nav-submenu">
+      <a href="help.html#panel">Panel</a>
+      <a href="help.html#messageDialog">MessageDialog</a>
+      <a href="help.html#inputDialog">InputDialog</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <a href="help.html#menu">Menu</a>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#displays">Displays</a>
+    <div class="nav-submenu">
+      <a href="help.html#vumeter">VUMeter</a>
+      <a href="help.html#vudial">VUDial</a>
+      <a href="help.html#ledmeter">LEDMeter</a>
+      <a href="help.html#adsr">ADSRDisplay</a>
+      <a href="help.html#markup">Markup</a>
+      <a href="help.html#consolePanel">ConsolePanel</a>
+      <a href="help.html#timeGraphPanel">TimeGraphPanel</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <a href="help.html#themes">Themes &amp; Styles</a>
+  <span class="sep">·</span>
+  <a href="help.html#touch">Events</a>
+  <span class="sep">·</span>
+  <a href="../LICENSE" target="_blank">License</a>
+  <a href="help.html" class="docs-link">↗ Docs</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div>
+        <h1><span class="accent">Selectors</span> <span class="dim">Tutorial</span></h1>
+        <div style="font-size:12px;color:#6688aa;margin-top:4px;letter-spacing:.04em;">ProControls for p5.js — by David Stein</div>
+      </div>
+      <span class="hero-sub">Step-by-step guide for beginners — all examples are live and editable</span>
+    </div>
+    <a href="help.html#selectors" class="hero-docs">↗ Full Docs</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- Intro -->
+  <div class="intro">
+    <strong>Welcome!</strong> This tutorial covers every selector control in ProControls — Switch, Selector, TagSelector, and SliderSelector. Selectors let the user choose from a fixed list of options rather than setting a continuous number. You do not need any prior experience — each example is fully explained, and every code block is <strong>live and editable</strong>. Click inside any code box, make a change, and the preview updates automatically.
+    <div class="prereq">
+      <strong>First time here?</strong> Before running these examples in your own project, visit the
+      <a href="gettingStarted.html">Getting Started</a> page to get the HTML setup and script tags
+      you need to load ProControls.
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <a href="#switch">Switch</a>
+    <a href="#selector">Selector</a>
+    <a href="#tagselector">TagSelector</a>
+    <a href="#sliderselector">SliderSelector</a>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  SWITCH                                                         -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <div class="ctrl-section" id="switch">
+    <div class="ctrl-header">
+      <h2>Switch</h2>
+      <span class="ctrl-tag">Selector</span>
+    </div>
+    <p class="ctrl-desc">
+      An illuminated toggle or button stack. With two states it draws a rocker — click to flip
+      between the two options. With three or more states it draws a vertical button stack — click
+      any slot to select it. The active slot glows with the style's accent color.
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 1</span>
+        <span class="step-title">Your first Switch</span>
+      </div>
+      <p class="step-body">
+        Create a Switch with just a position. ProControls fills in the defaults: two states
+        labeled <code>OFF</code> and <code>ON</code>, with <code>OFF</code> active at start.
+        Click the control to flip it.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const sw = new Switch({
+  x: 36, y: 22,
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=switch2" width="120" height="130" scrolling="no" frameborder="0" loading="lazy" title="Switch basic"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 2</span>
+        <span class="step-title">Custom labels and starting state</span>
+      </div>
+      <p class="step-body">
+        The <code>states</code> array sets the text on each slot. <code>state</code> is the index
+        that starts highlighted — <code>0</code> means the first item, <code>1</code> means the
+        second. Add a <code>label</code> to identify the control below it.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const sw = new Switch({
+  x: 36, y: 14,
+  states: ['MONO', 'STEREO'],
+  state: 1,
+  label: 'OUTPUT',
+  width: 48,
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=switch2" width="120" height="130" scrolling="no" frameborder="0" loading="lazy" title="Switch custom labels"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 3</span>
+        <span class="step-title">Multi-state button stack</span>
+      </div>
+      <p class="step-body">
+        Pass more than two strings in <code>states</code> and the Switch automatically expands
+        into a vertical button stack — one glowing button per option. The control grows taller
+        to fit all the slots. Only one slot can be active at a time.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const mode = new Switch({
+  x: 39, y: 14,
+  states: ['SYNTH', 'BASS', 'DRUMS', 'FX'],
+  state: 0,
+  label: 'SECTION',
+  width: 52,
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=switchn" width="130" height="175" scrolling="no" frameborder="0" loading="lazy" title="Switch N-state"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 4</span>
+        <span class="step-title">Reacting to changes with <code>onChange</code></span>
+      </div>
+      <p class="step-body">
+        The <code>onChange</code> callback fires every time the user clicks a slot. It receives
+        two arguments: the numeric index of the selected slot (starting at 0) and the string
+        label of that slot. The <strong>ConsolePanel</strong> in the example below shows this
+        output directly on the canvas so you can see it without opening browser DevTools.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
+  x: 0, y: 0, width: 320, height: 80,
+  label: 'Output',
+  movable: false, minimizable: false, resizable: false,
+});
+
+const sw = new Switch({
+  x: 136, y: 98,
+  states: ['OFF', 'ON'],
+  state: 0,
+  label: 'POWER',
+  // index = 0 or 1, label = 'OFF' or 'ON'
+  onChange: (index, label) => {
+    console.log('State: ' + label + ' (index ' + index + ')');
+  },
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=panel" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="Switch data handling"></iframe>
+      </div>
+      <div class="tip">
+        <strong>Tip:</strong> Read the current state at any time with <code>sw.state</code>
+        (the index) or <code>sw.states[sw.state]</code> (the label string). You can also write
+        to <code>sw.state</code> directly to change the selection programmatically — for example
+        <code>sw.state = 1</code> to turn a power switch on.
+      </div>
+    </div>
+
+  </div><!-- /Switch -->
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  SELECTOR                                                       -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <div class="ctrl-section" id="selector">
+    <div class="ctrl-header">
+      <h2>Selector</h2>
+      <span class="ctrl-tag">Selector</span>
+    </div>
+    <p class="ctrl-desc">
+      A compact option picker that scrolls through a list of choices. Two visual styles are
+      available: <strong>rotary</strong> (default) shows a mechanical drum with serrated teeth
+      on the right — drag up/down or scroll the mouse wheel to spin it.
+      <strong>Arrow</strong> style shows left/right arrow buttons with a sliding display window.
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 1</span>
+        <span class="step-title">Your first Selector</span>
+      </div>
+      <p class="step-body">
+        Create a Selector with a position and an <code>options</code> array. The default style
+        is <code>'rotary'</code> — drag the drum up or down, or hover over it and scroll your
+        mouse wheel to cycle through the options.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const wave = new Selector({
+  x: 40, y: 22,
+  options: ['SINE', 'SQUARE', 'SAW', 'TRI', 'NOISE'],
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=selector" width="220" height="100" scrolling="no" frameborder="0" loading="lazy" title="Selector basic"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 2</span>
+        <span class="step-title">Setting the starting selection and adding a label</span>
+      </div>
+      <p class="step-body">
+        <code>state</code> sets which option is selected at the start — it is an index into the
+        <code>options</code> array, so <code>0</code> means the first item, <code>2</code> means
+        the third, and so on. The <code>label</code> caption is drawn below the control.
+        <code>width</code> and <code>height</code> control the size of the panel.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const wave = new Selector({
+  x: 40, y: 22,
+  options: ['SINE', 'SQUARE', 'SAW', 'TRI', 'NOISE'],
+  state: 2,
+  label: 'WAVEFORM',
+  width: 140,
+  height: 44,
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=selector" width="220" height="100" scrolling="no" frameborder="0" loading="lazy" title="Selector options"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 3</span>
+        <span class="step-title">Arrow style</span>
+      </div>
+      <p class="step-body">
+        Set <code>style: 'arrow'</code> to switch to the compact arrow-button layout. Click the
+        ◀ or ▶ buttons to step through options — the new selection slides in from the direction
+        you traveled. A row of dots at the bottom of the display shows which option you are on.
+        The scroll wheel also works.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const wave = new Selector({
+  x: 20, y: 22,
+  width: 180,
+  style: 'arrow',
+  options: ['SINE', 'SQUARE', 'SAW', 'TRI', 'NOISE'],
+  state: 0,
+  label: 'WAVEFORM',
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=selector_arrow" width="220" height="100" scrolling="no" frameborder="0" loading="lazy" title="Selector arrow style"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 4</span>
+        <span class="step-title">Reacting to changes with <code>onChange</code></span>
+      </div>
+      <p class="step-body">
+        <code>onChange</code> fires whenever the selected option changes. It receives two
+        arguments: the numeric index and the option string. <code>onRelease</code> fires once
+        when the mouse is released after a drag — useful when you only want to act on the final
+        settled value, not every intermediate step.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
+  x: 0, y: 0, width: 320, height: 80,
+  label: 'Output',
+  movable: false, minimizable: false, resizable: false,
+});
+
+const wave = new Selector({
+  x: 90, y: 108,
+  options: ['SINE', 'SQUARE', 'SAW', 'TRI', 'NOISE'],
+  state: 0,
+  label: 'WAVEFORM',
+  // fires on every step while dragging or scrolling:
+  onChange: (i, lbl) => console.log('Selected: ' + lbl),
+  // fires once when mouse is released:
+  onRelease: (i, lbl) => console.log('Set: ' + lbl),
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=panel" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="Selector data handling"></iframe>
+      </div>
+      <div class="tip">
+        <strong>Tip:</strong> Read the current selection at any time with <code>wave.state</code>
+        (index) or <code>wave.options[wave.state]</code> (string). You can write to
+        <code>wave.state</code> directly to jump to any option without firing callbacks.
+      </div>
+    </div>
+
+  </div><!-- /Selector -->
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  TAGSELECTOR                                                    -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <div class="ctrl-section" id="tagselector">
+    <div class="ctrl-header">
+      <h2>TagSelector</h2>
+      <span class="ctrl-tag">Selector</span>
+    </div>
+    <p class="ctrl-desc">
+      A chip panel that lets the user toggle multiple options at once. Each string in
+      <code>words</code> appears as a rounded pill — click any pill to select or deselect it.
+      Multiple pills can be active simultaneously. Selected pills glow with the accent color.
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 1</span>
+        <span class="step-title">Your first TagSelector</span>
+      </div>
+      <p class="step-body">
+        Pass a <code>words</code> array and a position. Each word becomes a clickable chip.
+        Nothing is selected by default — click any chip to toggle it on, click again to turn it
+        off. Multiple chips can be on at the same time.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const fx = new TagSelector({
+  x: 20, y: 22,
+  width: 220,
+  words: ['REVERB', 'DELAY', 'CHORUS', 'FLANGER', 'PHASER'],
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=tagSelector" width="260" height="130" scrolling="no" frameborder="0" loading="lazy" title="TagSelector basic"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 2</span>
+        <span class="step-title">Pre-selected chips and a label</span>
+      </div>
+      <p class="step-body">
+        Pass a <code>selected</code> array to start with certain chips already highlighted. The
+        strings in <code>selected</code> must match entries in <code>words</code> exactly. Add a
+        <code>label</code> to identify the group — double-clicking the label resets the selection
+        back to its initial state.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const fx = new TagSelector({
+  x: 20, y: 22,
+  width: 220,
+  words: ['REVERB', 'DELAY', 'CHORUS', 'FLANGER', 'PHASER'],
+  selected: ['REVERB', 'DELAY'],
+  label: 'FX CHAIN',
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=tagSelector" width="260" height="130" scrolling="no" frameborder="0" loading="lazy" title="TagSelector pre-selected"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 3</span>
+        <span class="step-title">Scrollable panel with a fixed height</span>
+      </div>
+      <p class="step-body">
+        Set a fixed <code>height</code> to cap the panel size. When there are more chips than
+        fit in that height, a thin scrollbar appears automatically along the right edge. Hover
+        over the control and scroll the mouse wheel to pan through the content.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const fx = new TagSelector({
+  x: 20, y: 14,
+  width: 220,
+  height: 76,
+  words: ['REVERB', 'DELAY', 'CHORUS', 'FLANGER', 'PHASER',
+          'DISTORT', 'COMPRESS', 'EQ', 'GATE', 'LIMITER'],
+  label: 'FX CHAIN',
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=tagSelector" width="260" height="130" scrolling="no" frameborder="0" loading="lazy" title="TagSelector scrollable"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 4</span>
+        <span class="step-title">Reacting to changes with <code>onChange</code></span>
+      </div>
+      <p class="step-body">
+        <code>onChange</code> fires every time a chip is toggled. It receives three arguments:
+        the full array of currently selected strings, the word that was just added (or
+        <code>null</code>), and the word that was just removed (or <code>null</code>). Exactly
+        one of the last two will be a real string on each click.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
+  x: 0, y: 0, width: 320, height: 80,
+  label: 'Output',
+  movable: false, minimizable: false, resizable: false,
+});
+
+const fx = new TagSelector({
+  x: 30, y: 90,
+  width: 260,
+  words: ['REVERB', 'DELAY', 'CHORUS', 'FLANGER', 'PHASER'],
+  label: 'FX CHAIN',
+  onChange: (selected, added, removed) => {
+    if (added)   console.log('+ ' + added);
+    if (removed) console.log('- ' + removed);
+    console.log('Active: ' + selected.join(', ') || 'none');
+  },
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=panel" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="TagSelector data handling"></iframe>
+      </div>
+      <div class="tip">
+        <strong>Tip:</strong> Read the current selection at any time with <code>fx.selected</code>
+        — it returns an array of selected strings. You can also write to it:
+        <code>fx.selected = ['REVERB']</code> replaces the selection programmatically.
+      </div>
+    </div>
+
+  </div><!-- /TagSelector -->
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  SLIDERSELECTOR                                                 -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <div class="ctrl-section" id="sliderselector">
+    <div class="ctrl-header">
+      <h2>SliderSelector</h2>
+      <span class="ctrl-tag">Selector</span>
+    </div>
+    <p class="ctrl-desc">
+      A vertical fader that snaps to a list of string options instead of a continuous range.
+      It looks like an AnalogSlider — same panel, track, and cap — but tick marks appear beside
+      each option and the cap clicks into place as you drag. The scroll wheel also steps through
+      options when you hover.
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 1</span>
+        <span class="step-title">Your first SliderSelector</span>
+      </div>
+      <p class="step-body">
+        Pass an <code>options</code> array and a position. The first option sits at the top of
+        the track, the last at the bottom. Drag the cap or scroll the mouse wheel to step through
+        the choices. The active option's tick and label glow in the accent color.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const mode = new SliderSelector({
+  x: 20, y: 14,
+  options: ['REVERB', 'DELAY', 'CHORUS', 'FLANGER', 'PHASER'],
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=sliderSelector" width="260" height="160" scrolling="no" frameborder="0" loading="lazy" title="SliderSelector basic"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 2</span>
+        <span class="step-title">Setting the starting option and adding a label</span>
+      </div>
+      <p class="step-body">
+        <code>state</code> is the index of the option to start on — <code>0</code> is the top,
+        <code>options.length - 1</code> is the bottom. The <code>label</code> is drawn at the
+        top of the panel above the track. Width and height auto-size to fit your options, but
+        you can override them.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const mode = new SliderSelector({
+  x: 20, y: 14,
+  options: ['REVERB', 'DELAY', 'CHORUS', 'FLANGER', 'PHASER'],
+  state: 1,
+  label: 'FX MODE',
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=sliderSelector" width="260" height="160" scrolling="no" frameborder="0" loading="lazy" title="SliderSelector options"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 3</span>
+        <span class="step-title">Button cap style</span>
+      </div>
+      <p class="step-body">
+        Set <code>style: 'button'</code> to swap the default brushed-metal rectangular cap for
+        a circular button cap with a radial gradient — the same cap used by AnalogSlider's
+        button style. Everything else behaves the same.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const mode = new SliderSelector({
+  x: 20, y: 14,
+  options: ['REVERB', 'DELAY', 'CHORUS', 'FLANGER', 'PHASER'],
+  state: 1,
+  style: 'button',
+  label: 'FX MODE',
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=sliderSelector" width="260" height="160" scrolling="no" frameborder="0" loading="lazy" title="SliderSelector button style"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 4</span>
+        <span class="step-title">Reacting to changes with <code>onChange</code> and <code>onRelease</code></span>
+      </div>
+      <p class="step-body">
+        <code>onChange</code> fires on every step while dragging or scrolling. <code>onRelease</code>
+        fires once when the mouse is released. Both callbacks receive the selected index and the
+        option string. Use <code>onChange</code> for live feedback and <code>onRelease</code>
+        when you only care about the final settled value.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
+  x: 0, y: 0, width: 320, height: 80,
+  label: 'Output',
+  movable: false, minimizable: false, resizable: false,
+});
+
+const mode = new SliderSelector({
+  x: 80, y: 88,
+  width: 160,
+  options: ['REVERB', 'DELAY', 'CHORUS', 'FLANGER', 'PHASER'],
+  state: 0,
+  label: 'FX MODE',
+  // fires on every step:
+  onChange: (i, v) => console.log('Dragging: ' + v),
+  // fires once on release:
+  onRelease: (i, v) => console.log('Set: ' + v),
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=panel" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="SliderSelector data handling"></iframe>
+      </div>
+      <div class="tip">
+        <strong>Tip:</strong> Read the current selection at any time with <code>mode.value</code>
+        — it returns the selected option as a string. You can also write to it:
+        <code>mode.value = 'CHORUS'</code> jumps to that option without firing callbacks.
+        Use <code>mode.state</code> to get or set by index instead.
+      </div>
+    </div>
+
+  </div><!-- /SliderSelector -->
+
+</div><!-- /page -->
+
+<script>
+(function () {
+  document.querySelectorAll('.example-row').forEach(function (row) {
+    var ta = row.querySelector('textarea.live-code');
+    var fr = row.querySelector('iframe.example-frame');
+    if (!ta || !fr) return;
+
+    function resize() {
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    }
+    resize();
+
+    // Push the textarea's code into the iframe as soon as it loads,
+    // so the initial preview matches the source shown — not the ?c= default.
+    fr.addEventListener('load', function () {
+      if (fr.contentWindow) {
+        fr.contentWindow.postMessage({ type: 'run', code: ta.value }, '*');
+      }
+    });
+
+    var timer;
+    ta.addEventListener('input', function () {
+      resize();
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        if (fr.contentWindow) {
+          fr.contentWindow.postMessage({ type: 'run', code: ta.value }, '*');
+        }
+      }, 700);
+    });
+  });
+}());
+</script>
+
+<footer>
+  <span>© 2026 David Stein</span>
+  <span class="footer-promo">
+    Another David Stein Production:
+    <a href="https://procontrols.org" target="_blank">procontrols.org</a> ·
+    <a href="https://indienewyork.com" target="_blank">indienewyork.com</a> ·
+    <a href="https://indieboston.com" target="_blank">indieboston.com</a>
+  </span>
+</footer>
+
+</body>
+</html>

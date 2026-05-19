@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProControls — Live Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #ffffff;
+      --surface:  #f4f4f6;
+      --border:   #e0e0e6;
+      --accent:   #0077cc;
+      --accent2:  #cc5500;
+      --text:     #1a1a22;
+      --muted:    #666680;
+      --nav-bg:   #ffffffee;
+      --nav-h:    52px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      font: 15px/1.65 'Inter', 'Segoe UI', system-ui, sans-serif;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Nav, hero, and caption stay full-width despite align-items:center */
+    nav, .hero, .canvas-caption { width: 100%; }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      gap: 4px;
+      overflow-x: clip;
+      overflow-y: visible;
+      white-space: nowrap;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+      flex-shrink: 0;
+    }
+
+    nav a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    nav .docs-link { color: var(--accent2); margin-left: 6px; }
+    nav .docs-link:hover {
+      color: var(--accent2);
+      border-color: #cc550044;
+      background: #cc55000a;
+    }
+
+    nav .sep { color: var(--border); margin: 0 2px; user-select: none; }
+
+    /* ── Nav submenu ── */
+    .nav-group { position: relative; display: flex; align-items: center; }
+    .nav-submenu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px;
+      padding-top: 10px;
+      min-width: 130px;
+      z-index: 200;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(0,0,0,.1);
+      flex-direction: column;
+      gap: 2px;
+    }
+    .nav-group:hover .nav-submenu { display: flex; }
+    .nav-submenu a {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+    }
+    .nav-submenu a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    /* ── Mini Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #0f1923 0%, #1a2840 50%, #0f2030 100%);
+      padding: 20px 32px 18px;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -80px; left: 50%;
+      width: 400px; height: 200px;
+      background: radial-gradient(ellipse, #0077cc20 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .hero-left { display: flex; align-items: baseline; gap: 14px; }
+
+    .hero h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -.02em;
+      line-height: 1;
+    }
+
+    .hero h1 .accent { color: #00aaff; }
+    .hero h1 .dim    { color: #6699bb; font-weight: 400; }
+
+    .hero-sub { font-size: 13px; color: #6688aa; }
+
+    .hero-docs {
+      font-size: 12px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid #0077cc66;
+      color: #66bbff;
+      background: #0077cc22;
+      text-decoration: none;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+    .hero-docs:hover { background: #0077cc44; }
+
+    /* ── Canvas caption ── */
+    .canvas-caption {
+      text-align: center;
+      padding: 28px 24px 0;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: .04em;
+    }
+
+    .source-link {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--accent);
+      text-decoration: none;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      border-bottom: 1px solid #0077cc44;
+      transition: color .15s, border-color .15s;
+    }
+    .source-link:hover { color: #0055aa; border-color: #0055aa; }
+
+    /* p5 appends canvas as a direct child of body — flex centres it */
+    body > canvas {
+      margin: 20px 0 48px;
+      border-radius: 6px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.12);
+    }
+
+    /* footer must come after the canvas p5 appends last into body */
+    footer {
+      order: 1;
+      width: 100%;
+      padding: 16px 32px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" title="Home" style="padding:5px 8px;font-size:18px;line-height:1;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:20px;">home</span></a>
+  <span class="sep">·</span>
+  <a href="gettingStarted.html">Getting Started</a>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#slider">Sliders &amp; Dials</a>
+    <div class="nav-submenu">
+      <a href="help.html#slider">AnalogSlider</a>
+      <a href="help.html#multislider">MultiSlider</a>
+      <a href="help.html#rangeslider">RangeSlider</a>
+      <a href="help.html#dial">Dial</a>
+      <a href="help.html#multidial">MultiDial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#pads">Pads</a>
+    <div class="nav-submenu">
+      <a href="help.html#xypad">XYPad</a>
+      <a href="help.html#gridpad">GridPad</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#selectors">Selectors</a>
+    <div class="nav-submenu">
+      <a href="help.html#switch">Switch</a>
+      <a href="help.html#iconButton">IconButton</a>
+      <a href="help.html#selector">Selector</a>
+      <a href="help.html#tagSelector">TagSelector</a>
+      <a href="help.html#sliderSelector">SliderSelector</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#panel">Panel</a>
+    <div class="nav-submenu">
+      <a href="help.html#panel">Panel</a>
+      <a href="help.html#messageDialog">MessageDialog</a>
+      <a href="help.html#inputDialog">InputDialog</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <a href="help.html#menu">Menu</a>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#displays">Displays</a>
+    <div class="nav-submenu">
+      <a href="help.html#vumeter">VUMeter</a>
+      <a href="help.html#vudial">VUDial</a>
+      <a href="help.html#ledmeter">LEDMeter</a>
+      <a href="help.html#adsr">ADSRDisplay</a>
+      <a href="help.html#markup">Markup</a>
+      <a href="help.html#consolePanel">ConsolePanel</a>
+      <a href="help.html#timeGraphPanel">TimeGraphPanel</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <a href="help.html#themes">Themes &amp; Styles</a>
+  <span class="sep">·</span>
+  <a href="help.html#touch">Events</a>
+  <span class="sep">·</span>
+  <a href="../LICENSE" target="_blank">License</a>
+  <a href="help.html" class="docs-link">↗ Docs</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div>
+        <h1><span class="accent">Pro</span><span class="dim">Controls</span> <span class="dim">for p5.js</span></h1>
+        <div style="font-size:12px;color:#6688aa;margin-top:4px;letter-spacing:.04em;">by David Stein</div>
+      </div>
+      <span class="hero-sub">Drag controls, scroll wheel, or touch. Use STYLE to switch themes.</span>
+    </div>
+    <a href="help.html" class="hero-docs">↗ Documentation</a>
+  </div>
+</div>
+
+<!-- Caption sits above the canvas — p5 appends canvas after all static HTML -->
+<div class="canvas-caption">
+  <p class="hint">Drag · Scroll wheel · Touch · STYLE switch cycles all four themes</p>
+  <a href="../sketch.js" class="source-link" target="_blank">view source — sketch.js</a>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+<script src="../ProControls.js"></script>
+<script src="../sketch.js"></script>
+
+<footer>
+  <span>© 2026 David Stein</span>
+  <span class="footer-promo">
+    Another David Stein Production:
+    <a href="https://procontrols.org" target="_blank">procontrols.org</a> ·
+    <a href="https://indienewyork.com" target="_blank">indienewyork.com</a> ·
+    <a href="https://indieboston.com" target="_blank">indieboston.com</a>
+  </span>
+</footer>
+
+</body>
+</html>
