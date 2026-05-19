@@ -152,7 +152,51 @@
       margin: 0 auto;
       position: relative;
       z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 48px;
     }
+
+    .hero-left { flex: 1 1 0; min-width: 0; }
+
+    .hero-callout {
+      flex: 0 0 280px;
+      background: #ffffff08;
+      border: 1px solid #ffffff18;
+      border-radius: 12px;
+      padding: 24px 22px;
+      backdrop-filter: blur(6px);
+    }
+
+    .hero-callout-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: #00aaff;
+      margin-bottom: 10px;
+    }
+
+    .hero-callout p {
+      font-size: 14px;
+      line-height: 1.65;
+      color: #8aaccc;
+      margin-bottom: 16px;
+    }
+
+    .hero-callout-email {
+      display: inline-block;
+      font-size: 12px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      color: #66bbff;
+      background: #0077cc22;
+      border: 1px solid #0077cc55;
+      border-radius: 20px;
+      padding: 5px 14px;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .hero-callout-email:hover { background: #0077cc44; }
 
     .hero-eyebrow {
       font-size: 11px;
@@ -179,7 +223,6 @@
       font-size: 17px;
       line-height: 1.6;
       color: #8aaccc;
-      max-width: 66%;
       margin-bottom: 32px;
     }
 
@@ -319,6 +362,8 @@
     @media (max-width: 640px) {
       .col-grid { grid-template-columns: 1fr; }
       .hero-desc { max-width: 100%; }
+      .hero-inner { flex-direction: column; align-items: flex-start; }
+      .hero-callout { flex: 0 0 auto; width: 100%; }
     }
 
     /* ── Footer ── */
@@ -349,7 +394,15 @@
 <nav>
   <a href="index.html" title="Home" style="padding:5px 8px;font-size:18px;line-height:1;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:20px;">home</span></a>
   <span class="sep">·</span>
-  <a href="docs/gettingStarted.html">Getting Started</a>
+  <div class="nav-group">
+    <a href="docs/gettingStarted.html">Getting Started</a>
+    <div class="nav-submenu">
+      <a href="docs/gettingStarted.html">Getting Started</a>
+      <a href="docs/slidersTutorial.html">Sliders &amp; Dials</a>
+      <a href="docs/padsTutorial.html">Pads</a>
+      <a href="docs/selectorsTutorial.html">Selectors</a>
+    </div>
+  </div>
   <span class="sep">·</span>
   <div class="nav-group">
     <a href="docs/help.html#slider">Sliders &amp; Dials</a>
@@ -385,6 +438,7 @@
     <a href="docs/help.html#panel">Panel</a>
     <div class="nav-submenu">
       <a href="docs/help.html#panel">Panel</a>
+      <a href="docs/help.html#bevel">Bevel</a>
       <a href="docs/help.html#messageDialog">MessageDialog</a>
       <a href="docs/help.html#inputDialog">InputDialog</a>
     </div>
@@ -416,22 +470,56 @@
 <!-- ── Hero ── -->
 <div class="hero">
   <div class="hero-inner">
-    <div class="prerelease-badge">Pre-Release — API subject to change</div>
-    <h1>
-      <span class="accent">Pro</span><span class="dim">Controls</span> <span class="dim">for p5.js</span>
-    </h1>
-    <div style="font-size:15px;color:#6688aa;margin-top:-14px;margin-bottom:6px;letter-spacing:.04em;">by David Stein</div>
-    <p class="hero-desc">
-      An open source library of hardware-inspired UI controls for p5.js sketches — faders, rotary knobs, XY pads, step-sequencer grids, VU meters, LED displays, ADSR envelopes, menus, dialogs, and more. Built by David Stein and hosted at <a href="https://procontrols.org" style="color:#66bbff;text-decoration:none;border-bottom:1px solid #66bbff44;">procontrols.org</a>. Drop in one script tag, set a style, and your controls wire themselves up — no event handlers, no layout math, no boilerplate. Eight built-in themes (black, stainless, white, brushed, red, blue, yellow, dimpled) plus touch support out of the box.
-    </p>
-    <div class="hero-chips">
-      <span class="chip">ProControls.js</span>
-      <span class="chip">p5.js 1.9+</span>
-      <span class="chip">MIT License</span>
-      <a href="docs/demo.html" class="chip chip-demo" target="_blank">↗ Live Demo</a>
+    <div class="hero-left">
+      <div class="prerelease-badge">Pre-Release — API subject to change — May 2025</div>
+      <h1>
+        <span class="accent">Pro</span><span class="dim">Controls</span> <span class="dim">for p5.js</span>
+      </h1>
+      <div style="font-size:15px;color:#6688aa;margin-top:-14px;margin-bottom:6px;letter-spacing:.04em;">by David Stein</div>
+      <p class="hero-desc">
+        An open source library of hardware-inspired UI controls for p5.js sketches — faders, rotary knobs, XY pads, step-sequencer grids, VU meters, LED displays, ADSR envelopes, menus, dialogs, and more. Built by David Stein and hosted at <a href="https://procontrols.org" style="color:#66bbff;text-decoration:none;border-bottom:1px solid #66bbff44;">procontrols.org</a>. Drop in one script tag, set a style, and your controls wire themselves up — no event handlers, no layout math, no boilerplate. Eight built-in themes (black, stainless, white, brushed, red, blue, yellow, dimpled) plus touch support out of the box.
+      </p>
+      <div class="hero-chips">
+        <span class="chip">ProControls.js</span>
+        <span class="chip">p5.js 1.9+</span>
+        <span class="chip">MIT License</span>
+        <a href="docs/demo.html" class="chip chip-demo" target="_blank">↗ Live Demo</a>
+      </div>
+    </div>
+
+    <div class="hero-callout">
+      <div class="hero-callout-eyebrow">Show us what you made</div>
+      <p>Built something cool with ProControls for p5.js? Send us a link and we'll highlight your project here.</p>
+      <a href="mailto:davidstein@nyu.edu" class="hero-callout-email">davidstein@nyu.edu</a>
     </div>
   </div>
 </div>
+<script>
+(function () {
+  var cards = [
+    {
+      eyebrow: 'Show us what you made',
+      body: 'Built something cool with ProControls for p5.js? Send us a link and we\'ll highlight your project here.',
+    },
+    {
+      eyebrow: 'Have an idea?',
+      body: 'Thinking of a control that doesn\'t exist yet? Send us your suggestion — if we like it, we\'ll build it.',
+    },
+    {
+      eyebrow: 'We want your feedback',
+      body: 'How is ProControls working for you? Tell us what\'s working, what\'s not, and what you\'d like to see next.',
+    }
+  ];
+  var c = cards[Math.floor(Math.random() * cards.length)];
+  var el = document.querySelector('.hero-callout');
+  if (el) {
+    el.innerHTML =
+      '<div class="hero-callout-eyebrow">' + c.eyebrow + '</div>' +
+      '<p>' + c.body + '</p>' +
+      '<a href="mailto:davidstein@nyu.edu" class="hero-callout-email">davidstein@nyu.edu</a>';
+  }
+}());
+</script>
 
 <!-- ── Components ── -->
 <div class="components">

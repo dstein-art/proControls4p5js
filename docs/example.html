@@ -52,6 +52,8 @@ const SIZES = {
   rangeslider_h:   [260, 80],
   panel:           [320, 240],
   panel_scroll:    [260, 200],
+  bevel:           [260, 200],
+  bevel_panel:     [260, 200],
   messageDialog:   [290, 175],
   inputDialog:     [290, 195],
   iconButton:      [220, 180],
@@ -501,6 +503,26 @@ pnl.add(new AnalogSwitch({
   state: 1,
   label: 'POWER',
 }));`,
+
+  bevel: `\
+new Bevel({ y: 95, label: 'AUX' });
+new Bevel({ x: 130, label: 'FX' });
+new Dial({ x: 45,  y: 14,  size: 40, label: 'GAIN',   readout: 'raw', decimals: 0 });
+new Dial({ x: 150, y: 14,  size: 40, label: 'PAN',    readout: 'raw', decimals: 0 });
+new Dial({ x: 45,  y: 108, size: 40, label: 'SEND',   readout: 'raw', decimals: 0 });
+new Dial({ x: 150, y: 108, size: 40, label: 'RETURN', readout: 'raw', decimals: 0 });`,
+
+  bevel_panel: `\
+const pnl = new Panel({
+  x: 20, y: 10,
+  width: 220, height: 170,
+  label: ${label || "'CHANNEL'"},
+});
+pnl.add(new Bevel({ y: '50%' }));
+pnl.add(new Dial({ x: 30, y: 10, size: 65, label: 'GAIN', readout: 'raw', decimals: 0 }));
+pnl.add(new Dial({ x: 125, y: 10, size: 65, label: 'PAN', readout: 'raw', decimals: 0 }));
+pnl.add(new Dial({ x: 30, y: 95, size: 65, label: 'SEND', readout: 'raw', decimals: 0 }));
+pnl.add(new Dial({ x: 125, y: 95, size: 65, label: 'RETURN', readout: 'raw', decimals: 0 }));`,
 
   panel_scroll: `\
 const pnl = new Panel({

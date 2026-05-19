@@ -154,7 +154,51 @@
       margin: 0 auto;
       position: relative;
       z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 48px;
     }
+
+    .hero-left { flex: 1 1 0; min-width: 0; }
+
+    .hero-callout {
+      flex: 0 0 280px;
+      background: #ffffff08;
+      border: 1px solid #ffffff18;
+      border-radius: 12px;
+      padding: 24px 22px;
+      backdrop-filter: blur(6px);
+    }
+
+    .hero-callout-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: #00aaff;
+      margin-bottom: 10px;
+    }
+
+    .hero-callout p {
+      font-size: 14px;
+      line-height: 1.65;
+      color: #8aaccc;
+      margin-bottom: 16px;
+    }
+
+    .hero-callout-email {
+      display: inline-block;
+      font-size: 12px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      color: #66bbff;
+      background: #0077cc22;
+      border: 1px solid #0077cc55;
+      border-radius: 20px;
+      padding: 5px 14px;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .hero-callout-email:hover { background: #0077cc44; }
 
     .hero-eyebrow {
       font-size: 11px;
@@ -181,7 +225,6 @@
       font-size: 17px;
       line-height: 1.6;
       color: #8aaccc;
-      max-width: 66%;
       margin-bottom: 32px;
     }
 
@@ -466,6 +509,8 @@
     @media (max-width: 640px) {
       .example-row { flex-direction: column; }
       .example-frame { align-self: center; }
+      .hero-inner { flex-direction: column; align-items: flex-start; }
+      .hero-callout { flex: 0 0 auto; width: 100%; }
     }
 
     /* ── Footer ── */
@@ -521,7 +566,15 @@
 <nav>
   <a href="../index.html" title="Home" style="padding:5px 8px;font-size:18px;line-height:1;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:20px;">home</span></a>
   <span class="sep">·</span>
-  <a href="gettingStarted.html">Getting Started</a>
+  <div class="nav-group">
+    <a href="gettingStarted.html">Getting Started</a>
+    <div class="nav-submenu">
+      <a href="gettingStarted.html">Getting Started</a>
+      <a href="slidersTutorial.html">Sliders &amp; Dials</a>
+      <a href="padsTutorial.html">Pads</a>
+      <a href="selectorsTutorial.html">Selectors</a>
+    </div>
+  </div>
   <span class="sep">·</span>
   <div class="nav-group">
     <a href="#slider">Sliders &amp; Dials</a>
@@ -557,6 +610,7 @@
     <a href="#panel">Panel</a>
     <div class="nav-submenu">
       <a href="#panel">Panel</a>
+      <a href="#bevel">Bevel</a>
       <a href="#messageDialog">MessageDialog</a>
       <a href="#inputDialog">InputDialog</a>
     </div>
@@ -588,22 +642,56 @@
 <!-- ── Hero ── -->
 <div class="hero">
   <div class="hero-inner">
-    <div class="prerelease-badge">Pre-Release — API subject to change</div>
-    <h1>
-      <span class="accent">Pro</span><span class="dim">Controls</span> <span class="dim">for p5.js</span>
-    </h1>
-    <div style="font-size:15px;color:#6688aa;margin-top:-14px;margin-bottom:6px;letter-spacing:.04em;">by David Stein</div>
-    <p class="hero-desc">
-      An open source library of hardware-inspired UI controls for p5.js sketches — faders, rotary knobs, XY pads, step-sequencer grids, VU meters, LED displays, ADSR envelopes, menus, dialogs, and more. Built by David Stein and hosted at <a href="https://procontrols.org" style="color:#66bbff;text-decoration:none;border-bottom:1px solid #66bbff44;">procontrols.org</a>. Drop in one script tag, set a style, and your controls wire themselves up — no event handlers, no layout math, no boilerplate. Eight built-in themes (black, stainless, white, brushed, red, blue, yellow, dimpled) plus touch support out of the box.
-    </p>
-    <div class="hero-chips">
-      <span class="chip">ProControls.js</span>
-      <span class="chip">p5.js 1.9+</span>
-      <span class="chip">MIT License</span>
-      <a href="demo.html" class="chip chip-demo" target="_blank">↗ Live Demo</a>
+    <div class="hero-left">
+      <div class="prerelease-badge">Pre-Release — API subject to change</div>
+      <h1>
+        <span class="accent">Pro</span><span class="dim">Controls</span> <span class="dim">for p5.js</span>
+      </h1>
+      <div style="font-size:15px;color:#6688aa;margin-top:-14px;margin-bottom:6px;letter-spacing:.04em;">by David Stein</div>
+      <p class="hero-desc">
+        An open source library of hardware-inspired UI controls for p5.js sketches — faders, rotary knobs, XY pads, step-sequencer grids, VU meters, LED displays, ADSR envelopes, menus, dialogs, and more. Built by David Stein and hosted at <a href="https://procontrols.org" style="color:#66bbff;text-decoration:none;border-bottom:1px solid #66bbff44;">procontrols.org</a>. Drop in one script tag, set a style, and your controls wire themselves up — no event handlers, no layout math, no boilerplate. Eight built-in themes (black, stainless, white, brushed, red, blue, yellow, dimpled) plus touch support out of the box.
+      </p>
+      <div class="hero-chips">
+        <span class="chip">ProControls.js</span>
+        <span class="chip">p5.js 1.9+</span>
+        <span class="chip">MIT License</span>
+        <a href="demo.html" class="chip chip-demo" target="_blank">↗ Live Demo</a>
+      </div>
+    </div>
+
+    <div class="hero-callout">
+      <div class="hero-callout-eyebrow">Show us what you made</div>
+      <p>Built something cool with ProControls for p5.js? Send us a link and we'll highlight your project here.</p>
+      <a href="mailto:davidstein@nyu.edu" class="hero-callout-email">davidstein@nyu.edu</a>
     </div>
   </div>
 </div>
+<script>
+(function () {
+  var cards = [
+    {
+      eyebrow: 'Show us what you made',
+      body: 'Built something cool with ProControls for p5.js? Send us a link and we\'ll highlight your project here.',
+    },
+    {
+      eyebrow: 'Have an idea?',
+      body: 'Thinking of a control that doesn\'t exist yet? Send us your suggestion — if we like it, we\'ll build it.',
+    },
+    {
+      eyebrow: 'We want your feedback',
+      body: 'How is ProControls working for you? Tell us what\'s working, what\'s not, and what you\'d like to see next.',
+    }
+  ];
+  var c = cards[Math.floor(Math.random() * cards.length)];
+  var el = document.querySelector('.hero-callout');
+  if (el) {
+    el.innerHTML =
+      '<div class="hero-callout-eyebrow">' + c.eyebrow + '</div>' +
+      '<p>' + c.body + '</p>' +
+      '<a href="mailto:davidstein@nyu.edu" class="hero-callout-email">davidstein@nyu.edu</a>';
+  }
+}());
+</script>
 
 <!-- ── Content ── -->
 <div class="page">
@@ -1678,6 +1766,68 @@ for (let i = 0; i &lt; 4; i++) {
   }));
 }</textarea>
       <iframe class="example-frame" src="example.html?c=panel_scroll" width="260" height="200" scrolling="no" frameborder="0" loading="lazy" title="Panel scrollable live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- Bevel -->
+  <section id="bevel">
+    <h2>Bevel <span class="tag ext">Cosmetic</span></h2>
+    <p class="desc">A decorative separator line that draws a bevel edge across the canvas or a parent Panel. Pass <code>x</code> to draw a vertical bevel; pass <code>y</code> to draw a horizontal bevel. Both can be passed together. Values are pixels from the top-left of the container, or a percentage string such as <code>'50%'</code> resolved against the canvas width/height or the parent Panel's content area. Three visual styles are available.</p>
+
+    <div class="sig">new Bevel(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x</td><td>number | string</td><td>—</td><td>Position of a vertical bevel line. Pixels from the left edge, or a percent string (<code>'50%'</code>). Omit to skip the vertical line.</td></tr>
+        <tr><td>y</td><td>number | string</td><td>—</td><td>Position of a horizontal bevel line. Pixels from the top edge, or a percent string (<code>'50%'</code>). Omit to skip the horizontal line.</td></tr>
+        <tr><td>style</td><td>string</td><td>'thin'</td><td><code>'thin'</code> — 2px edge (1px dark shadow + 1px light highlight). <code>'deep'</code> — 4px edge (2px darker shadow + 2px thin bevel), for a heavier inset look. <code>'color'</code> — 2px edge using the current theme's accent color.</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Optional text centered on the bevel line. The background behind the text is filled with the panel color to cut the line, making the label appear to sit <em>on</em> the bevel. On a vertical bevel (<code>x</code>) the text is rotated 90°.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. The <code>'color'</code> style uses <code>theme.capIndicator</code>; labels use <code>theme.scaleText</code> and <code>theme.panel</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Notes</h3>
+    <ul style="font-size:14px;color:var(--muted);line-height:1.8;padding-left:20px;">
+      <li>Bevel has no interaction — it never consumes mouse or touch events.</li>
+      <li>When added to a Panel via <code>panel.add()</code>, percent values resolve against the Panel's content area. On the canvas they resolve against <code>width</code> / <code>height</code>.</li>
+      <li>Bevel does not contribute to Panel scroll size — it will not cause scrollbars to appear.</li>
+    </ul>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">new Bevel({ y: 95, label: 'AUX' });
+new Bevel({ x: 130, label: 'FX' });
+new Dial({ x: 45,  y: 14,  size: 40, label: 'GAIN',   readout: 'raw', decimals: 0 });
+new Dial({ x: 150, y: 14,  size: 40, label: 'PAN',    readout: 'raw', decimals: 0 });
+new Dial({ x: 45,  y: 108, size: 40, label: 'SEND',   readout: 'raw', decimals: 0 });
+new Dial({ x: 150, y: 108, size: 40, label: 'RETURN', readout: 'raw', decimals: 0 });</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=bevel" width="260" height="200" scrolling="no" frameborder="0" loading="lazy" title="Bevel live example"></iframe>
+    </div>
+
+    <h3>Inside a Panel</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const pnl = new Panel({
+  x: 20, y: 10,
+  width: 220, height: 170,
+  label: 'CHANNEL',
+});
+// Horizontal bevel at 50% of the panel height
+pnl.add(new Bevel({ y: '50%' }));
+pnl.add(new Dial({ x: 30, y: 10, size: 65, label: 'GAIN', readout: 'raw', decimals: 0 }));
+pnl.add(new Dial({ x: 125, y: 10, size: 65, label: 'PAN', readout: 'raw', decimals: 0 }));
+pnl.add(new Dial({ x: 30, y: 95, size: 65, label: 'SEND', readout: 'raw', decimals: 0 }));
+pnl.add(new Dial({ x: 125, y: 95, size: 65, label: 'RETURN', readout: 'raw', decimals: 0 }));</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=bevel_panel" width="260" height="200" scrolling="no" frameborder="0" loading="lazy" title="Bevel inside Panel"></iframe>
     </div>
   </section>
 

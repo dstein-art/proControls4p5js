@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-05-19 — commit c79513e
+// Last updated: 2026-05-19 — commit 4dc7a1c
 
 // Set ControlStyle before creating controls to choose a built-in look.
 // Per-control overrides still work via opts.theme.
@@ -4611,6 +4611,7 @@ class Panel extends ProControl {
   // De-register a control from the global loop and adopt it into this panel.
   add(control) {
     control._detach();
+    control._parentPanel = this;
     this._children.push(control);
     this._attachPanelNotify(control);
     return this;
@@ -4993,6 +4994,140 @@ class Panel extends ProControl {
 }
 
 window.Panel = Panel;
+
+// ─── Bevel ───────────────────────────────────────────────────────────────────
+// Decorative separator line.  Pass x for a vertical bevel, y for horizontal.
+// Values can be pixels (number) or percent strings ('50%') — percentages are
+// resolved against the canvas or the parent Panel's content area.
+
+class Bevel extends ProControl {
+  constructor(opts = {}) {
+    // Suppress auto-placement entirely — Bevel is a pure cosmetic element.
+    super(Object.assign({ min: 0, max: 1, value: 0,
+                          x: opts.x !== undefined ? (typeof opts.x === 'number' ? opts.x : 0) : 0,
+                          y: opts.y !== undefined ? (typeof opts.y === 'number' ? opts.y : 0) : 0 },
+                        opts));
+    this._bx   = opts.x !== undefined ? opts.x : null; // null = no vertical bevel
+    this._by   = opts.y !== undefined ? opts.y : null; // null = no horizontal bevel
+    this.style = opts.style ?? 'thin'; // 'thin' | 'deep' | 'color'
+    this.width  = 0;
+    this.height = 0;
+    this._parentPanel = null; // set by Panel.add()
+  }
+
+  // Resolve a px-or-percent value against a total dimension.
+  _resolvePos(val, total) {
+    if (val === null || val === undefined) return null;
+    if (typeof val === 'string' && val.trim().endsWith('%')) {
+      return total * (parseFloat(val) / 100);
+    }
+    return +val;
+  }
+
+  draw() {
+    this._markDrawn();
+    const containerW = this._parentPanel ? this._parentPanel._viewW() : width;
+    const containerH = this._parentPanel ? this._parentPanel._viewH() : height;
+
+    const bx = this._resolvePos(this._bx, containerW);
+    const by = this._resolvePos(this._by, containerH);
+
+    push();
+    strokeWeight(1);
+    noFill();
+
+    if (this.style === 'color') {
+      const c = color(this.theme.capIndicator);
+      const r = red(c), g = green(c), b = blue(c);
+      if (bx !== null) {
+        stroke(r, g, b, 180); line(bx,     0, bx,     containerH);
+        stroke(r, g, b,  60); line(bx + 1, 0, bx + 1, containerH);
+      }
+      if (by !== null) {
+        stroke(r, g, b, 180); line(0, by,     containerW, by);
+        stroke(r, g, b,  60); line(0, by + 1, containerW, by + 1);
+      }
+    } else if (this.style === 'deep') {
+      if (bx !== null) {
+        stroke(0, 0, 0, 90);      line(bx,     0, bx,     containerH);
+        stroke(0, 0, 0, 60);      line(bx + 1, 0, bx + 1, containerH);
+        stroke(255, 255, 255, 30); line(bx + 2, 0, bx + 2, containerH);
+        stroke(255, 255, 255, 12); line(bx + 3, 0, bx + 3, containerH);
+      }
+      if (by !== null) {
+        stroke(0, 0, 0, 90);      line(0, by,     containerW, by);
+        stroke(0, 0, 0, 60);      line(0, by + 1, containerW, by + 1);
+        stroke(255, 255, 255, 30); line(0, by + 2, containerW, by + 2);
+        stroke(255, 255, 255, 12); line(0, by + 3, containerW, by + 3);
+      }
+    } else {
+      if (bx !== null) {
+        stroke(0, 0, 0, 60);      line(bx,     0, bx,     containerH);
+        stroke(255, 255, 255, 30); line(bx + 1, 0, bx + 1, containerH);
+      }
+      if (by !== null) {
+        stroke(0, 0, 0, 60);      line(0, by,     containerW, by);
+        stroke(255, 255, 255, 30); line(0, by + 1, containerW, by + 1);
+      }
+    }
+
+    // Label — rounded badge centered on the line
+    if (this.label) {
+      textSize(9);
+      textStyle(NORMAL);
+      if (this.theme.font) textFont(this.theme.font);
+      textAlign(CENTER, CENTER);
+
+      const pad     = 6;
+      const rh      = 14;
+      const radius  = rh / 2;
+      const lineOff = this.style === 'deep' ? 1.5 : 0.5; // visual centre of bevel
+
+      if (by !== null) {
+        const cx  = containerW / 2;
+        const mid = by + lineOff;
+        const tw  = textWidth(this.label);
+        const rw  = tw + pad * 2;
+        fill(this.theme.panel);
+        stroke(this.theme.panelStroke);
+        strokeWeight(1);
+        rect(cx - rw / 2, mid - rh / 2, rw, rh, radius);
+        noStroke();
+        fill(this.theme.scaleText);
+        text(this.label, cx, mid);
+      }
+
+      if (bx !== null) {
+        const cy  = containerH / 2;
+        const mid = bx + lineOff;
+        push();
+        translate(mid, cy);
+        rotate(-HALF_PI);
+        const tw = textWidth(this.label);
+        const rw = tw + pad * 2;
+        fill(this.theme.panel);
+        stroke(this.theme.panelStroke);
+        strokeWeight(1);
+        rect(-rw / 2, -rh / 2, rw, rh, radius);
+        noStroke();
+        fill(this.theme.scaleText);
+        text(this.label, 0, 0);
+        pop();
+      }
+    }
+
+    pop();
+  }
+
+  // Bevel has no interaction
+  mouseMoved()   {}
+  mousePressed() {}
+  mouseReleased(){}
+  mouseDragged() {}
+  mouseWheel()   {}
+}
+
+window.Bevel = Bevel;
 
 // ─── MessageDialog ───────────────────────────────────────────────────────────
 // A movable dialog that displays a formatted message and optional action buttons.
