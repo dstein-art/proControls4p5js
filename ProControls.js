@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-05-18 17:30 — commit 8def0fb
+// Last updated: 2026-05-18 17:30 — commit 0804193
 
 // Set ControlStyle before creating controls to choose a built-in look.
 // Per-control overrides still work via opts.theme.
