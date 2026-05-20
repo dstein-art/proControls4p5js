@@ -307,51 +307,64 @@
 
     hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
 
-    /* ── Tutorial promo card ── */
-    .promo-card {
-      margin-top: 0;
-      background: linear-gradient(135deg, #0f1923 0%, #1c2d44 100%);
-      border: 1px solid #2a4060;
-      border-radius: var(--radius);
-      padding: 22px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
+    /* ── Tutorial grid ── */
+    .tutorial-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
     }
 
-    .promo-card-text h3 {
+    .tutorial-card {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      text-decoration: none;
+      color: inherit;
+      transition: background .15s, border-color .15s, box-shadow .15s;
+    }
+
+    .tutorial-card:hover {
+      background: #edf2f8;
+      border-color: #b0c4d8;
+      box-shadow: 0 2px 10px rgba(0,0,0,.07);
+    }
+
+    .tutorial-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .tutorial-name {
       font-size: 14px;
       font-weight: 700;
-      color: #ffffff;
-      margin: 0 0 6px;
-      letter-spacing: 0;
-      text-transform: none;
-      border: none;
-      padding: 0;
-      text-transform: none;
+      color: var(--text);
+      letter-spacing: -.01em;
     }
 
-    .promo-card-text p {
-      font-size: 13px;
-      color: #7799bb;
-      line-height: 1.6;
-    }
-
-    .promo-card-link {
+    .tutorial-desc {
       font-size: 12px;
-      font-family: 'Fira Code', 'Cascadia Code', monospace;
-      padding: 7px 16px;
-      border-radius: 20px;
-      border: 1px solid #0077cc66;
-      color: #66bbff;
-      background: #0077cc22;
-      text-decoration: none;
-      white-space: nowrap;
-      flex-shrink: 0;
-      transition: background .15s;
+      color: var(--muted);
+      line-height: 1.55;
+      flex: 1;
+      margin: 2px 0 4px;
     }
-    .promo-card-link:hover { background: #0077cc44; }
+
+    .tutorial-cta {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    @media (max-width: 640px) {
+      .tutorial-grid { grid-template-columns: 1fr; }
+    }
 
     /* ── Footer ── */
     footer {
@@ -456,7 +469,7 @@
   <span class="sep">·</span>
   <a href="help.html#touch">Events</a>
   <span class="sep">·</span>
-  <a href="../LICENSE" target="_blank">License</a>
+  <a href="license.html">License</a>
   <a href="help.html" class="docs-link">↗ Docs</a>
 </nav>
 
@@ -588,58 +601,50 @@
     Each tutorial walks through a family of controls step by step — from a one-line example to
     styling options and data callbacks. Every code block is live and editable directly in the browser.
   </p>
-  <div class="promo-card">
-    <div class="promo-card-text">
-      <h3>Sliders &amp; Dials Tutorial</h3>
-      <p>Covers AnalogSlider, Dial, MultiSlider, MultiDial, and RangeSlider — four steps each,
-         beginner-friendly explanations, all examples interactive.</p>
-    </div>
-    <a href="slidersTutorial.html" class="promo-card-link">Start Tutorial →</a>
-  </div>
+  <div class="tutorial-grid">
 
-  <div class="promo-card">
-    <div class="promo-card-text">
-      <h3>Pads Tutorial</h3>
-      <p>Covers XYPad and GridPad — four steps each, from a one-liner to custom modes and
-         data callbacks, all examples live and editable.</p>
-    </div>
-    <a href="padsTutorial.html" class="promo-card-link">Start Tutorial →</a>
-  </div>
+    <a class="tutorial-card" href="slidersTutorial.html">
+      <span class="tutorial-tag">Sliders &amp; Dials</span>
+      <div class="tutorial-name">Sliders &amp; Dials Tutorial</div>
+      <p class="tutorial-desc">AnalogSlider, Dial, MultiSlider, MultiDial, and RangeSlider — from a one-liner to spring-back handles, log scales, and live callbacks.</p>
+      <span class="tutorial-cta">Start Tutorial →</span>
+    </a>
 
-  <div class="promo-card">
-    <div class="promo-card-text">
-      <h3>Selectors Tutorial</h3>
-      <p>Covers Switch, Selector, TagSelector, and SliderSelector — four steps each, from
-         a one-liner to multi-state layouts and data callbacks.</p>
-    </div>
-    <a href="selectorsTutorial.html" class="promo-card-link">Start Tutorial →</a>
-  </div>
+    <a class="tutorial-card" href="padsTutorial.html">
+      <span class="tutorial-tag">Pads</span>
+      <div class="tutorial-name">Pads Tutorial</div>
+      <p class="tutorial-desc">XYPad and GridPad — touch surfaces, pressure zones, custom grid modes, and data callbacks.</p>
+      <span class="tutorial-cta">Start Tutorial →</span>
+    </a>
 
-  <div class="promo-card">
-    <div class="promo-card-text">
-      <h3>Panels Tutorial</h3>
-      <p>Covers Panel, Bevel, MessageDialog, and InputDialog — four steps each, from
-         grouping controls in a scrollable panel to modal dialogs and data callbacks.</p>
-    </div>
-    <a href="panelsTutorial.html" class="promo-card-link">Start Tutorial →</a>
-  </div>
+    <a class="tutorial-card" href="selectorsTutorial.html">
+      <span class="tutorial-tag">Selectors</span>
+      <div class="tutorial-name">Selectors Tutorial</div>
+      <p class="tutorial-desc">Switch, Selector, TagSelector, and SliderSelector — multi-state buttons, tag pickers, and blended controls.</p>
+      <span class="tutorial-cta">Start Tutorial →</span>
+    </a>
 
-  <div class="promo-card">
-    <div class="promo-card-text">
-      <h3>Menus Tutorial</h3>
-      <p>Covers Menu and PopupMenu — four steps each, from a basic menu bar to
-         submenus, orientation options, and context menus at the mouse position.</p>
-    </div>
-    <a href="menusTutorial.html" class="promo-card-link">Start Tutorial →</a>
-  </div>
+    <a class="tutorial-card" href="panelsTutorial.html">
+      <span class="tutorial-tag">Panels</span>
+      <div class="tutorial-name">Panels Tutorial</div>
+      <p class="tutorial-desc">Panel, Bevel, MessageDialog, and InputDialog — grouping controls, decorative separators, and modal dialogs.</p>
+      <span class="tutorial-cta">Start Tutorial →</span>
+    </a>
 
-  <div class="promo-card">
-    <div class="promo-card-text">
-      <h3>Displays Tutorial</h3>
-      <p>Covers VUMeter, VUDial, LEDMeter, ADSRDisplay, Markup, ConsolePanel, and
-         TimeGraphPanel — four steps each, from a one-liner to live data and animated readouts.</p>
-    </div>
-    <a href="displaysTutorial.html" class="promo-card-link">Start Tutorial →</a>
+    <a class="tutorial-card" href="menusTutorial.html">
+      <span class="tutorial-tag">Menus</span>
+      <div class="tutorial-name">Menus Tutorial</div>
+      <p class="tutorial-desc">Menu and PopupMenu — menu bars, submenus, orientation options, and context menus at the cursor.</p>
+      <span class="tutorial-cta">Start Tutorial →</span>
+    </a>
+
+    <a class="tutorial-card" href="displaysTutorial.html">
+      <span class="tutorial-tag">Displays</span>
+      <div class="tutorial-name">Displays Tutorial</div>
+      <p class="tutorial-desc">VUMeter, VUDial, LEDMeter, ADSRDisplay, Markup, ConsolePanel, and TimeGraphPanel — live data readouts and animated displays.</p>
+      <span class="tutorial-cta">Start Tutorial →</span>
+    </a>
+
   </div>
 
 </div>

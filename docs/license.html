@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ProControls — Live Demo</title>
+  <title>ProControls — License</title>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -11,13 +11,18 @@
     :root {
       --bg:       #ffffff;
       --surface:  #f4f4f6;
+      --surface2: #ebebee;
       --border:   #e0e0e6;
       --accent:   #0077cc;
       --accent2:  #cc5500;
       --text:     #1a1a22;
       --muted:    #666680;
+      --code-bg:  #1a1a22;
+      --code-text:#d4d4d8;
       --nav-bg:   #ffffffee;
       --nav-h:    52px;
+      --max-w:    860px;
+      --radius:   6px;
     }
 
     html { scroll-behavior: smooth; }
@@ -31,8 +36,7 @@
       align-items: center;
     }
 
-    /* Nav, hero, and caption stay full-width despite align-items:center */
-    nav, .hero, .canvas-caption { width: 100%; }
+    nav, .hero { width: 100%; }
 
     /* ── Nav ── */
     nav {
@@ -116,7 +120,7 @@
       background: #0077cc0a;
     }
 
-    /* ── Mini Hero ── */
+    /* ── Compact Hero ── */
     .hero {
       background: linear-gradient(135deg, #0f1923 0%, #1a2840 50%, #0f2030 100%);
       padding: 20px 32px 18px;
@@ -171,52 +175,157 @@
 
     .hero-sub { font-size: 13px; color: #6688aa; }
 
-    .hero-docs {
-      font-size: 12px;
+    .hero-badge {
+      font-size: 11px;
       font-family: 'Fira Code', 'Cascadia Code', monospace;
-      padding: 5px 12px;
+      padding: 4px 12px;
       border-radius: 20px;
-      border: 1px solid #0077cc66;
-      color: #66bbff;
-      background: #0077cc22;
-      text-decoration: none;
-      transition: background .15s;
+      border: 1px solid #33664488;
+      color: #88cc99;
+      background: #33664422;
       flex-shrink: 0;
     }
-    .hero-docs:hover { background: #0077cc44; }
 
-    /* ── Canvas caption ── */
-    .canvas-caption {
-      text-align: center;
-      padding: 28px 24px 0;
+    /* ── Page layout ── */
+    .page {
+      width: 100%;
+      max-width: var(--max-w);
+      padding: 52px 32px 100px;
     }
 
-    .hint {
-      font-size: 12px;
+    /* ── Summary section ── */
+    .summary {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-bottom: 48px;
+    }
+
+    .summary h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 6px;
+      letter-spacing: -.01em;
+    }
+
+    .summary .lead {
+      font-size: 14px;
       color: var(--muted);
-      letter-spacing: .04em;
+      line-height: 1.7;
+      margin-bottom: 24px;
     }
 
-    .source-link {
-      display: inline-block;
-      margin-top: 8px;
-      font-size: 12px;
-      color: var(--accent);
-      text-decoration: none;
-      font-family: 'Fira Code', 'Cascadia Code', monospace;
-      border-bottom: 1px solid #0077cc44;
-      transition: color .15s, border-color .15s;
-    }
-    .source-link:hover { color: #0055aa; border-color: #0055aa; }
-
-    /* p5 appends canvas as a direct child of body — flex centres it */
-    body > canvas {
-      margin: 20px 0 48px;
-      border-radius: 6px;
-      box-shadow: 0 4px 24px rgba(0,0,0,.12);
+    .summary-items {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
 
-    /* footer must come after the canvas p5 appends last into body */
+    .summary-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .summary-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      margin-top: 1px;
+    }
+
+    .summary-icon.ok   { background: #22aa4418; color: #22aa44; }
+    .summary-icon.req  { background: #0077cc14; color: #0077cc; }
+    .summary-icon.info { background: #ff990014; color: #cc7700; }
+
+    .summary-item-body { flex: 1; }
+
+    .summary-item-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .summary-item-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .summary-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 20px 0;
+    }
+
+    .summary-bottom {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .summary-bottom strong {
+      color: var(--text);
+    }
+
+    /* ── License text ── */
+    .license-block-header {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #9999b0;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .license-text {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      font: 13px/1.85 'Fira Code', 'Cascadia Code', monospace;
+      color: #444460;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .license-text .license-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: .02em;
+      display: block;
+      margin-bottom: 16px;
+    }
+
+    .license-text .license-copyright {
+      color: #888;
+      display: block;
+      margin-bottom: 20px;
+    }
+
+    .license-text .license-body {
+      color: #555570;
+      display: block;
+    }
+
+    .license-text .license-warranty {
+      color: #666688;
+      display: block;
+      margin-top: 16px;
+    }
+
+    /* ── Footer ── */
     footer {
       order: 1;
       width: 100%;
@@ -319,7 +428,7 @@
   <span class="sep">·</span>
   <a href="help.html#touch">Events</a>
   <span class="sep">·</span>
-  <a href="license.html">License</a>
+  <a href="license.html" style="color:var(--accent)">License</a>
   <a href="help.html" class="docs-link">↗ Docs</a>
 </nav>
 
@@ -327,24 +436,99 @@
   <div class="hero-inner">
     <div class="hero-left">
       <div>
-        <h1><span class="accent">Pro</span><span class="dim">Controls</span> <span class="dim">for p5.js</span></h1>
-        <div style="font-size:12px;color:#6688aa;margin-top:4px;letter-spacing:.04em;">by David Stein</div>
+        <h1><span class="accent">MIT</span> <span class="dim">License</span></h1>
+        <div style="font-size:12px;color:#6688aa;margin-top:4px;letter-spacing:.04em;">ProControls for p5.js — by David Stein</div>
       </div>
-      <span class="hero-sub">Drag controls, scroll wheel, or touch. Use STYLE to switch themes.</span>
+      <span class="hero-sub">Open source — free to use in personal, commercial, and client projects</span>
     </div>
-    <a href="help.html" class="hero-docs">↗ Documentation</a>
+    <span class="hero-badge">MIT — Free &amp; Open Source</span>
   </div>
 </div>
 
-<!-- Caption sits above the canvas — p5 appends canvas after all static HTML -->
-<div class="canvas-caption">
-  <p class="hint">Drag · Scroll wheel · Touch · STYLE switch cycles all four themes</p>
-  <a href="../sketch.js" class="source-link" target="_blank">view source — sketch.js</a>
-</div>
+<div class="page">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
-<script src="../ProControls.js"></script>
-<script src="../sketch.js"></script>
+  <!-- Developer summary -->
+  <div class="summary">
+    <h2>What this means for you as a developer</h2>
+    <p class="lead">
+      ProControls is released under the MIT License — one of the most permissive open-source
+      licenses available. In plain terms: you can use it in almost any project, any way you like,
+      for free, without asking permission.
+    </p>
+
+    <div class="summary-items">
+
+      <div class="summary-item">
+        <div class="summary-icon ok">✓</div>
+        <div class="summary-item-body">
+          <div class="summary-item-title">Use it freely — commercial or otherwise</div>
+          <div class="summary-item-desc">Include ProControls in personal projects, commercial products, client work, internal tools, or educational materials. There are no royalties, no usage fees, and no requirement to ask permission first.</div>
+        </div>
+      </div>
+
+      <div class="summary-item">
+        <div class="summary-icon ok">✓</div>
+        <div class="summary-item-body">
+          <div class="summary-item-title">Modify it</div>
+          <div class="summary-item-desc">Fork the repository, patch it, extend it, or strip it down. You are not required to share your changes or publish them anywhere.</div>
+        </div>
+      </div>
+
+      <div class="summary-item">
+        <div class="summary-icon ok">✓</div>
+        <div class="summary-item-body">
+          <div class="summary-item-title">Bundle and redistribute it</div>
+          <div class="summary-item-desc">Include ProControls in your own library or framework, ship it inside a desktop app, or package it into a commercial product. Your project does not have to be open source.</div>
+        </div>
+      </div>
+
+      <div class="summary-item">
+        <div class="summary-icon req">!</div>
+        <div class="summary-item-body">
+          <div class="summary-item-title">Keep the copyright notice — the one requirement</div>
+          <div class="summary-item-desc">Any copy or substantial portion of ProControls you distribute must include the original MIT copyright notice and license text. In practice, leaving the comment block at the top of <code style="font:12px/1 'Fira Code',monospace;background:#e4e4ec;border:1px solid #d0d0e0;border-radius:3px;padding:1px 5px;color:#0077cc">ProControls.js</code> intact satisfies this — no extra steps needed if you are loading the unmodified file.</div>
+        </div>
+      </div>
+
+      <div class="summary-item">
+        <div class="summary-icon info">i</div>
+        <div class="summary-item-body">
+          <div class="summary-item-title">No warranty</div>
+          <div class="summary-item-desc">ProControls is provided "as is." The author makes no guarantees about correctness, fitness for a particular purpose, or anything else. If something breaks in your project, that is on you — the library is not liable.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <hr class="summary-divider">
+
+    <p class="summary-bottom">
+      <strong>Bottom line:</strong> use ProControls anywhere, in anything, forever, at no cost.
+      The only obligation is to leave the copyright notice in the file — which takes zero effort
+      if you load the library as-is.
+    </p>
+  </div>
+
+  <!-- License text -->
+  <div class="license-block-header">Full License Text</div>
+  <div class="license-text"><span class="license-title">MIT License</span><span class="license-copyright">Copyright (c) 2026 David Stein</span><span class="license-body">Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.</span><span class="license-warranty">
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</span></div>
+
+</div><!-- /page -->
 
 <footer>
   <span>© 2026 David Stein</span>
