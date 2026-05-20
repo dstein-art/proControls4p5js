@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProControls — Displays Tutorial</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #ffffff;
+      --surface:  #f4f4f6;
+      --surface2: #ebebee;
+      --border:   #e0e0e6;
+      --accent:   #0077cc;
+      --accent2:  #cc5500;
+      --text:     #1a1a22;
+      --muted:    #666680;
+      --code-bg:  #1a1a22;
+      --code-text:#d4d4d8;
+      --nav-bg:   #ffffffee;
+      --nav-h:    52px;
+      --max-w:    1100px;
+      --radius:   6px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      font: 15px/1.65 'Inter', 'Segoe UI', system-ui, sans-serif;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    nav, .hero { width: 100%; }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      gap: 4px;
+      overflow-x: clip;
+      overflow-y: visible;
+      white-space: nowrap;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+      flex-shrink: 0;
+    }
+
+    nav a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    nav .docs-link { color: var(--accent2); margin-left: 6px; }
+    nav .docs-link:hover {
+      color: var(--accent2);
+      border-color: #cc550044;
+      background: #cc55000a;
+    }
+
+    nav .sep { color: var(--border); margin: 0 2px; user-select: none; }
+
+    /* ── Nav submenu ── */
+    .nav-group { position: relative; display: flex; align-items: center; }
+    .nav-submenu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px;
+      padding-top: 10px;
+      min-width: 130px;
+      z-index: 200;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(0,0,0,.1);
+      flex-direction: column;
+      gap: 2px;
+    }
+    .nav-group:hover .nav-submenu { display: flex; }
+    .nav-submenu a {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+    }
+    .nav-submenu a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    /* ── Compact Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #0f1923 0%, #1a2840 50%, #0f2030 100%);
+      padding: 20px 32px 18px;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -80px; left: 50%;
+      width: 400px; height: 200px;
+      background: radial-gradient(ellipse, #0077cc20 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .hero-left { display: flex; align-items: baseline; gap: 14px; }
+
+    .hero h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -.02em;
+      line-height: 1;
+    }
+
+    .hero h1 .accent { color: #00aaff; }
+    .hero h1 .dim    { color: #6699bb; font-weight: 400; }
+
+    .hero-sub { font-size: 13px; color: #6688aa; }
+
+    .hero-docs {
+      font-size: 12px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid #0077cc66;
+      color: #66bbff;
+      background: #0077cc22;
+      text-decoration: none;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+    .hero-docs:hover { background: #0077cc44; }
+
+    /* ── Page layout ── */
+    .page {
+      width: 100%;
+      max-width: var(--max-w);
+      padding: 52px 32px 100px;
+    }
+
+    /* ── Tutorial intro ── */
+    .intro {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 48px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #444460;
+    }
+    .intro strong { color: var(--text); }
+    .intro .prereq {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .intro code {
+      font: 12px/1 'Fira Code', 'Cascadia Code', monospace;
+      background: #e4e4ec;
+      border: 1px solid #d0d0e0;
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent);
+    }
+
+    /* ── TOC ── */
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+    .toc a {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1px solid #0077cc33;
+      background: #0077cc08;
+      transition: background .15s, border-color .15s;
+    }
+    .toc a:hover { background: #0077cc18; border-color: #0077cc66; }
+
+    /* ── Control section ── */
+    .ctrl-section {
+      margin-bottom: 80px;
+      scroll-margin-top: calc(var(--nav-h) + 20px);
+    }
+
+    .ctrl-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .ctrl-header h2 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -.02em;
+    }
+
+    .ctrl-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc12;
+      border: 1px solid #0077cc33;
+      padding: 2px 9px;
+      border-radius: 20px;
+    }
+
+    .ctrl-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 28px;
+      max-width: 720px;
+    }
+
+    /* ── Step ── */
+    .step {
+      margin-bottom: 40px;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin-bottom: 10px;
+    }
+
+    .step-badge {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc15;
+      border: 1px solid #0077cc44;
+      padding: 3px 10px;
+      border-radius: 20px;
+      flex-shrink: 0;
+    }
+
+    .step-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .step-body {
+      font-size: 14px;
+      color: #555570;
+      line-height: 1.7;
+      margin-bottom: 14px;
+      max-width: 740px;
+    }
+
+    .step-body code {
+      font: 12px/1 'Fira Code', 'Cascadia Code', monospace;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent);
+    }
+
+    /* ── Live examples ── */
+    .example-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin: 0;
+    }
+
+    .live-editor {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .live-hint {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc0d;
+      border: 1px solid #0077cc33;
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      padding: 4px 10px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    .live-hint.readonly {
+      color: var(--muted);
+      background: #f4f4f6;
+      border-color: var(--border);
+    }
+
+    .live-code {
+      background: var(--code-bg);
+      border: 1px solid #2a2a38;
+      border-radius: 0 0 6px 6px;
+      padding: 18px 20px;
+      font: 13px/1.65 'Fira Code', 'Cascadia Code', monospace;
+      color: var(--code-text);
+      resize: none;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: pre;
+      field-sizing: content;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .live-code:focus { border-color: #0077cc88; }
+
+    .example-frame {
+      flex-shrink: 0;
+      border-radius: 6px;
+      overflow: hidden;
+      display: block;
+      box-shadow: 0 2px 10px rgba(0,0,0,.18);
+    }
+
+    /* note callout */
+    .note {
+      background: #0077cc0a;
+      border-left: 3px solid var(--accent);
+      padding: 11px 16px;
+      border-radius: 0 6px 6px 0;
+      font-size: 13px;
+      color: #446688;
+      margin: 14px 0 0;
+      line-height: 1.6;
+    }
+    .note strong { color: var(--accent); }
+
+    .tip {
+      background: #22aa4410;
+      border-left: 3px solid #22aa44;
+      padding: 11px 16px;
+      border-radius: 0 6px 6px 0;
+      font-size: 13px;
+      color: #337755;
+      margin: 14px 0 0;
+      line-height: 1.6;
+    }
+    .tip strong { color: #22aa44; }
+
+    code {
+      font: 13px/1 'Fira Code', 'Cascadia Code', monospace;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent);
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 60px 0;
+    }
+
+    @media (max-width: 640px) {
+      .example-row { flex-direction: column; }
+      .example-frame { align-self: center; }
+    }
+
+    /* ── Footer ── */
+    footer {
+      order: 1;
+      width: 100%;
+      padding: 16px 32px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" title="Home" style="padding:5px 8px;font-size:18px;line-height:1;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:20px;">home</span></a>
+  <span class="sep">·</span>
+  <a href="gettingStarted.html">Getting Started</a>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#slider">Sliders &amp; Dials</a>
+    <div class="nav-submenu">
+      <a href="help.html#slider">AnalogSlider</a>
+      <a href="help.html#multislider">MultiSlider</a>
+      <a href="help.html#rangeslider">RangeSlider</a>
+      <a href="help.html#dial">Dial</a>
+      <a href="help.html#multidial">MultiDial</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="slidersTutorial.html">Sliders &amp; Dials Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#pads">Pads</a>
+    <div class="nav-submenu">
+      <a href="help.html#xypad">XYPad</a>
+      <a href="help.html#gridpad">GridPad</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="padsTutorial.html">Pads Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#selectors">Selectors</a>
+    <div class="nav-submenu">
+      <a href="help.html#switch">Switch</a>
+      <a href="help.html#iconButton">IconButton</a>
+      <a href="help.html#selector">Selector</a>
+      <a href="help.html#tagSelector">TagSelector</a>
+      <a href="help.html#sliderSelector">SliderSelector</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="selectorsTutorial.html">Selectors Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#panel">Panel</a>
+    <div class="nav-submenu">
+      <a href="help.html#panel">Panel</a>
+      <a href="help.html#bevel">Bevel</a>
+      <a href="help.html#messageDialog">MessageDialog</a>
+      <a href="help.html#inputDialog">InputDialog</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="panelsTutorial.html">Panels Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#menu">Menus</a>
+    <div class="nav-submenu">
+      <a href="help.html#menu">Menu</a>
+      <a href="help.html#popupMenu">PopupMenu</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="menusTutorial.html">Menus Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#displays" style="color:var(--accent)">Displays</a>
+    <div class="nav-submenu">
+      <a href="help.html#vumeter">VUMeter</a>
+      <a href="help.html#vudial">VUDial</a>
+      <a href="help.html#ledmeter">LEDMeter</a>
+      <a href="help.html#adsr">ADSRDisplay</a>
+      <a href="help.html#markup">Markup</a>
+      <a href="help.html#consolePanel">ConsolePanel</a>
+      <a href="help.html#timeGraphPanel">TimeGraphPanel</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="displaysTutorial.html">Displays Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <a href="help.html#themes">Themes &amp; Styles</a>
+  <span class="sep">·</span>
+  <a href="help.html#touch">Events</a>
+  <span class="sep">·</span>
+  <a href="../LICENSE" target="_blank">License</a>
+  <a href="help.html" class="docs-link">↗ Docs</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div>
+        <h1><span class="accent">Displays</span> <span class="dim">Tutorial</span></h1>
+        <div style="font-size:12px;color:#6688aa;margin-top:4px;letter-spacing:.04em;">ProControls for p5.js — by David Stein</div>
+      </div>
+      <span class="hero-sub">VUMeter, VUDial, LEDMeter, ADSRDisplay, Markup, ConsolePanel, TimeGraphPanel — all examples live and editable</span>
+    </div>
+    <a href="help.html#displays" class="hero-docs">↗ Full Docs</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- Intro -->
+  <div class="intro">
+    <strong>Welcome!</strong> This tutorial covers the read-only display controls in ProControls — meters,
+    graphs, rich text, and logging panels. These controls do not take user input; instead, you update
+    them from your sketch code to visualize data in real time. Every code block on this page is
+    <strong>live and editable</strong> — click inside a code block, make a change, and the preview updates automatically.
+    <div class="prereq">
+      <strong>First time here?</strong> Before running these examples in your own project, visit the
+      <a href="gettingStarted.html">Getting Started</a> page for the HTML setup and script tags
+      you need to load ProControls.
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <a href="#vumeter">VUMeter</a>
+    <a href="#vudial">VUDial</a>
+    <a href="#ledmeter">LEDMeter</a>
+    <a href="#adsr">ADSRDisplay</a>
+    <a href="#markup">Markup</a>
+    <a href="#consolepanel">ConsolePanel</a>
+    <a href="#timegraphpanel">TimeGraphPanel</a>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  VUMETER                                                        -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="ctrl-section" id="vumeter">
+    <div class="ctrl-header">
+      <h2>VUMeter</h2>
+      <span class="ctrl-tag">Level Meter</span>
+    </div>
+    <p class="ctrl-desc">
+      A <strong>VUMeter</strong> is a vertical bar meter — the kind you see on a mixing console or
+      audio interface. The bar rises and falls to show a signal level in real time. You drive it
+      from your sketch code by setting its <code>value</code> property (0–1 by default) in your
+      <code>draw()</code> loop.
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 1</span>
+        <span class="step-title">Your first VU meter</span>
+      </div>
+      <p class="step-body">
+        Create a VUMeter with no options and it appears at a sensible default size. The
+        <code>value</code> property controls how high the bar is — 0 is empty, 1 is full.
+        The example below animates the level using <code>sin()</code> so you can see it move.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const meter = new VUMeter();
+
+function draw() {
+  // Drive it from your sketch — here a sine wave
+  meter.value = (sin(frameCount * 0.05) + 1) / 2;
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=vumeter" width="90" height="265" scrolling="no" frameborder="0" loading="lazy" title="VUMeter basic"></iframe>
+      </div>
+      <div class="note">
+        <strong>Auto-placement:</strong> When you leave out <code>x</code> and <code>y</code>,
+        ProControls places the control automatically so it does not overlap others.
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 2</span>
+        <span class="step-title">Customizing the meter</span>
+      </div>
+      <p class="step-body">
+        Use <code>label</code> to add a text label, <code>peak</code> to show a hanging peak
+        indicator dot that falls slowly after the signal drops, and <code>segments</code> to
+        split the bar into discrete blocks (like a classic LED meter). Try changing these!
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try changing segments or removing peak</div>
+          <textarea class="live-code" spellcheck="false">const meter = new VUMeter({
+  x: 20, y: 20,
+  width: 50, height: 220,
+  label: 'LEVEL',
+  peak: true,      // show a hanging peak dot
+  segments: 20,    // split into 20 LED-style blocks
+});
+
+function draw() {
+  meter.value = (sin(frameCount * 0.04) + 1) / 2;
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=vumeter" width="90" height="265" scrolling="no" frameborder="0" loading="lazy" title="VUMeter with options"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 3</span>
+        <span class="step-title">Setting the danger zone</span>
+      </div>
+      <p class="step-body">
+        Use <code>warnAt</code> to set where the bar turns yellow, and <code>dangerAt</code>
+        to set where it turns red — both as fractions of 0–1. This lets you mark the
+        "safe zone," the "caution zone," and the "clip zone" visually, just like a
+        real mixing board.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try adjusting warnAt and dangerAt</div>
+          <textarea class="live-code" spellcheck="false">const meter = new VUMeter({
+  x: 20, y: 20,
+  width: 50, height: 220,
+  label: 'GAIN',
+  peak: true,
+  warnAt:   0.7,   // yellow above 70%
+  dangerAt: 0.9,   // red above 90%
+});
+
+function draw() {
+  // Spike into the red occasionally
+  const t = frameCount * 0.03;
+  meter.value = abs(sin(t)) * 0.85 + abs(sin(t * 3.7)) * 0.15;
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=vumeter" width="90" height="265" scrolling="no" frameborder="0" loading="lazy" title="VUMeter zones"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 4</span>
+        <span class="step-title">Stereo meters side by side</span>
+      </div>
+      <p class="step-body">
+        Creating two VUMeters next to each other makes a classic stereo pair. Give each one
+        an explicit <code>x</code> and <code>y</code> so they sit side by side. Drive them
+        independently for a true left/right display.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try making the left and right signals different</div>
+          <textarea class="live-code" spellcheck="false">const L = new VUMeter({
+  x: 8, y: 20, width: 30, height: 200,
+  label: 'L', peak: true, segments: 16,
+});
+
+const R = new VUMeter({
+  x: 48, y: 20, width: 30, height: 200,
+  label: 'R', peak: true, segments: 16,
+});
+
+function draw() {
+  L.value = (sin(frameCount * 0.05) + 1) / 2;
+  R.value = (cos(frameCount * 0.04) + 1) / 2;
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=vumeter" width="90" height="265" scrolling="no" frameborder="0" loading="lazy" title="Stereo VUMeters"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  VUDIAL                                                         -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="ctrl-section" id="vudial">
+    <div class="ctrl-header">
+      <h2>VUDial</h2>
+      <span class="ctrl-tag">Circular Meter</span>
+    </div>
+    <p class="ctrl-desc">
+      A <strong>VUDial</strong> is a circular level indicator — like the large needle meters
+      on vintage studio gear. An arc sweeps from low to high as the value increases.
+      Set <code>value</code> from your <code>draw()</code> loop just like VUMeter.
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 1</span>
+        <span class="step-title">Your first VU dial</span>
+      </div>
+      <p class="step-body">
+        A one-liner creates a circular meter. The arc sweeps around the dial as the value changes.
+        Watch the arc respond to the animated value below.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const dial = new VUDial();
+
+function draw() {
+  dial.value = (sin(frameCount * 0.05) + 1) / 2;
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=vudial" width="165" height="165" scrolling="no" frameborder="0" loading="lazy" title="VUDial basic"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 2</span>
+        <span class="step-title">Customizing the dial</span>
+      </div>
+      <p class="step-body">
+        The <code>size</code> option controls the diameter. You can add a <code>label</code>,
+        set <code>warnAt</code> and <code>dangerAt</code> thresholds for color changes,
+        and show a numeric readout with <code>readout: 'raw'</code>.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try changing size, warnAt, or dangerAt</div>
+          <textarea class="live-code" spellcheck="false">const dial = new VUDial({
+  x: 40, y: 25,
+  size: 120,
+  label: 'OUTPUT',
+  readout: 'raw',
+  decimals: 2,
+  warnAt:   0.7,
+  dangerAt: 0.9,
+});
+
+function draw() {
+  dial.value = (sin(frameCount * 0.04) + 1) / 2;
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=vudial" width="165" height="165" scrolling="no" frameborder="0" loading="lazy" title="VUDial with options"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 3</span>
+        <span class="step-title">Custom min and max</span>
+      </div>
+      <p class="step-body">
+        By default the dial goes from 0 to 1, but you can set <code>min</code> and <code>max</code>
+        to any range — for example, decibels from −60 to 0. The readout will show the mapped value,
+        not the raw 0–1 fraction.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try changing min, max, or the value formula</div>
+          <textarea class="live-code" spellcheck="false">const dbMeter = new VUDial({
+  x: 40, y: 25,
+  size: 120,
+  label: 'dBFS',
+  min: -60, max: 0,
+  readout: 'raw',
+  decimals: 1,
+  warnAt:   0.75,   // 75% → −15 dBFS
+  dangerAt: 0.92,   // 92% → −5 dBFS
+});
+
+function draw() {
+  // Animate from −60 to near 0
+  dbMeter.value = (sin(frameCount * 0.03) + 1) / 2;
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=vudial" width="165" height="165" scrolling="no" frameborder="0" loading="lazy" title="VUDial dB range"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 4</span>
+        <span class="step-title">Updating from audio analysis</span>
+      </div>
+      <p class="step-body">
+        In a real project you would drive the meter from audio analysis or a sensor reading.
+        Here we simulate a signal with noise to show how a responsive meter looks.
+        Use <code>smoothing</code> (0–1) to add ballistic lag so the needle does not jump instantly.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try changing the smoothing value</div>
+          <textarea class="live-code" spellcheck="false">const meter = new VUDial({
+  x: 40, y: 25,
+  size: 120,
+  label: 'SIGNAL',
+  warnAt: 0.75, dangerAt: 0.92,
+  smoothing: 0.85,   // ballistic lag (0 = instant, 1 = frozen)
+});
+
+let target = 0;
+function draw() {
+  // Random spikes like real audio
+  if (random() < 0.05) target = random(0.5, 1.0);
+  target *= 0.96;   // decay
+  meter.value = target;
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=vudial" width="165" height="165" scrolling="no" frameborder="0" loading="lazy" title="VUDial smoothing"></iframe>
+      </div>
+      <div class="tip">
+        <strong>Tip:</strong> <code>smoothing</code> is available on both VUMeter and VUDial.
+        A value around 0.8–0.9 gives the classic "needle ballistics" feel of analog meters.
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  LEDMETER                                                       -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="ctrl-section" id="ledmeter">
+    <div class="ctrl-header">
+      <h2>LEDMeter</h2>
+      <span class="ctrl-tag">LED Bar</span>
+    </div>
+    <p class="ctrl-desc">
+      A <strong>LEDMeter</strong> is a horizontal bar of discrete LED segments — the kind
+      of level meter you see on a guitar tuner or effects pedal. Unlike VUMeter, it always
+      displays as distinct blocks and is usually wider than it is tall.
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 1</span>
+        <span class="step-title">Your first LED meter</span>
+      </div>
+      <p class="step-body">
+        A one-liner creates a horizontal bar of LED segments. Set <code>value</code> (0–1)
+        from your sketch to light up segments from left to right.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const bar = new LEDMeter();
+
+function draw() {
+  bar.value = (sin(frameCount * 0.05) + 1) / 2;
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=ledmeter" width="200" height="110" scrolling="no" frameborder="0" loading="lazy" title="LEDMeter basic"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 2</span>
+        <span class="step-title">Setting segments and size</span>
+      </div>
+      <p class="step-body">
+        Use <code>segments</code> to control how many LEDs the bar is divided into.
+        More segments means finer resolution. The <code>width</code> and <code>height</code>
+        options control the overall size of the bar.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try changing segments or the bar size</div>
+          <textarea class="live-code" spellcheck="false">const bar = new LEDMeter({
+  x: 10, y: 35,
+  width: 180, height: 22,
+  label: 'INPUT',
+  segments: 24,    // 24 individual LED blocks
+  warnAt:   0.7,   // yellow past 70%
+  dangerAt: 0.9,   // red past 90%
+});
+
+function draw() {
+  bar.value = (sin(frameCount * 0.04) + 1) / 2;
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=ledmeter" width="200" height="110" scrolling="no" frameborder="0" loading="lazy" title="LEDMeter with options"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 3</span>
+        <span class="step-title">Multiple meters stacked</span>
+      </div>
+      <p class="step-body">
+        Stack several LEDMeters vertically to create a channel strip or a multi-band display.
+        Position them with explicit <code>y</code> values so they line up neatly.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try adding a third bar or changing the speeds</div>
+          <textarea class="live-code" spellcheck="false">const opts = { x: 10, width: 180, height: 18, segments: 20,
+               warnAt: 0.7, dangerAt: 0.9 };
+
+const ch1 = new LEDMeter({ ...opts, y: 18, label: 'CH 1' });
+const ch2 = new LEDMeter({ ...opts, y: 54, label: 'CH 2' });
+
+function draw() {
+  ch1.value = (sin(frameCount * 0.05) + 1) / 2;
+  ch2.value = (cos(frameCount * 0.04) + 1) / 2;
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=ledmeter" width="200" height="110" scrolling="no" frameborder="0" loading="lazy" title="LEDMeter stacked"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 4</span>
+        <span class="step-title">Driving from a real value</span>
+      </div>
+      <p class="step-body">
+        In practice you feed the LEDMeter from a computed number — the amplitude of an audio
+        signal, the speed of a physics object, or anything that changes over time. Here a
+        ConsolePanel shows the raw value alongside the meter.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — watch the value in the console as you change the formula</div>
+          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
+  x: 0, y: 0, width: 320, height: 70,
+  label: 'Output',
+  movable: false, minimizable: false, resizable: false,
+});
+
+const bar = new LEDMeter({
+  x: 10, y: 82, width: 300, height: 20,
+  segments: 24, warnAt: 0.7, dangerAt: 0.9,
+});
+
+let vel = 0;
+function draw() {
+  vel += random(-0.05, 0.05);
+  vel = constrain(vel, 0, 1);
+  bar.value = vel;
+  if (frameCount % 15 === 0) console.log(vel.toFixed(3));
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=panel" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="LEDMeter driven"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  ADSRDISPLAY                                                    -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="ctrl-section" id="adsr">
+    <div class="ctrl-header">
+      <h2>ADSRDisplay</h2>
+      <span class="ctrl-tag">Envelope Viewer</span>
+    </div>
+    <p class="ctrl-desc">
+      An <strong>ADSRDisplay</strong> draws an Attack–Decay–Sustain–Release envelope shape —
+      the classic four-parameter curve used in synthesizers to shape how a sound evolves over
+      time. It is a read-only visual; pair it with four dials or sliders to let the user edit
+      the envelope values.
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 1</span>
+        <span class="step-title">Your first ADSR display</span>
+      </div>
+      <p class="step-body">
+        Create an ADSRDisplay with default values and it shows a classic envelope shape.
+        The four properties are <code>attack</code>, <code>decay</code>, <code>sustain</code>,
+        and <code>release</code> — all 0–1 fractions of their maximum time.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const env = new ADSRDisplay({
+  attack:  0.1,
+  decay:   0.2,
+  sustain: 0.6,
+  release: 0.4,
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=adsr" width="260" height="160" scrolling="no" frameborder="0" loading="lazy" title="ADSRDisplay basic"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 2</span>
+        <span class="step-title">Sizing and labeling</span>
+      </div>
+      <p class="step-body">
+        Set <code>width</code> and <code>height</code> to fit the display in your layout.
+        The <code>label</code> option adds a title. The curve automatically fills
+        the available space.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try changing the ADSR values</div>
+          <textarea class="live-code" spellcheck="false">const env = new ADSRDisplay({
+  x: 10, y: 10,
+  width: 240, height: 130,
+  label: 'AMP ENV',
+  attack:  0.05,  // very fast attack
+  decay:   0.3,
+  sustain: 0.7,
+  release: 0.6,
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=adsr" width="260" height="160" scrolling="no" frameborder="0" loading="lazy" title="ADSRDisplay sized"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 3</span>
+        <span class="step-title">Connecting to dials</span>
+      </div>
+      <p class="step-body">
+        The classic use case: four dials control the ADSR shape. In the <code>onChange</code>
+        of each dial, update the matching property on the ADSRDisplay.
+        The display redraws automatically.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — turn the knobs and watch the envelope update</div>
+          <textarea class="live-code" spellcheck="false">const env = new ADSRDisplay({
+  x: 10, y: 10, width: 300, height: 100,
+});
+
+const dials = new MultiDial({
+  x: 10, y: 120,
+  size: 55,
+  min: 0, max: 1, readout: 'raw', decimals: 2,
+  dials: {
+    'A': { value: 0.1 },
+    'D': { value: 0.25 },
+    'S': { value: 0.6 },
+    'R': { value: 0.4 },
+  },
+  onChange: v => {
+    env.attack  = v.A;
+    env.decay   = v.D;
+    env.sustain = v.S;
+    env.release = v.R;
+  },
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=adsr" width="260" height="160" scrolling="no" frameborder="0" loading="lazy" title="ADSRDisplay with dials"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 4</span>
+        <span class="step-title">Animating the envelope</span>
+      </div>
+      <p class="step-body">
+        You can update the ADSR properties from anywhere in your sketch — not just from
+        a dial callback. Here the sustain level pulses slowly to show how the display
+        responds to programmatic changes.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try animating attack or release instead</div>
+          <textarea class="live-code" spellcheck="false">const env = new ADSRDisplay({
+  x: 10, y: 20,
+  width: 240, height: 120,
+  label: 'ENV',
+  attack: 0.1, decay: 0.2, release: 0.5,
+});
+
+function draw() {
+  // Sustain level breathes slowly
+  env.sustain = (sin(frameCount * 0.02) + 1) / 2;
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=adsr" width="260" height="160" scrolling="no" frameborder="0" loading="lazy" title="ADSRDisplay animated"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  MARKUP                                                         -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="ctrl-section" id="markup">
+    <div class="ctrl-header">
+      <h2>Markup</h2>
+      <span class="ctrl-tag">Rich Text Panel</span>
+    </div>
+    <p class="ctrl-desc">
+      A <strong>Markup</strong> control displays styled text — paragraphs, bold, italic, links,
+      and separators — rendered on the canvas. Use it for help text, status readouts, or any
+      formatted copy that belongs inside your ProControls layout.
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 1</span>
+        <span class="step-title">Your first markup panel</span>
+      </div>
+      <p class="step-body">
+        Pass a string to the <code>text</code> option. Plain text is displayed as-is.
+        The panel auto-sizes to fit its content.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const info = new Markup({
+  text: 'Hello from ProControls!',
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=markup" width="280" height="220" scrolling="no" frameborder="0" loading="lazy" title="Markup basic"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 2</span>
+        <span class="step-title">Formatting — bold, italic, and separators</span>
+      </div>
+      <p class="step-body">
+        Wrap text in <code>**double asterisks**</code> for bold and <code>*single asterisks*</code>
+        for italic. A line containing only <code>---</code> becomes a horizontal rule that
+        separates sections.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try adding more bold or italic spans</div>
+          <textarea class="live-code" spellcheck="false">const info = new Markup({
+  x: 10, y: 10,
+  width: 260,
+  text:
+    '**ProControls** for p5.js\n' +
+    '*by David Stein*\n' +
+    '---\n' +
+    'Drag · Scroll wheel · Touch\n' +
+    'All controls are **live editable**.',
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=markup" width="280" height="220" scrolling="no" frameborder="0" loading="lazy" title="Markup formatting"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 3</span>
+        <span class="step-title">Links and click callbacks</span>
+      </div>
+      <p class="step-body">
+        Add a link with <code>[label](url)</code> syntax. Clicking a link opens the URL
+        in a new tab by default. You can override this with the <code>onClick(href)</code>
+        callback to handle the link yourself.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try clicking the link in the preview</div>
+          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
+  x: 0, y: 0, width: 280, height: 70,
+  movable: false, minimizable: false, resizable: false,
+});
+
+const info = new Markup({
+  x: 10, y: 80, width: 260,
+  text:
+    '**ProControls** — visit\n' +
+    '[the docs](https://procontrols.org)\n' +
+    'for the full reference.',
+  // intercept link clicks instead of opening a tab:
+  onClick: href => console.log('Link clicked: ' + href),
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=markup" width="280" height="220" scrolling="no" frameborder="0" loading="lazy" title="Markup links"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 4</span>
+        <span class="step-title">Updating text dynamically</span>
+      </div>
+      <p class="step-body">
+        Set the <code>text</code> property at any time to update what the Markup panel displays.
+        This is useful for status readouts that should update as your sketch runs —
+        for example, showing the current frame rate or a sensor value.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — watch the values update in the preview</div>
+          <textarea class="live-code" spellcheck="false">const status = new Markup({
+  x: 10, y: 10,
+  width: 260,
+  text: 'Loading...',
+});
+
+function draw() {
+  if (frameCount % 10 === 0) {
+    status.text =
+      '**Status**\n' +
+      'Frame: ' + frameCount + '\n' +
+      'FPS: ' + Math.round(frameRate()) + '\n' +
+      'Time: ' + (millis() / 1000).toFixed(1) + 's';
+  }
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=markup" width="280" height="220" scrolling="no" frameborder="0" loading="lazy" title="Markup dynamic"></iframe>
+      </div>
+      <div class="tip">
+        <strong>Tip:</strong> For short status lines that change every frame, update <code>text</code>
+        only every few frames (e.g. <code>frameCount % 10 === 0</code>) to avoid unnecessary redraws.
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  CONSOLEPANEL                                                   -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="ctrl-section" id="consolepanel">
+    <div class="ctrl-header">
+      <h2>ConsolePanel</h2>
+      <span class="ctrl-tag">Log Output</span>
+    </div>
+    <p class="ctrl-desc">
+      A <strong>ConsolePanel</strong> displays text log output directly on the canvas —
+      replacing <code>console.log()</code> output that would otherwise only appear in the
+      browser's developer tools. New lines appear at the bottom and scroll up as the
+      panel fills.
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 1</span>
+        <span class="step-title">Your first console panel</span>
+      </div>
+      <p class="step-body">
+        Create a ConsolePanel and then call <code>console.log()</code> anywhere in your
+        sketch. ProControls intercepts the call and shows the output in the panel.
+        You can still see the output in the browser console too.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel();
+
+console.log('Hello, ConsolePanel!');
+console.log('Every console.log appears here.');</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=consolePanel" width="360" height="200" scrolling="no" frameborder="0" loading="lazy" title="ConsolePanel basic"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 2</span>
+        <span class="step-title">Sizing and options</span>
+      </div>
+      <p class="step-body">
+        Set <code>width</code> and <code>height</code> to control the panel size.
+        The <code>maxLines</code> option caps how many lines are kept before older ones
+        are dropped. You can also set <code>movable: false</code> to lock the panel
+        in place so users cannot drag it around.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try changing maxLines or width</div>
+          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
+  x: 10, y: 10,
+  width: 320, height: 160,
+  label: 'Output',
+  maxLines: 8,             // keep only the last 8 lines
+  movable: false,
+  minimizable: false,
+  resizable: false,
+});
+
+// Log a few lines to fill the panel
+for (let i = 1; i <= 6; i++) {
+  console.log('Line ' + i + ' — hello from your sketch!');
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=consolePanel" width="360" height="200" scrolling="no" frameborder="0" loading="lazy" title="ConsolePanel sized"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 3</span>
+        <span class="step-title">Logging from interactions</span>
+      </div>
+      <p class="step-body">
+        The most common pattern is to log values in <code>onChange</code> callbacks so you
+        can see what a control is doing as you interact with it. The ConsolePanel gives you
+        that feedback without switching to the browser's developer tools.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — drag the slider and watch the log update</div>
+          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
+  x: 0, y: 0, width: 360, height: 90,
+  label: 'Output',
+  movable: false, minimizable: false, resizable: false,
+});
+
+const vol = new AnalogSlider({
+  x: 30, y: 100,
+  label: 'VOL',
+  min: 0, max: 100, value: 50,
+  readout: 'raw', decimals: 0,
+  onChange: v => console.log('Volume: ' + Math.round(v)),
+  onRelease: v => console.log('Set to: ' + Math.round(v)),
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=panel" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="ConsolePanel with controls"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 4</span>
+        <span class="step-title">Clearing and controlling the log</span>
+      </div>
+      <p class="step-body">
+        Call <code>console.clear()</code> to empty the panel, or use
+        <code>log.clear()</code> directly on the ConsolePanel instance.
+        Logging from <code>draw()</code> works, but throttle it (e.g., every 15 frames)
+        so the panel does not scroll too fast to read.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — watch the running counter in the panel</div>
+          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
+  x: 0, y: 0, width: 360, height: 160,
+  label: 'Running log',
+  maxLines: 6,
+  movable: false, minimizable: false, resizable: false,
+});
+
+function draw() {
+  if (frameCount % 20 === 0) {
+    console.log(
+      'Frame ' + frameCount +
+      '  fps=' + Math.round(frameRate())
+    );
+  }
+  // Clear after 100 frames to keep it tidy
+  if (frameCount % 100 === 0) console.clear();
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=consolePanel" width="360" height="200" scrolling="no" frameborder="0" loading="lazy" title="ConsolePanel clear"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  TIMEGRAPHPANEL                                                 -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="ctrl-section" id="timegraphpanel">
+    <div class="ctrl-header">
+      <h2>TimeGraphPanel</h2>
+      <span class="ctrl-tag">Time-Series Graph</span>
+    </div>
+    <p class="ctrl-desc">
+      A <strong>TimeGraphPanel</strong> draws a scrolling time-series graph — like an
+      oscilloscope or a heart-rate monitor. Push new data points with <code>push(value)</code>
+      and the graph scrolls left to show the history. You can plot multiple series
+      on the same panel in different colors.
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 1</span>
+        <span class="step-title">Your first time graph</span>
+      </div>
+      <p class="step-body">
+        Create a TimeGraphPanel, then call <code>push(value)</code> every frame (or as often
+        as you have new data). The graph auto-scales to fit the values you push.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const graph = new TimeGraphPanel();
+
+function draw() {
+  graph.push(sin(frameCount * 0.05));
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=timeGraphPanel" width="360" height="200" scrolling="no" frameborder="0" loading="lazy" title="TimeGraphPanel basic"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 2</span>
+        <span class="step-title">Customizing the graph</span>
+      </div>
+      <p class="step-body">
+        Set <code>min</code> and <code>max</code> to fix the vertical range (instead of
+        auto-scaling). The <code>gridLines</code> option draws horizontal reference lines,
+        and <code>label</code> adds a title to the panel.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try removing min/max to see auto-scaling</div>
+          <textarea class="live-code" spellcheck="false">const graph = new TimeGraphPanel({
+  x: 10, y: 10,
+  width: 320, height: 160,
+  label: 'Signal',
+  min: -1, max: 1,     // fixed vertical range
+  gridLines: 4,        // draw 4 horizontal grid lines
+  movable: false, minimizable: false, resizable: false,
+});
+
+function draw() {
+  graph.push(sin(frameCount * 0.06) * 0.8 + noise(frameCount * 0.01) * 0.4 - 0.2);
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=timeGraphPanel" width="360" height="200" scrolling="no" frameborder="0" loading="lazy" title="TimeGraphPanel styled"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 3</span>
+        <span class="step-title">Multiple series</span>
+      </div>
+      <p class="step-body">
+        Push data to named series to plot several lines on the same graph. Pass an object
+        to <code>push()</code> where each key is a series name and the value is the new data point.
+        Each series gets its own color automatically.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try adding a third series</div>
+          <textarea class="live-code" spellcheck="false">const graph = new TimeGraphPanel({
+  x: 10, y: 10,
+  width: 320, height: 160,
+  label: 'X / Y',
+  min: -1, max: 1,
+  movable: false, minimizable: false, resizable: false,
+});
+
+function draw() {
+  graph.push({
+    'X': sin(frameCount * 0.05),
+    'Y': cos(frameCount * 0.07),
+  });
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=timeGraphPanel" width="360" height="200" scrolling="no" frameborder="0" loading="lazy" title="TimeGraphPanel multiple"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 4</span>
+        <span class="step-title">Graphing control values in real time</span>
+      </div>
+      <p class="step-body">
+        A TimeGraphPanel paired with a control lets you visualize how a value changes as
+        the user interacts. Drag the slider below and watch your movements recorded in the
+        graph as a live trace.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — drag the slider and watch the graph trace</div>
+          <textarea class="live-code" spellcheck="false">const graph = new TimeGraphPanel({
+  x: 0, y: 0, width: 320, height: 120,
+  label: 'Slider value over time',
+  min: 0, max: 100,
+  movable: false, minimizable: false, resizable: false,
+});
+
+const slider = new AnalogSlider({
+  x: 28, y: 130,
+  label: 'DRAG ME',
+  min: 0, max: 100, value: 50,
+  readout: 'raw', decimals: 0,
+});
+
+function draw() {
+  graph.push(slider.value);
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=panel" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="TimeGraphPanel with control"></iframe>
+      </div>
+      <div class="tip">
+        <strong>Tip:</strong> Call <code>graph.clear()</code> to reset all series, or
+        set <code>graph.history</code> (number of data points to keep) to control how far
+        back the graph scrolls.
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+(function () {
+  document.querySelectorAll('.example-row').forEach(function (row) {
+    var ta = row.querySelector('textarea.live-code');
+    var fr = row.querySelector('iframe.example-frame');
+    if (!ta || !fr) return;
+
+    function resize() {
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    }
+    resize();
+
+    fr.addEventListener('load', function () {
+      if (fr.contentWindow) {
+        fr.contentWindow.postMessage({ type: 'run', code: ta.value }, '*');
+      }
+    });
+
+    var timer;
+    ta.addEventListener('input', function () {
+      resize();
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        if (fr.contentWindow) {
+          fr.contentWindow.postMessage({ type: 'run', code: ta.value }, '*');
+        }
+      }, 700);
+    });
+  });
+}());
+</script>
+
+<footer>
+  <span>© 2026 David Stein</span>
+  <span class="footer-promo">
+    Another David Stein Production:
+    <a href="https://procontrols.org" target="_blank">procontrols.org</a> ·
+    <a href="https://indienewyork.com" target="_blank">indienewyork.com</a> ·
+    <a href="https://indieboston.com" target="_blank">indieboston.com</a>
+  </span>
+</footer>
+
+</body>
+</html>
