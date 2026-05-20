@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-05-19 — commit 4dc7a1c
+// Last updated: 2026-05-19 — commit bda7091
 
 // Set ControlStyle before creating controls to choose a built-in look.
 // Per-control overrides still work via opts.theme.
@@ -293,6 +293,11 @@ let   _proControlWired      = false;
 let   _proControlWasPressed = false;
 const _analogWheelQ     = [];
 
+// Touch tracking — populated by native listeners, injected into p5 globals each frame
+let _proTouchActive = false;
+let _proTouchX      = 0;
+let _proTouchY      = 0;
+
 // ── Auto-layout ──────────────────────────────────────────────────────────────
 // Tracks the cursor position for controls created without explicit x/y.
 // Portrait controls (h > w) advance the cursor rightward.
@@ -335,6 +340,7 @@ function proControlReset() {
   _proControlRegistry.length = 0;
   _drawnThisFrame.clear();
   _proControlWasPressed = false;
+  _proTouchActive = false;
   Object.assign(_autoLayout, { nextX: 20, nextY: 20, rightEdge: 20 });
 }
 
@@ -353,7 +359,46 @@ p5.prototype.registerMethod('pre', function () {
         _analogWheelQ.push(e);
         e.preventDefault();
       }, { passive: false });
+
+      // Native touch → sketch-coordinate tracking.
+      // p5's touch→mouseX/mouseY mapping is unreliable on iOS Safari, so we
+      // track touches ourselves and inject into p5 globals each frame.
+      const p5inst = this;
+      const _touchPos = (touch) => {
+        const rect = canvas.getBoundingClientRect();
+        const sx = (canvas.scrollWidth  || rect.width)  / (p5inst.width  || rect.width)  || 1;
+        const sy = (canvas.scrollHeight || rect.height) / (p5inst.height || rect.height) || 1;
+        return {
+          x: (touch.clientX - rect.left) / sx,
+          y: (touch.clientY - rect.top)  / sy,
+        };
+      };
+      canvas.addEventListener('touchstart', e => {
+        if (e.touches.length > 0) {
+          const p = _touchPos(e.touches[0]);
+          _proTouchX = p.x; _proTouchY = p.y; _proTouchActive = true;
+        }
+        e.preventDefault();
+      }, { passive: false });
+      canvas.addEventListener('touchmove', e => {
+        if (e.touches.length > 0) {
+          const p = _touchPos(e.touches[0]);
+          _proTouchX = p.x; _proTouchY = p.y;
+        }
+        e.preventDefault();
+      }, { passive: false });
+      canvas.addEventListener('touchend', e => {
+        _proTouchActive = false;
+        e.preventDefault();
+      }, { passive: false });
+      canvas.addEventListener('touchcancel', () => { _proTouchActive = false; });
     }
+  }
+
+  // Inject touch state into p5 globals so all control code sees touch as mouse
+  if (_proTouchActive) {
+    this.mouseX   = _proTouchX;  this.mouseY   = _proTouchY;
+    window.mouseX = _proTouchX;  window.mouseY = _proTouchY;
   }
 
   // Resolve auto-placement for any controls still pending, in creation order.
@@ -365,8 +410,8 @@ p5.prototype.registerMethod('pre', function () {
   // Dispatch hover / drag (safe to call every frame — uses current mouseX/mouseY)
   for (const c of _proControlRegistry) c.mouseMoved();
 
-  // Detect press / release edge transitions using p5's mouseIsPressed global
-  const down = mouseIsPressed;
+  // Detect press / release edge transitions — union of touch and mouse state
+  const down = _proTouchActive || mouseIsPressed;
   if (down && !_proControlWasPressed) {
     for (const c of _proControlRegistry) c.mousePressed();
   } else if (!down && _proControlWasPressed) {
@@ -5293,7 +5338,10 @@ class MessageDialog extends ProControl {
 
     // Button click
     const bi = this._hitBtnIndex(mouseX, mouseY);
-    if (bi !== -1 && this.onButton) this.onButton(bi, this.buttons[bi]);
+    if (bi !== -1) {
+      if (this.onButton) this.onButton(bi, this.buttons[bi]);
+      this.remove();
+    }
   }
 
   mouseReleased() {
@@ -5423,7 +5471,12 @@ class InputDialog extends ProControl {
     const pos = this._cursorPos;
 
     if (e.key === 'Enter') {
-      if (this.onSubmit) this.onSubmit(this.inputValue);
+      const val = this.inputValue;
+      if (this.onSubmit) this.onSubmit(val);
+      if (this.onButton) this.onButton(this.buttons.length - 1, this.buttons[this.buttons.length - 1], val);
+      this.remove();
+      e.preventDefault();
+      return;
     } else if (e.key === 'Backspace') {
       if (pos > 0) { this.inputValue = v.slice(0, pos - 1) + v.slice(pos); this._cursorPos = pos - 1; }
     } else if (e.key === 'Delete') {
@@ -5609,7 +5662,12 @@ class InputDialog extends ProControl {
 
     // Button click
     const bi = this._hitBtnIndex(mouseX, mouseY);
-    if (bi !== -1 && this.onButton) this.onButton(bi, this.buttons[bi]);
+    if (bi !== -1) {
+      const val = this.inputValue;
+      if (bi === this.buttons.length - 1 && this.onSubmit) this.onSubmit(val);
+      if (this.onButton) this.onButton(bi, this.buttons[bi], val);
+      this.remove();
+    }
   }
 
   mouseReleased() {
@@ -6118,6 +6176,15 @@ class Menu extends ProControl {
 }
 
 window.Menu = Menu;
+
+// ─── PopupMenu ───────────────────────────────────────────────────────────────
+// Convenience wrapper: a Menu pre-configured with orientation:'popup'.
+class PopupMenu extends Menu {
+  constructor(opts = {}) {
+    super(Object.assign({ orientation: 'popup' }, opts));
+  }
+}
+window.PopupMenu = PopupMenu;
 
 // ─── Markup ──────────────────────────────────────────────────────────────────
 // Display panel that renders text with basic Wiki Markup syntax.

@@ -573,6 +573,8 @@
       <a href="slidersTutorial.html">Sliders &amp; Dials</a>
       <a href="padsTutorial.html">Pads</a>
       <a href="selectorsTutorial.html">Selectors</a>
+      <a href="panelsTutorial.html">Panels</a>
+      <a href="menusTutorial.html">Menus</a>
     </div>
   </div>
   <span class="sep">·</span>
@@ -616,7 +618,13 @@
     </div>
   </div>
   <span class="sep">·</span>
-  <a href="#menu">Menu</a>
+  <div class="nav-group">
+    <a href="#menu">Menus</a>
+    <div class="nav-submenu">
+      <a href="#menu">Menu</a>
+      <a href="#popupMenu">PopupMenu</a>
+    </div>
+  </div>
   <span class="sep">·</span>
   <div class="nav-group">
     <a href="#displays">Displays</a>
@@ -2017,6 +2025,35 @@ pnl.add(new Dial({ x: 125, y: 95, size: 65, label: 'RETURN', readout: 'raw', dec
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=menu_left" width="200" height="240" scrolling="no" frameborder="0" loading="lazy" title="Menu left live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <section id="popupMenu">
+    <h2>PopupMenu <span class="tag ext">Input</span></h2>
+    <p class="desc">A convenience wrapper around <a href="#menu">Menu</a> pre-configured with <code>orientation: 'popup'</code>. Positions a floating vertical menu at the given <code>x, y</code> coordinate. Submenus and their arrow indicators automatically flip left or right depending on which half of the canvas the menu sits in. Accepts all the same options as Menu.</p>
+
+    <div class="sig">new PopupMenu(opts)</div>
+
+    <div class="note"><strong>Inherits all <a href="#menu">Menu</a> options.</strong> <code>orientation</code> is fixed to <code>'popup'</code>.</div>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const menu = new PopupMenu({
+  x: 20, y: 20,
+  items: [
+    'File',
+    ['Edit', 'Undo', 'Redo', 'Cut', 'Copy', 'Paste'],
+    'View',
+    ['Help', 'About', 'Docs'],
+  ],
+  onChange: (lbl, path) => console.log(path),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=popupMenu" width="300" height="200" scrolling="no" frameborder="0" loading="lazy" title="PopupMenu live example"></iframe>
     </div>
   </section>
 

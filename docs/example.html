@@ -62,6 +62,7 @@ const SIZES = {
   menu_bottom:     [400, 120],
   menu_right:      [200, 240],
   menu_popup:      [300, 200],
+  popupMenu:       [300, 200],
   markup:          [280, 220],
   consolePanel:    [360, 200],
   timeGraphPanel:  [360, 200],
@@ -638,6 +639,18 @@ const menu = new Menu({
 const menu = new Menu({
   x: 20, y: 20,
   orientation: 'popup',
+  items: [
+    'File',
+    ['Edit', 'Undo', 'Redo', 'Cut', 'Copy', 'Paste'],
+    'View',
+    ['Help', 'About', 'Docs'],
+  ],
+  onChange: (lbl, path) => console.log(path),
+});`,
+
+  popupMenu: `\
+const menu = new PopupMenu({
+  x: 20, y: 20,
   items: [
     'File',
     ['Edit', 'Undo', 'Redo', 'Cut', 'Copy', 'Paste'],
