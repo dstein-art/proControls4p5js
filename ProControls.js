@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-05-20 — commit bc5beb2
+// Last updated: 2026-05-20 — commit 177ecd1
 
 // Set ControlStyle before creating controls to choose a built-in look.
 // Per-control overrides still work via opts.theme.
@@ -1775,16 +1775,16 @@ class Switch extends ProControl {
       if (inLabel && this._isDoubleClick()) {
         this._cancelSpring();
         this.state = this._springDefault;
-        if (this.onChange) this.onChange(this.state, this.states[this.state]);
-        if (this.onRelease) this.onRelease(this.state, this.states[this.state]);
+        if (this.onChange) this.onChange({index: this.state, label: this.states[this.state]});
+        if (this.onRelease) this.onRelease({index: this.state, label: this.states[this.state]});
       }
       return;
     }
     if (this._isDoubleClick()) {
       this._cancelSpring();
       this.state = this._springDefault;
-      if (this.onChange) this.onChange(this.state, this.states[this.state]);
-      if (this.onRelease) this.onRelease(this.state, this.states[this.state]);
+      if (this.onChange) this.onChange({index: this.state, label: this.states[this.state]});
+      if (this.onRelease) this.onRelease({index: this.state, label: this.states[this.state]});
       return;
     }
     this._cancelSpring();
@@ -1793,7 +1793,7 @@ class Switch extends ProControl {
     } else {
       this.state = slot;
     }
-    if (this.onChange) this.onChange(this.state, this.states[this.state]);
+    if (this.onChange) this.onChange({index: this.state, label: this.states[this.state]});
     this._active = true;
   }
 
@@ -1818,7 +1818,7 @@ class Switch extends ProControl {
       this.state = this._springDefault;
       this._springActive = false;
       if (this.state !== prev && this.onChange)
-        this.onChange(this.state, this.states[this.state]);
+        this.onChange({index: this.state, label: this.states[this.state]});
     }
   }
 
@@ -2171,8 +2171,8 @@ class XYPad extends ProControl {
         this._valueY = this._springDefaultY;
         if (this.onChangeX) this.onChangeX(this._valueX);
         if (this.onChangeY) this.onChangeY(this._valueY);
-        if (this.onChange) this.onChange(this._valueX, this._valueY);
-        if (this.onRelease) this.onRelease(this._valueX, this._valueY);
+        if (this.onChange) this.onChange({x: this._valueX, y: this._valueY});
+        if (this.onRelease) this.onRelease({x: this._valueX, y: this._valueY});
         return;
       }
       this._cancelSpring();
@@ -2184,7 +2184,7 @@ class XYPad extends ProControl {
   mouseReleased() {
     if (this._active) {
       this._active = false;
-      if (this.onRelease) this.onRelease(this.valueX, this.valueY);
+      if (this.onRelease) this.onRelease({x: this.valueX, y: this.valueY});
       this._startSpring();
     }
   }
@@ -2203,7 +2203,7 @@ class XYPad extends ProControl {
     const ease = 1 - Math.pow(1 - t, 3);
     this._valueX = lerp(this._springFromX, this._springDefaultX, ease);
     this._valueY = lerp(this._springFromY, this._springDefaultY, ease);
-    if (this.onChange)  this.onChange(this._valueX, this._valueY);
+    if (this.onChange)  this.onChange({x: this._valueX, y: this._valueY});
     if (this.onChangeX) this.onChangeX(this._valueX);
     if (this.onChangeY) this.onChangeY(this._valueY);
     if (t >= 1) {
@@ -2233,7 +2233,7 @@ class XYPad extends ProControl {
     if (this._valueX !== prevX && this.onChangeX) this.onChangeX(this._valueX);
     if (this._valueY !== prevY && this.onChangeY) this.onChangeY(this._valueY);
     if ((this._valueX !== prevX || this._valueY !== prevY) && this.onChange)
-      this.onChange(this._valueX, this._valueY);
+      this.onChange({x: this._valueX, y: this._valueY});
   }
 }
 
@@ -2960,8 +2960,8 @@ class Selector extends ProControl {
     this._prevState   = null;
     this._dragY       = null;
     this._active      = false;
-    if (this.onChange) this.onChange(this.state, this.options[this.state]);
-    if (this.onRelease) this.onRelease(this.state, this.options[this.state]);
+    if (this.onChange) this.onChange({index: this.state, label: this.options[this.state]});
+    if (this.onRelease) this.onRelease({index: this.state, label: this.options[this.state]});
   }
 
   mousePressed() {
@@ -2999,7 +2999,7 @@ class Selector extends ProControl {
       this._slideDir    = dir;
       this._slideOffset = -dir * dispW;
       this._active      = true;
-      if (this.onChange) this.onChange(this.state, this.options[this.state]);
+      if (this.onChange) this.onChange({index: this.state, label: this.options[this.state]});
     } else {
       if (this._inTeeth(mouseX, mouseY)) {
         // Gear wheel: normal drag interaction only — rapid double-clicks intentional
@@ -3030,7 +3030,7 @@ class Selector extends ProControl {
     if (!this._active) return;
     if (this.style === 'arrow') {
       this._active = false;
-      if (this.onRelease) this.onRelease(this.state, this.options[this.state]);
+      if (this.onRelease) this.onRelease({index: this.state, label: this.options[this.state]});
       this._startSpring();
     } else {
       if (this._dragY !== null) {
@@ -3051,13 +3051,13 @@ class Selector extends ProControl {
 
         if (newState !== this.state) {
           this.state = newState;
-          if (this.onChange) this.onChange(this.state, this.options[this.state]);
+          if (this.onChange) this.onChange({index: this.state, label: this.options[this.state]});
         }
       }
       this._active     = false;
       this._dragY      = null;
       this._teethPress = false;
-      if (this.onRelease) this.onRelease(this.state, this.options[this.state]);
+      if (this.onRelease) this.onRelease({index: this.state, label: this.options[this.state]});
       this._startSpring();
     }
   }
@@ -3076,7 +3076,7 @@ class Selector extends ProControl {
       this.state = this._springDefault;
       this._springActive = false;
       if (this.state !== prev && this.onChange)
-        this.onChange(this.state, this.options[this.state]);
+        this.onChange({index: this.state, label: this.options[this.state]});
     }
   }
 
@@ -3100,7 +3100,7 @@ class Selector extends ProControl {
     const newState = ((this._stateAtDrag + steps) % n + n) % n;
     if (newState !== this.state) {
       this.state = newState;
-      if (this.onChange) this.onChange(this.state, this.options[this.state]);
+      if (this.onChange) this.onChange({index: this.state, label: this.options[this.state]});
     }
 
     this._gearAngle = this._angleAtDrag + (dy / pxPerStep) * ((Math.PI * 2) / teeth);
@@ -3120,7 +3120,7 @@ class Selector extends ProControl {
     } else {
       this._gearAngle += dir * ((Math.PI * 2) / 14);
     }
-    if (this.onChange) this.onChange(this.state, this.options[this.state]);
+    if (this.onChange) this.onChange({index: this.state, label: this.options[this.state]});
   }
 }
 
@@ -4513,8 +4513,8 @@ class RangeSlider extends ProControl {
     if (this._isDoubleClick()) {
       if (cap === 'low') this.valueLow  = this._defaultLow;
       else               this.valueHigh = this._defaultHigh;
-      if (this.onChange) this.onChange(this.valueLow, this.valueHigh);
-      if (this.onRelease) this.onRelease(this.valueLow, this.valueHigh);
+      if (this.onChange) this.onChange({lo: this.valueLow, hi: this.valueHigh});
+      if (this.onRelease) this.onRelease({lo: this.valueLow, hi: this.valueHigh});
       return;
     }
     this._dragging  = cap;
@@ -4527,7 +4527,7 @@ class RangeSlider extends ProControl {
     if (this._dragging) {
       this._dragging  = null;
       this._dragStart = null;
-      if (this.onRelease) this.onRelease(this.valueLow, this.valueHigh);
+      if (this.onRelease) this.onRelease({lo: this.valueLow, hi: this.valueHigh});
     }
   }
 
@@ -4555,7 +4555,7 @@ class RangeSlider extends ProControl {
         this.valueHigh = this._fromNorm(constrain(n0H + delta, this._normLow(), 1));
       }
     }
-    if (this.onChange) this.onChange(this.valueLow, this.valueHigh);
+    if (this.onChange) this.onChange({lo: this.valueLow, hi: this.valueHigh});
   }
 
   mouseWheel(e) {
@@ -4578,7 +4578,7 @@ class RangeSlider extends ProControl {
         this.valueHigh = this._fromNorm(constrain(this._normHigh() - delta, this._normLow(), 1));
       }
     }
-    if (this.onChange) this.onChange(this.valueLow, this.valueHigh);
+    if (this.onChange) this.onChange({lo: this.valueLow, hi: this.valueHigh});
     return false;
   }
 }
@@ -5703,6 +5703,8 @@ class IconButton extends ProControl {
     this.size    = opts.size    ?? 44;
     this.toggle  = opts.toggle  ?? false;
     this.state   = opts.state   ?? false;
+    this.onChange = opts.onChange ?? null;
+    this.onRelease = opts.onRelease ?? null;
     this.onClick = opts.onClick ?? null;
     this._iconSz = opts.iconSize ?? Math.round(this.size * 0.58);
     this.width   = this.size;
@@ -5820,7 +5822,12 @@ class IconButton extends ProControl {
 
   mousePressed() {
     if (this.disabled) return;
-    if (this._containsPoint(mouseX, mouseY)) this._active = true;
+    if (this._containsPoint(mouseX, mouseY)) {
+      this._active = true;
+      const buttonLabel = this.label || this.icon;
+      const callbackData = { buttonState: true, label: buttonLabel };
+      if (this.onChange) this.onChange(callbackData);
+    }
   }
 
   mouseReleased() {
@@ -5828,10 +5835,12 @@ class IconButton extends ProControl {
     if (this._containsPoint(mouseX, mouseY)) {
       if (this.toggle) {
         this.state = !this.state;
-        if (this.onClick) this.onClick(this.state);
-      } else {
-        if (this.onClick) this.onClick();
       }
+      const buttonLabel = this.label || this.icon;
+      const callbackData = { buttonState: false, label: buttonLabel };
+      if (this.onChange) this.onChange(callbackData);
+      if (this.onRelease) this.onRelease(callbackData);
+      if (this.onClick) this.onClick(callbackData);
     }
     this._active = false;
   }
