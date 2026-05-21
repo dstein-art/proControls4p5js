@@ -704,7 +704,7 @@ const sw = new Switch({
   state: 0,
   label: 'POWER',
   // index = 0 or 1, label = 'OFF' or 'ON'
-  onChange: (index, label) => {
+  onChange: ({index, label}) => {
     console.log('State: ' + label + ' (index ' + index + ')');
   },
 });</textarea>
@@ -841,9 +841,9 @@ const wave = new Selector({
   state: 0,
   label: 'WAVEFORM',
   // fires on every step while dragging or scrolling:
-  onChange: (i, lbl) => console.log('Selected: ' + lbl),
+  onChange: ({index, label}) => console.log('Selected: ' + label),
   // fires once when mouse is released:
-  onRelease: (i, lbl) => console.log('Set: ' + lbl),
+  onRelease: ({index, label}) => console.log('Set: ' + label),
 });</textarea>
         </div>
         <iframe class="example-frame" src="example.html?c=panel" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="Selector data handling"></iframe>

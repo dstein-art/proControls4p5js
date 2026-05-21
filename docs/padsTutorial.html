@@ -703,12 +703,12 @@ const pad = new XYPad({
   minY: 0, maxY: 1,
   valueX: 0.5, valueY: 0.5,
   crosshairColor: '#ff6600',
-  // Both values arrive together in one callback:
-  onChange: (vx, vy) => console.log(
-    'X: ' + vx.toFixed(2) + '  Y: ' + vy.toFixed(2)
+  // Both values arrive together in one callback as an object:
+  onChange: ({x, y}) => console.log(
+    'X: ' + x.toFixed(2) + '  Y: ' + y.toFixed(2)
   ),
-  onRelease: (vx, vy) => console.log(
-    'Released at  X: ' + vx.toFixed(2) + '  Y: ' + vy.toFixed(2)
+  onRelease: ({x, y}) => console.log(
+    'Released at  X: ' + x.toFixed(2) + '  Y: ' + y.toFixed(2)
   ),
 });</textarea>
         </div>

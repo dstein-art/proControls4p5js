@@ -1304,10 +1304,10 @@ const filter = new RangeSlider({
   min: 0, max: 1,
   valueLow: 0.2, valueHigh: 0.8,
   // lo = low handle value, hi = high handle value
-  onChange: (lo, hi) => console.log(
+  onChange: ({lo, hi}) => console.log(
     'Low: ' + lo.toFixed(2) + '  High: ' + hi.toFixed(2)
   ),
-  onRelease: (lo, hi) => console.log(
+  onRelease: ({lo, hi}) => console.log(
     'Set: ' + lo.toFixed(2) + ' — ' + hi.toFixed(2)
   ),
 });</textarea>
