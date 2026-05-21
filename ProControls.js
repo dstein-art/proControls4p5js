@@ -4612,6 +4612,10 @@ class Panel extends ProControl {
     this._dragPanelOff  = null; // {dx, dy} offset from panel origin at drag start
     this._resizing      = false;
     this._gripHovered   = false;
+    this._initX        = this.x;     // store initial position for double-click reset
+    this._initY        = this.y;
+    this._initW        = this.width;
+    this._initH        = this.height;
   }
 
   get visible()    { return this._visible; }
@@ -4844,6 +4848,14 @@ class Panel extends ProControl {
 
     // Title bar drag — grab anywhere else on the bar to move the panel
     if (this.movable && this._titleH > 0 && mouseY < this.y + this._titleH) {
+      if (this._isDoubleClick() && this.resizable) {
+        // Double-click on title bar resets to initial position and size
+        this.x = this._initX;
+        this.y = this._initY;
+        this.width = this._initW;
+        this.height = this._initH;
+        return;
+      }
       this._draggingPanel = true;
       this._dragPanelOff  = { dx: mouseX - this.x, dy: mouseY - this.y };
       return;
