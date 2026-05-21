@@ -4612,10 +4612,11 @@ class Panel extends ProControl {
     this._dragPanelOff  = null; // {dx, dy} offset from panel origin at drag start
     this._resizing      = false;
     this._gripHovered   = false;
-    this._initX        = this.x;     // store initial position for double-click reset
+    this._initX        = this.x;       // store initial state for double-click reset
     this._initY        = this.y;
     this._initW        = this.width;
     this._initH        = this.height;
+    this._initMinimized = this._minimized;
   }
 
   get visible()    { return this._visible; }
@@ -4842,12 +4843,13 @@ class Panel extends ProControl {
 
     // Title bar interactions — double-click to reset, or minimize/drag
     if (this._titleH > 0 && mouseY < this.y + this._titleH) {
-      // Double-click on title bar resets to initial position and size
+      // Double-click on title bar resets to initial position, size, and minimized state
       if (this._isDoubleClick() && (this.movable || this.resizable || this.minimizable)) {
         this.x = this._initX;
         this.y = this._initY;
         this.width = this._initW;
         this.height = this._initH;
+        this.minimized = this._initMinimized;
         return;
       }
 
@@ -7083,12 +7085,13 @@ class ConsolePanel extends ProControl {
 
     // Title bar interactions — double-click to reset, or drag/minimize
     if (mouseY < this.y + this._titleH) {
-      // Double-click on title bar resets to initial position and size
+      // Double-click on title bar resets to initial position, size, and minimized state
       if (this._isDoubleClick() && (this.movable || this.resizable || this.minimizable)) {
         this.x = this._initX;
         this.y = this._initY;
         this.width = this._initW;
         this.height = this._initH;
+        this._minimized = this._initMinimized;
         return;
       }
 
