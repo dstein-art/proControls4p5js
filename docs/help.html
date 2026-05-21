@@ -506,6 +506,19 @@
       flex-wrap: wrap;
       margin-top: 14px;
     }
+    @media (max-width: 768px) {
+      nav {
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 0 16px;
+        -webkit-overflow-scrolling: touch;
+      }
+      nav a {
+        font-size: 12px;
+        padding: 5px 8px;
+      }
+    }
+
     @media (max-width: 640px) {
       .example-row { flex-direction: column; }
       .example-frame { align-self: center; }
