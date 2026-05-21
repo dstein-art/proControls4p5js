@@ -4840,25 +4840,29 @@ class Panel extends ProControl {
   mousePressed() {
     if (!this._visible || !this._inBounds(mouseX, mouseY)) return;
 
-    // Minimize/maximize toggle button
-    if (this.minimizable && this._hitBtn(mouseX, mouseY)) {
-      this.minimized = !this._minimized;
-      return;
-    }
-
-    // Title bar drag — grab anywhere else on the bar to move the panel
-    if (this.movable && this._titleH > 0 && mouseY < this.y + this._titleH) {
-      if (this._isDoubleClick() && this.resizable) {
-        // Double-click on title bar resets to initial position and size
+    // Title bar interactions — double-click to reset, or minimize/drag
+    if (this._titleH > 0 && mouseY < this.y + this._titleH) {
+      // Double-click on title bar resets to initial position and size
+      if (this._isDoubleClick() && (this.movable || this.resizable || this.minimizable)) {
         this.x = this._initX;
         this.y = this._initY;
         this.width = this._initW;
         this.height = this._initH;
         return;
       }
-      this._draggingPanel = true;
-      this._dragPanelOff  = { dx: mouseX - this.x, dy: mouseY - this.y };
-      return;
+
+      // Minimize/maximize toggle button
+      if (this.minimizable && this._hitBtn(mouseX, mouseY)) {
+        this.minimized = !this._minimized;
+        return;
+      }
+
+      // Title bar drag — grab anywhere else on the bar to move the panel
+      if (this.movable) {
+        this._draggingPanel = true;
+        this._dragPanelOff  = { dx: mouseX - this.x, dy: mouseY - this.y };
+        return;
+      }
     }
 
     if (this._minimized) return;
@@ -5421,6 +5425,11 @@ class InputDialog extends ProControl {
     this.width  = opts.width ?? Math.max(220, btnRowW);
     this.height = opts.height ?? 100;
 
+    this._initX = this.x;      // store initial position for double-click reset
+    this._initY = this.y;
+    this._initW = this.width;
+    this._initH = this.height;
+
     this._keyHandler = (e) => this._handleKey(e);
   }
 
@@ -5644,12 +5653,24 @@ class InputDialog extends ProControl {
   mousePressed() {
     if (!this._inBounds(mouseX, mouseY)) { this._blur(); return; }
 
-    // Title bar drag
-    if (this.movable && this._titleH > 0 && mouseY < this.y + this._titleH) {
-      this._blur();
-      this._draggingPanel = true;
-      this._dragPanelOff  = { dx: mouseX - this.x, dy: mouseY - this.y };
-      return;
+    // Title bar interactions — double-click to reset, or drag
+    if (this._titleH > 0 && mouseY < this.y + this._titleH) {
+      // Double-click on title bar resets to initial position and size
+      if (this._isDoubleClick() && this.movable) {
+        this.x = this._initX;
+        this.y = this._initY;
+        this.width = this._initW;
+        this.height = this._initH;
+        return;
+      }
+
+      // Title bar drag
+      if (this.movable) {
+        this._blur();
+        this._draggingPanel = true;
+        this._dragPanelOff  = { dx: mouseX - this.x, dy: mouseY - this.y };
+        return;
+      }
     }
 
     // Input field click — focus and position cursor
@@ -6717,6 +6738,10 @@ class ConsolePanel extends ProControl {
     this._dragPanelOff  = null;
     this._resizing      = false;
     this._gripHovered   = false;
+    this._initX         = this.x;      // store initial position for double-click reset
+    this._initY         = this.y;
+    this._initW         = this.width;
+    this._initH         = this.height;
 
     // Intercept console methods
     this._originals = {};
@@ -7056,18 +7081,32 @@ class ConsolePanel extends ProControl {
   mousePressed() {
     if (!this._inBounds(mouseX, mouseY)) return;
 
-    if (this._hitBtn(mouseX, mouseY)) {
-      this._minimized = !this._minimized;
-      return;
+    // Title bar interactions — double-click to reset, or drag/minimize
+    if (mouseY < this.y + this._titleH) {
+      // Double-click on title bar resets to initial position and size
+      if (this._isDoubleClick() && (this.movable || this.resizable || this.minimizable)) {
+        this.x = this._initX;
+        this.y = this._initY;
+        this.width = this._initW;
+        this.height = this._initH;
+        return;
+      }
+
+      // Minimize toggle
+      if (this._hitBtn(mouseX, mouseY)) {
+        this._minimized = !this._minimized;
+        return;
+      }
+
+      // Title bar drag
+      if (this.movable) {
+        this._draggingPanel = true;
+        this._dragPanelOff  = { dx: mouseX - this.x, dy: mouseY - this.y };
+        return;
+      }
     }
 
     if (this._inClrBtn(mouseX, mouseY)) { this.clear(); return; }
-
-    if (this.movable && mouseY < this.y + this._titleH) {
-      this._draggingPanel = true;
-      this._dragPanelOff  = { dx: mouseX - this.x, dy: mouseY - this.y };
-      return;
-    }
 
     if (this._minimized) return;
 
