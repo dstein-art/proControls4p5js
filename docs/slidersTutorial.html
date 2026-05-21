@@ -723,43 +723,43 @@ const mySlider = new AnalogSlider();</textarea>
     <div class="step">
       <div class="step-header">
         <span class="step-badge">Step 4</span>
-        <span class="step-title">Reacting to changes with <code>onChange</code> and <code>onRelease</code></span>
+        <span class="step-title">Driving animated artwork with <code>.value</code></span>
       </div>
       <p class="step-body">
-        To actually <em>use</em> the slider's value in your sketch, pass a function to <code>onChange</code>.
-        ProControls calls it every time the value changes — giving you the new number as an argument.
-        <code>onRelease</code> fires once when you let go of the handle.
-        In the example below, a <strong>ConsolePanel</strong> on the canvas shows you what's happening
-        as you drag. Try it!
+        The real fun begins when you read the slider's <code>value</code> right inside your
+        <code>draw()</code> loop and use it to control something on screen. This example is a
+        <strong>complete sketch</strong> — it has its own <code>setup()</code> and <code>draw()</code>,
+        just like a sketch in your own project. The fader sets the base size of a circle that gently
+        pulses on its own; drag it and the artwork responds instantly.
       </p>
       <div class="example-row">
         <div class="live-editor">
-          <div class="live-hint">editable — drag the slider and watch the console panel</div>
-          <textarea class="live-code" spellcheck="false">// ConsolePanel shows output directly on the canvas
-const log = new ConsolePanel({
-  x: 0, y: 0, width: 320, height: 90,
-  label: 'Output',
-  movable: false, minimizable: false, resizable: false,
-});
+          <div class="live-hint">editable — drag the fader to resize the pulsing circle</div>
+          <textarea class="live-code" spellcheck="false">let size;
 
-const volume = new AnalogSlider({
-  x: 28, y: 100,
-  width: 44, height: 130,
-  label: 'VOLUME',
-  min: 0, max: 100, value: 50,
-  readout: 'raw', decimals: 0,
-  // called every frame while dragging:
-  onChange: v => console.log('Dragging: ' + Math.round(v)),
-  // called once when you release the mouse:
-  onRelease: v => console.log('Stopped at: ' + Math.round(v)),
-});</textarea>
+function setup() {
+  createCanvas(320, 240);
+  size = new AnalogSlider({
+    x: 20, y: 30, width: 44, height: 180,
+    min: 10, max: 120, value: 60,
+    label: 'SIZE',
+  });
+}
+
+function draw() {
+  proControlBackground();
+  // Read size.value every frame to drive the artwork
+  fill(30, 140, 220); noStroke();
+  circle(210, 120, size.value + sin(frameCount * 0.08) * 18);
+}</textarea>
         </div>
-        <iframe class="example-frame" src="example.html?c=panel" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="AnalogSlider data handling"></iframe>
+        <iframe class="example-frame" src="example.html?c=slider_art" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="AnalogSlider drives artwork"></iframe>
       </div>
       <div class="tip">
-        <strong>Tip:</strong> Use <code>slider.value</code> anywhere in your <code>draw()</code> loop
-        to read the current value without a callback — for example:
-        <code>background(slider.value * 2.55)</code> to set the background brightness from 0–100.
+        <strong>Tip:</strong> Reading <code>slider.value</code> in <code>draw()</code> is perfect for
+        visuals that update every frame. For one-off actions when the value changes — like logging or
+        triggering a sound — use the <code>onChange</code> and <code>onRelease</code> callbacks shown in
+        the <a href="#multislider">MultiSlider</a> section below.
       </div>
     </div>
   </div>
@@ -882,30 +882,44 @@ const myDial = new Dial();</textarea>
     <div class="step">
       <div class="step-header">
         <span class="step-badge">Step 4</span>
-        <span class="step-title">Reacting to changes</span>
+        <span class="step-title">Turning the knob to drive artwork</span>
       </div>
       <p class="step-body">
-        <code>onChange</code> and <code>onRelease</code> work the same way as on the slider.
-        Here we use them to display the cutoff frequency value every time you turn the knob.
-        Turn the knob to see the value update in the console!
+        A dial is a natural fit for anything that rotates or speeds up. This is another
+        <strong>complete sketch</strong> with its own <code>setup()</code> and <code>draw()</code>.
+        Read the knob's <code>value</code> in <code>draw()</code> to control your sketch — here the
+        dial sets how fast a square spins. Turn it all the way down to freeze it, or crank it up to
+        make it whirl.
       </p>
       <div class="example-row">
         <div class="live-editor">
-          <div class="live-hint">editable — turn the knob and watch the console panel</div>
-          <textarea class="live-code" spellcheck="false">openConsolePanel();
+          <div class="live-hint">editable — turn the knob to change the spin speed</div>
+          <textarea class="live-code" spellcheck="false">let speed;
 
-const cutoff = new Dial({
-  x: 120, y: 100,
-  size: 70,
-  label: 'CUTOFF',
-  min: 20, max: 20000, value: 1000,
-  scale: 'log',
-  readout: 'raw', decimals: 0,
-  onChange: v => console.log('Cutoff: ' + Math.round(v) + ' Hz'),
-  onRelease: v => console.log('Set to: ' + Math.round(v) + ' Hz'),
-});</textarea>
+function setup() {
+  createCanvas(320, 240);
+  speed = new Dial({
+    x: 25, y: 70, size: 70,
+    min: 0, max: 0.12, value: 0.04,
+    label: 'SPEED',
+  });
+}
+
+function draw() {
+  proControlBackground();
+  // Read speed.value every frame to spin the square
+  translate(215, 120);
+  rotate(frameCount * speed.value);
+  rectMode(CENTER); fill('#ff6600'); noStroke();
+  rect(0, 0, 95, 95);
+}</textarea>
         </div>
-        <iframe class="example-frame" src="example.html?c=panel" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="Dial data handling"></iframe>
+        <iframe class="example-frame" src="example.html?c=dial_art" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="Dial drives artwork"></iframe>
+      </div>
+      <div class="tip">
+        <strong>Tip:</strong> The <code>onChange</code> and <code>onRelease</code> callbacks also work on
+        dials — see the <a href="#multidial">MultiDial</a> section for an example that logs values as you
+        turn the knob.
       </div>
     </div>
   </div>

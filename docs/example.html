@@ -42,6 +42,8 @@ const SIZES = {
   dialpointer:   [170, 170],
   slider_wheel:  [100, 265],
   slider_button: [100, 265],
+  slider_art:    [320, 240],
+  dial_art:      [320, 240],
   gridpad_toggle:        [160, 155],
   gridpad_percent:       [160, 155],
   gridpad_colorselect:   [160, 155],
@@ -77,6 +79,24 @@ function runCode(code) {
   proControlFullReset();
   _lvl = 0;
 
+  // Two kinds of example:
+  //   • setup-only (legacy): the snippet IS the body of setup(). We wrap it and
+  //     run our own draw loop, which drives display meters and lets the controls
+  //     auto-render. This is how most examples work.
+  //   • full sketch: the snippet defines its own function setup() / draw(). We
+  //     run those directly so a control's value can drive custom animated
+  //     artwork in the example's own draw().
+  if (/\bfunction\s+setup\b/.test(code)) {
+    _runFullSketch(code);
+  } else {
+    _runSetupOnly(code);
+  }
+
+  _inst = new p5();
+}
+
+// Legacy: the snippet is the contents of setup(). Original preview behavior.
+function _runSetupOnly(code) {
   window.setup = function () {
     createCanvas(W, H);
     ControlStyle = STYLE;
@@ -103,8 +123,41 @@ function runCode(code) {
     }
     // Controls render themselves via the auto-draw post hook
   };
+}
 
-  _inst = new p5();
+// Full sketch: the snippet defines its own setup()/draw(). Indirect eval runs
+// it in global scope so the declarations become window.setup / window.draw;
+// any top-level `let`/`const` are shared by both via closure.
+function _runFullSketch(code) {
+  window.setup = undefined;
+  window.draw  = undefined;
+  try { (0, eval)(code); }
+  catch (e) { console.warn('[example]', e.message); }
+
+  const userSetup = (typeof window.setup === 'function') ? window.setup : null;
+  const userDraw  = (typeof window.draw  === 'function') ? window.draw  : null;
+
+  window.setup = function () {
+    ControlStyle = STYLE;
+    if (userSetup) {
+      try { userSetup(); }
+      catch (e) { console.warn('[example]', e.message); }
+    }
+    // Fallback so the post-hook has a canvas even if the sketch forgot one.
+    if (!document.querySelector('canvas')) createCanvas(W, H);
+  };
+
+  window.draw = function () {
+    // push/pop so the sketch's transforms/styles don't leak into the control
+    // auto-draw post-hook, which renders the controls after draw() returns.
+    push();
+    try {
+      if (userDraw) userDraw();
+      else proControlBackground();
+    }
+    catch (e) { console.warn('[example draw]', e.message); }
+    pop();
+  };
 }
 
 // Default code per control type — must assign to any variable; the library
@@ -389,6 +442,46 @@ const vol = new AnalogSlider({
   readout: 'raw', decimals: 2,
   onChange: v => console.log(v),
 });`,
+
+  slider_art: `\
+let size;
+
+function setup() {
+  createCanvas(320, 240);
+  size = new AnalogSlider({
+    x: 20, y: 30, width: 44, height: 180,
+    min: 10, max: 120, value: 60,
+    label: 'SIZE',
+  });
+}
+
+function draw() {
+  proControlBackground();
+  // Read size.value every frame to drive a pulsing circle
+  fill(30, 140, 220); noStroke();
+  circle(210, 120, size.value + sin(frameCount * 0.08) * 18);
+}`,
+
+  dial_art: `\
+let speed;
+
+function setup() {
+  createCanvas(320, 240);
+  speed = new Dial({
+    x: 25, y: 70, size: 70,
+    min: 0, max: 0.12, value: 0.04,
+    label: 'SPEED',
+  });
+}
+
+function draw() {
+  proControlBackground();
+  // Read speed.value every frame to spin a square
+  translate(215, 120);
+  rotate(frameCount * speed.value);
+  rectMode(CENTER); fill('#ff6600'); noStroke();
+  rect(0, 0, 95, 95);
+}`,
 
   gridpad_toggle: `\
 const seq = new GridPad({
