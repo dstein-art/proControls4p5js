@@ -981,14 +981,10 @@ function draw() {
       <div class="example-row">
         <div class="live-editor">
           <div class="live-hint">editable — watch the value in the console as you change the formula</div>
-          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
-  x: 0, y: 0, width: 320, height: 70,
-  label: 'Output',
-  movable: false, minimizable: false, resizable: false,
-});
+          <textarea class="live-code" spellcheck="false">openConsolePanel({ label: 'Output' });
 
 const bar = new LEDMeter({
-  x: 10, y: 82, width: 300, height: 20,
+  x: 10, y: 100, width: 300, height: 20,
   segments: 24, warnAt: 0.7, dangerAt: 0.9,
 });
 
@@ -1226,13 +1222,10 @@ function draw() {
       <div class="example-row">
         <div class="live-editor">
           <div class="live-hint">editable — try clicking the link in the preview</div>
-          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
-  x: 0, y: 0, width: 280, height: 70,
-  movable: false, minimizable: false, resizable: false,
-});
+          <textarea class="live-code" spellcheck="false">openConsolePanel();
 
 const info = new Markup({
-  x: 10, y: 80, width: 260,
+  x: 10, y: 100, width: 260,
   text:
     '**ProControls** — visit\n' +
     '[the docs](https://procontrols.org)\n' +
@@ -1315,7 +1308,7 @@ function draw() {
       <div class="example-row">
         <div class="live-editor">
           <div class="live-hint">editable — changes update the preview</div>
-          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel();
+          <textarea class="live-code" spellcheck="false">openConsolePanel();
 
 console.log('Hello, ConsolePanel!');
 console.log('Every console.log appears here.');</textarea>
@@ -1339,7 +1332,7 @@ console.log('Every console.log appears here.');</textarea>
       <div class="example-row">
         <div class="live-editor">
           <div class="live-hint">editable — try changing maxLines or width</div>
-          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
+          <textarea class="live-code" spellcheck="false">openConsolePanel({
   x: 10, y: 10,
   width: 320, height: 160,
   label: 'Output',
@@ -1372,11 +1365,7 @@ for (let i = 1; i <= 6; i++) {
       <div class="example-row">
         <div class="live-editor">
           <div class="live-hint">editable — drag the slider and watch the log update</div>
-          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
-  x: 0, y: 0, width: 360, height: 90,
-  label: 'Output',
-  movable: false, minimizable: false, resizable: false,
-});
+          <textarea class="live-code" spellcheck="false">openConsolePanel({ label: 'Output' });
 
 const vol = new AnalogSlider({
   x: 30, y: 100,
@@ -1406,11 +1395,9 @@ const vol = new AnalogSlider({
       <div class="example-row">
         <div class="live-editor">
           <div class="live-hint">editable — watch the running counter in the panel</div>
-          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
-  x: 0, y: 0, width: 360, height: 160,
+          <textarea class="live-code" spellcheck="false">openConsolePanel({
   label: 'Running log',
   maxLines: 6,
-  movable: false, minimizable: false, resizable: false,
 });
 
 function draw() {

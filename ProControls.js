@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-05-20 — commit 177ecd1
+// Last updated: 2026-05-21 — commit 628a415
 
 // Set ControlStyle before creating controls to choose a built-in look.
 // Per-control overrides still work via opts.theme.
@@ -6672,8 +6672,8 @@ function _drawTitleLED(x, y, titleH, brightness) {
 class ConsolePanel extends ProControl {
   constructor(opts = {}) {
     super(Object.assign({ min: 0, max: 1, value: 0 }, opts));
-    this.width       = opts.width       ?? 400;
-    this.height      = opts.height      ?? 200;
+    this.width       = opts.width       ?? (typeof width !== 'undefined' ? width : 400);
+    this.height      = opts.height      ?? 90;
     this.label       = opts.label       ?? 'Console';
     this._visible    = opts.visible     !== false;
     this.movable     = opts.movable     !== false;

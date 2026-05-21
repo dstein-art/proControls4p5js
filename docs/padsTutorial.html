@@ -693,14 +693,10 @@ const pad = new XYPad();</textarea>
       <div class="example-row">
         <div class="live-editor">
           <div class="live-hint">editable — drag the pad and watch the console</div>
-          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
-  x: 0, y: 0, width: 260, height: 68,
-  label: 'Output',
-  movable: false, minimizable: false, resizable: false,
-});
+          <textarea class="live-code" spellcheck="false">openConsolePanel({ label: 'Output' });
 
 const pad = new XYPad({
-  x: 20, y: 76,
+  x: 20, y: 100,
   width: 218, height: 175,
   label: 'FILTER',
   minX: 0, maxX: 1,
@@ -861,14 +857,10 @@ const seq = new GridPad({
       <div class="example-row">
         <div class="live-editor">
           <div class="live-hint">editable — click cells and watch the console</div>
-          <textarea class="live-code" spellcheck="false">const log = new ConsolePanel({
-  x: 0, y: 0, width: 320, height: 80,
-  label: 'Output',
-  movable: false, minimizable: false, resizable: false,
-});
+          <textarea class="live-code" spellcheck="false">openConsolePanel({ label: 'Output' });
 
 const seq = new GridPad({
-  x: 80, y: 90,
+  x: 80, y: 100,
   rows: 4, cols: 4,
   cellSize: 20,
   hGroup: 2, vGroup: 2,
