@@ -6671,7 +6671,7 @@ function _drawTitleLED(x, y, titleH, brightness) {
 
 class ConsolePanel extends ProControl {
   constructor(opts = {}) {
-    super(Object.assign({ min: 0, max: 1, value: 0 }, opts));
+    super(Object.assign({ min: 0, max: 1, value: 0, x: 0, y: 0 }, opts));
     this.width       = opts.width       ?? (typeof width !== 'undefined' ? width : 400);
     this.height      = opts.height      ?? 90;
     this.label       = opts.label       ?? 'Console';

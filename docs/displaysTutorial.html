@@ -981,7 +981,7 @@ function draw() {
       <div class="example-row">
         <div class="live-editor">
           <div class="live-hint">editable — watch the value in the console as you change the formula</div>
-          <textarea class="live-code" spellcheck="false">openConsolePanel({ label: 'Output' });
+          <textarea class="live-code" spellcheck="false">openConsolePanel();
 
 const bar = new LEDMeter({
   x: 10, y: 100, width: 300, height: 20,
@@ -1332,15 +1332,7 @@ console.log('Every console.log appears here.');</textarea>
       <div class="example-row">
         <div class="live-editor">
           <div class="live-hint">editable — try changing maxLines or width</div>
-          <textarea class="live-code" spellcheck="false">openConsolePanel({
-  x: 10, y: 10,
-  width: 320, height: 160,
-  label: 'Output',
-  maxLines: 8,             // keep only the last 8 lines
-  movable: false,
-  minimizable: false,
-  resizable: false,
-});
+          <textarea class="live-code" spellcheck="false">openConsolePanel();
 
 // Log a few lines to fill the panel
 for (let i = 1; i <= 6; i++) {
@@ -1365,7 +1357,7 @@ for (let i = 1; i <= 6; i++) {
       <div class="example-row">
         <div class="live-editor">
           <div class="live-hint">editable — drag the slider and watch the log update</div>
-          <textarea class="live-code" spellcheck="false">openConsolePanel({ label: 'Output' });
+          <textarea class="live-code" spellcheck="false">openConsolePanel();
 
 const vol = new AnalogSlider({
   x: 30, y: 100,
@@ -1395,10 +1387,7 @@ const vol = new AnalogSlider({
       <div class="example-row">
         <div class="live-editor">
           <div class="live-hint">editable — watch the running counter in the panel</div>
-          <textarea class="live-code" spellcheck="false">openConsolePanel({
-  label: 'Running log',
-  maxLines: 6,
-});
+          <textarea class="live-code" spellcheck="false">openConsolePanel();
 
 function draw() {
   if (frameCount % 20 === 0) {
