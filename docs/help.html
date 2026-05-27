@@ -649,6 +649,8 @@
       <a href="#markup">Markup</a>
       <a href="#consolePanel">ConsolePanel</a>
       <a href="#timeGraphPanel">TimeGraphPanel</a>
+      <a href="#listView">ListView</a>
+      <a href="#gridView">GridView</a>
       <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
       <a href="displaysTutorial.html">Displays Tutorial</a>
     </div>
@@ -2511,6 +2513,127 @@ for (let i = 0; i &lt; 5; i++) console.log('redraw tick');</textarea>
 
 // Pass an object to plot named variables together:
 // g.push({ rpm: 3400, temp: 85, load: 0.72 });</textarea>
+    </div>
+  </section>
+
+  <section id="listView">
+    <h2 id="listView">ListView <span class="tag ext">Display</span></h2>
+    <p class="desc">Scrollable list of strings with row selection. Click to select rows; use the mouse wheel or scrollbar to navigate long lists.</p>
+
+    <div class="sig">new ListView(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>0, 0</td><td>Canvas position of the panel's top-left corner.</td></tr>
+        <tr><td>width</td><td>number</td><td>280</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>200</td><td>Panel height in pixels.</td></tr>
+        <tr><td>fontSize</td><td>number</td><td>12</td><td>Text size in pixels. Row height is computed as <code>fontSize × 1.6</code>.</td></tr>
+        <tr><td>padding</td><td>number</td><td>8</td><td>Padding from the panel edges in pixels.</td></tr>
+        <tr><td>items</td><td>array</td><td>[]</td><td>Array of strings to display. Trigger re-render by reassigning (e.g., <code>lv.items = newList</code>).</td></tr>
+        <tr><td>onSelect</td><td>function</td><td>null</td><td>Callback fired on row click: <code>(item, index) => {}</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.items</code></td><td>Get/set the array of strings. Resets scroll and selection when assigned.</td></tr>
+        <tr><td><code>.selectedIdx</code></td><td>Get/set the index of the selected row (−1 = none). Clamped to valid range and scrolls into view.</td></tr>
+        <tr><td><code>.scrollY</code></td><td>Get/set the vertical scroll offset in pixels. Automatically clamped to the valid range.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Interaction</h3>
+    <table class="opts">
+      <thead><tr><th>Gesture</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Click</strong></td><td>Select the row under the mouse. Fires <code>onSelect</code> callback.</td></tr>
+        <tr><td><strong>Hover</strong></td><td>Highlight the row under the mouse with a subtle tint.</td></tr>
+        <tr><td><strong>Mouse wheel</strong></td><td>Scroll vertically. Scrollbar appears when content overflows the panel height.</td></tr>
+        <tr><td><strong>Scrollbar drag</strong></td><td>Drag the scrollbar thumb to navigate quickly.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const lv = new ListView({
+  x: 20, y: 15,
+  width: 240, height: 160,
+  items: ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta'],
+  onSelect: (item, i) => console.log('selected:', i, item),
+});</textarea>
+      <iframe class="example-frame" src="example.html?c=listView&s=black" width="300" height="220" scrolling="no" frameborder="0" loading="lazy" title="ListView live example"></iframe>
+    </div>
+  </section>
+
+  <section id="gridView">
+    <h2 id="gridView">GridView <span class="tag ext">Display</span></h2>
+    <p class="desc">Scrollable table with column headers and auto-sized columns. Row selection on click; vertical scroll with the mouse wheel; horizontal scroll via the bottom scrollbar when content is wider than the panel.</p>
+
+    <div class="sig">new GridView(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>0, 0</td><td>Canvas position of the panel's top-left corner.</td></tr>
+        <tr><td>width</td><td>number</td><td>400</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>220</td><td>Panel height in pixels.</td></tr>
+        <tr><td>fontSize</td><td>number</td><td>12</td><td>Text size in pixels. Header height is <code>fontSize × 1.8</code>; row height is <code>fontSize × 1.6</code>.</td></tr>
+        <tr><td>padding</td><td>number</td><td>8</td><td>Padding from the panel edges and between cells in pixels.</td></tr>
+        <tr><td>items</td><td>array</td><td>[]</td><td>Array of objects. All items must have the same keys. Column names and widths are derived from the first object. Assign to trigger re-render.</td></tr>
+        <tr><td>onSelect</td><td>function</td><td>null</td><td>Callback fired on row click: <code>(item, index) => {}</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Features</h3>
+    <ul>
+      <li><strong>Auto-sized columns:</strong> Each column width is computed from the header text and all cell values, with padding applied.</li>
+      <li><strong>Static header:</strong> The header row stays pinned at the top and does not scroll vertically with the data.</li>
+      <li><strong>Horizontal scrolling:</strong> When the total width of all columns exceeds the panel width, a horizontal scrollbar appears at the bottom.</li>
+      <li><strong>Row selection:</strong> Click a row to select it (highlighted with a tinted background). The <code>onSelect</code> callback fires with the item and index.</li>
+    </ul>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.items</code></td><td>Get/set the array of objects. Resets scroll and selection when assigned. Column widths are recomputed on first draw.</td></tr>
+        <tr><td><code>.selectedIdx</code></td><td>Get/set the index of the selected row (−1 = none). Clamped to valid range and scrolls into view.</td></tr>
+        <tr><td><code>.scrollY</code></td><td>Get/set the vertical scroll offset in pixels. Automatically clamped to the valid range.</td></tr>
+        <tr><td><code>.scrollX</code></td><td>Get/set the horizontal scroll offset in pixels. Automatically clamped to the valid range.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Interaction</h3>
+    <table class="opts">
+      <thead><tr><th>Gesture</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Click</strong></td><td>Select the row under the mouse. Fires <code>onSelect</code> callback.</td></tr>
+        <tr><td><strong>Hover</strong></td><td>Highlight the row under the mouse with a subtle tint.</td></tr>
+        <tr><td><strong>Mouse wheel</strong></td><td>Scroll vertically (main data rows). The header stays fixed.</td></tr>
+        <tr><td><strong>Vertical scrollbar</strong></td><td>Drag to scroll rows up/down. Appears on the right when data overflows vertically.</td></tr>
+        <tr><td><strong>Horizontal scrollbar</strong></td><td>Drag to scroll columns left/right. Appears at the bottom when data overflows horizontally. The header scrolls in sync.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const gv = new GridView({
+  x: 10, y: 10,
+  width: 380, height: 200,
+  items: [
+    { name: 'Alpha',   type: 'sine',   freq: 440 },
+    { name: 'Beta',    type: 'square', freq: 220 },
+    { name: 'Gamma',   type: 'saw',    freq: 880 },
+    { name: 'Delta',   type: 'noise',  freq: 110 },
+  ],
+  onSelect: (item, i) => console.log('selected row', i, item.name),
+});</textarea>
+      <iframe class="example-frame" src="example.html?c=gridView&s=black" width="420" height="240" scrolling="no" frameborder="0" loading="lazy" title="GridView live example"></iframe>
     </div>
   </section>
 
