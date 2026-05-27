@@ -753,6 +753,8 @@
         <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, the fader animates back to its initial value after mouse/touch release.</td></tr>
         <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete.</td></tr>
         <tr><td>springDefault</td><td>number</td><td>value</td><td>Value to restore on double-click reset (and spring-back target). Defaults to the initial <code>value</code>. Override when the control is rebuilt dynamically to pin the reset point.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
       </tbody>
     </table>
 
@@ -927,7 +929,9 @@
         <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with <code>(valueLow, valueHigh)</code> on mouse/touch release.</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
-      </tbody>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value (or values object for multi-controls).</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
+</tbody>
     </table>
 
     <h3>Properties</h3>
@@ -996,7 +1000,9 @@
         <tr><td>style</td><td>string</td><td>'classic'</td><td>Knob visual style — <code>'classic'</code> · <code>'rubber'</code> · <code>'grooved'</code> · <code>'pointer'</code>. See dial styles below.</td></tr>
         <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, the knob animates back to its initial value after mouse/touch release.</td></tr>
         <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete.</td></tr>
-      </tbody>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value (or values object for multi-controls).</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
+</tbody>
     </table>
 
     <h3>Example</h3>
@@ -1154,7 +1160,9 @@
         <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with <code>(valueX, valueY)</code> on release.</td></tr>
         <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, both axes animate back to their initial values after mouse/touch release.</td></tr>
         <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete.</td></tr>
-      </tbody>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value (or values object for multi-controls).</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
+</tbody>
     </table>
 
     <h3>Example</h3>
@@ -1223,7 +1231,9 @@
         <tr><td>onChange(values)</td><td>function</td><td>null</td><td>Called with a 2-D copy of values when any cell changes. In colorselect mode the grid contains the semantic <code>value</code> for each cell.</td></tr>
         <tr><td>onRelease(…)</td><td>function</td><td>null</td><td>Toggle/percent: called with values on release. Button mode: called with <code>(row, col)</code> on release.</td></tr>
         <tr><td>onPress(row, col)</td><td>function</td><td>null</td><td>Button mode only — called with the row and column of the pressed cell.</td></tr>
-      </tbody>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value (or values object for multi-controls).</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
+</tbody>
     </table>
 
     <h3>Interaction — toggle mode</h3>
@@ -1354,7 +1364,9 @@
         <tr><td>width</td><td>number</td><td>48</td><td>Panel width in pixels.</td></tr>
         <tr><td>height</td><td>number</td><td>auto</td><td>Defaults to <code>70</code> for 2-state; <code>states.length × 26 + 20</code> for N-state.</td></tr>
         <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(stateIndex, stateLabel)</code> on every click.</td></tr>
-      </tbody>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value (or values object for multi-controls).</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
+</tbody>
     </table>
 
     <h3>Reading state</h3>
@@ -1484,7 +1496,9 @@ const loop = new IconButton({
         <tr><td>label</td><td>string</td><td>''</td><td>Caption drawn below the panel.</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
-      </tbody>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value (or values object for multi-controls).</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
+</tbody>
     </table>
 
     <h3>Properties</h3>
@@ -1550,7 +1564,9 @@ const loop = new IconButton({
         <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(selectedArray, addedWord, removedWord)</code> on each toggle. Exactly one of <code>addedWord</code> / <code>removedWord</code> is non-null per click; both are null on a label double-click reset.</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
-      </tbody>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value (or values object for multi-controls).</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
+</tbody>
     </table>
 
     <h3>Properties</h3>
@@ -1599,7 +1615,9 @@ const loop = new IconButton({
         <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with <code>(index, string)</code> on mouse release.</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
-      </tbody>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value (or values object for multi-controls).</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
+</tbody>
     </table>
 
     <h3>Properties</h3>
@@ -1932,7 +1950,8 @@ pnl.add(new Dial({ x: 125, y: 95, size: 65, label: 'RETURN', readout: 'raw', dec
         <tr><td>onSubmit</td><td>function</td><td>null</td><td>Called with the current <code>inputValue</code> string when <kbd>Enter</kbd> is pressed.</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables all interaction.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
-      </tbody>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
+</tbody>
     </table>
 
     <h3>Properties</h3>
@@ -1995,7 +2014,9 @@ pnl.add(new Dial({ x: 125, y: 95, size: 65, label: 'RETURN', readout: 'raw', dec
         <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(label, path)</code> when a leaf item is selected. <code>label</code> is the selected item's text; <code>path</code> is an array of labels from root to selection, e.g. <code>['Edit', 'Undo']</code>.</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Suppresses all interaction and draws a disabled overlay.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
-      </tbody>
+        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value (or values object for multi-controls).</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
+</tbody>
     </table>
 
     <h3>Properties</h3>
@@ -2533,7 +2554,8 @@ for (let i = 0; i &lt; 5; i++) console.log('redraw tick');</textarea>
         <tr><td>padding</td><td>number</td><td>8</td><td>Padding from the panel edges in pixels.</td></tr>
         <tr><td>items</td><td>array</td><td>[]</td><td>Array of strings to display. Trigger re-render by reassigning (e.g., <code>lv.items = newList</code>).</td></tr>
         <tr><td>onSelect</td><td>function</td><td>null</td><td>Callback fired on row click: <code>(item, index) => {}</code>.</td></tr>
-      </tbody>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
+</tbody>
     </table>
 
     <h3>Properties</h3>
@@ -2586,7 +2608,8 @@ for (let i = 0; i &lt; 5; i++) console.log('redraw tick');</textarea>
         <tr><td>padding</td><td>number</td><td>8</td><td>Padding from the panel edges and between cells in pixels.</td></tr>
         <tr><td>items</td><td>array</td><td>[]</td><td>Array of objects. All items must have the same keys. Column names and widths are derived from the first object. Assign to trigger re-render.</td></tr>
         <tr><td>onSelect</td><td>function</td><td>null</td><td>Callback fired on row click: <code>(item, index) => {}</code>.</td></tr>
-      </tbody>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
+</tbody>
     </table>
 
     <h3>Features</h3>

@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-05-27 — commit 839ce87
+// Last updated: 2026-05-27 — commit 2f8e9e8
 
 // Set ControlStyle before creating controls to choose a built-in look.
 // Per-control overrides still work via opts.theme.
@@ -306,30 +306,32 @@ let _proTouchY      = 0;
 // to the right of the rightmost edge reached so far.
 const _autoLayout = { nextX: 20, nextY: 20, rightEdge: 20 };
 
-function _autoNext(w, h) {
+function _autoNext(w, h, panelAutoLayout, panelWidth, panelHeight) {
   const GAP    = 8;
-  const startY = 20;
-  const cvH    = typeof height !== 'undefined' ? height : 600;
+  const layout = panelAutoLayout || _autoLayout;
+  const startY = panelAutoLayout ? 8 : 20;
+  const maxW = panelAutoLayout ? panelWidth : (typeof width !== 'undefined' ? width : 800);
+  const maxH = panelAutoLayout ? panelHeight : (typeof height !== 'undefined' ? height : 600);
 
-  if (_autoLayout.nextY + h > cvH - GAP) {
+  if (layout.nextY + h > maxH - GAP) {
     // Overflow — start new column
-    _autoLayout.nextX = _autoLayout.rightEdge + 20;
-    _autoLayout.nextY = startY;
+    layout.nextX = layout.rightEdge + GAP;
+    layout.nextY = startY;
   }
 
-  const x = _autoLayout.nextX;
-  const y = _autoLayout.nextY;
+  const x = layout.nextX;
+  const y = layout.nextY;
 
-  _autoLayout.rightEdge = Math.max(_autoLayout.rightEdge, x + w);
+  layout.rightEdge = Math.max(layout.rightEdge, x + w);
 
   if (h > w) {
     // Portrait: place next control to the right
-    _autoLayout.nextX = x + w + GAP;
-    _autoLayout.nextY = y;
+    layout.nextX = x + w + GAP;
+    layout.nextY = y;
   } else {
     // Landscape / square: place next control below
-    _autoLayout.nextX = x;
-    _autoLayout.nextY = y + h + GAP;
+    layout.nextX = x;
+    layout.nextY = y + h + GAP;
   }
 
   return { x, y };
@@ -481,8 +483,19 @@ class ProControl {
   set y(v) { this._autoPlacePending = false; this._y = v; }
 
   _resolveAutoPlace() {
-    const { x, y } = _autoNext(this.width, this.height);
-    this._x = x; this._y = y;
+    // Check if this control is being added to a panel
+    if (this._parentPanel) {
+      const panelIntWidth = this._parentPanel.width - 16;   // account for padding
+      const panelIntHeight = this._parentPanel.height - 20;  // account for title bar and padding
+      const { x, y } = _autoNext(this.width, this.height, this._parentPanel._autoLayout, panelIntWidth, panelIntHeight);
+      this._x = this._parentPanel.x + x;
+      this._y = this._parentPanel.y + this._parentPanel._titleH + y;
+    } else {
+      // Use global canvas auto-layout
+      const { x, y } = _autoNext(this.width, this.height);
+      this._x = x;
+      this._y = y;
+    }
     this._autoPlacePending = false;
   }
 
@@ -4617,6 +4630,7 @@ class Panel extends ProControl {
     this._initW        = this.width;
     this._initH        = this.height;
     this._initMinimized = this._minimized;
+    this._autoLayout   = { nextX: 8, nextY: 8, rightEdge: 8 };  // panel-specific auto-placement
   }
 
   get visible()    { return this._visible; }
@@ -5076,6 +5090,7 @@ class Bevel extends ProControl {
     this.width  = 0;
     this.height = 0;
     this._parentPanel = null; // set by Panel.add()
+    this._autoLayout   = { nextX: 8, nextY: 8, rightEdge: 8 };  // panel-specific auto-placement
   }
 
   // Resolve a px-or-percent value against a total dimension.
@@ -5708,6 +5723,7 @@ class InputDialog extends ProControl {
   mouseReleased() {
     this._draggingPanel = false;
     this._dragPanelOff  = null;
+    if (this.onRelease) this.onRelease(this.inputValue);
   }
 
   mouseMoved() {
@@ -6066,6 +6082,10 @@ class Menu extends ProControl {
       this._subCache   = null;
       this._subCacheFor = -1;
     }
+  }
+
+  mouseReleased() {
+    if (this.onRelease) this.onRelease(null);
   }
 
   mouseMoved() {
@@ -7890,16 +7910,18 @@ class ListView extends ProControl {
 
     let cy = y + padding / 2 - this._scrollY;
 
+    const gap = (this._rowH - fs) / 2;
+
     for (let i = 0; i < this._items.length; i++) {
       const itemY = cy + i * this._rowH;
       if (itemY + this._rowH < y + 1 || itemY > y + h - 1) continue;
 
       if (i === this._selectedIdx) {
         gc.fillStyle = lerpColor(color(pan), color(acc), 0.18);
-        gc.fillRect(x + 1, itemY, w - 2, this._rowH);
+        gc.fillRect(x + 1, itemY - gap / 2, w - 2, this._rowH);
       } else if (i === this._hoverIdx) {
         gc.fillStyle = lerpColor(color(pan), color(acc), 0.08);
-        gc.fillRect(x + 1, itemY, w - 2, this._rowH);
+        gc.fillRect(x + 1, itemY - gap / 2, w - 2, this._rowH);
       }
 
       gc.fillStyle = txt;
@@ -7946,6 +7968,12 @@ class ListView extends ProControl {
     if (i >= 0 && i < this._items.length) {
       this._selectedIdx = i;
       if (this.onSelect) this.onSelect(this._items[i], i);
+    }
+  }
+
+  mouseReleased() {
+    if (this._selectedIdx >= 0 && this.onRelease) {
+      this.onRelease(this._items[this._selectedIdx], this._selectedIdx);
     }
   }
 
@@ -8049,6 +8077,9 @@ class GridView extends ProControl {
     const boldFont = `bold ${this.fontSize}px ${this.theme.font ?? 'system-ui, Arial, sans-serif'}`;
     const normalFont = `${this.fontSize}px ${this.theme.font ?? 'system-ui, Arial, sans-serif'}`;
 
+    gc.textBaseline = 'top';
+    gc.textAlign = 'left';
+
     let cellX = startX;
     for (let i = 0; i < this._keys.length; i++) {
       const colW = this._colWidths[i];
@@ -8067,7 +8098,7 @@ class GridView extends ProControl {
       gc.font = isHeader ? boldFont : normalFont;
       gc.fillStyle = isHeader ? this.theme.label : this.theme.readout;
       const val = isHeader ? this._keys[i] : String(item[this._keys[i]] ?? '');
-      gc.fillText(val, cellX + this.padding, rowY + 2);
+      gc.fillText(val, cellX + this.padding, rowY);
 
       if (!isHeader && i < this._keys.length - 1) {
         gc.strokeStyle = lerpColor(color(this.theme.panel), color(this.theme.panelStroke), 0.3);
@@ -8131,6 +8162,7 @@ class GridView extends ProControl {
     gc.clip();
 
     let cy = bodyY + padding / 2 - this._scrollY;
+    const gap = (this._rowH - fs) / 2;
 
     for (let i = 0; i < this._items.length; i++) {
       const rowY = cy + i * this._rowH;
@@ -8138,10 +8170,10 @@ class GridView extends ProControl {
 
       if (i === this._selectedIdx) {
         gc.fillStyle = lerpColor(color(pan), color(acc), 0.18);
-        gc.fillRect(x + 1, rowY, w - 2, this._rowH);
+        gc.fillRect(x + 1, rowY - gap / 2, w - 2, this._rowH);
       } else if (i === this._hoverIdx) {
         gc.fillStyle = lerpColor(color(pan), color(acc), 0.08);
-        gc.fillRect(x + 1, rowY, w - 2, this._rowH);
+        gc.fillRect(x + 1, rowY - gap / 2, w - 2, this._rowH);
       }
 
       this._drawCells(gc, rowY, this._items[i], false, this._rowH, x + 1 - this._scrollX, x + w - 1 - this._scrollX);
@@ -8264,6 +8296,9 @@ class GridView extends ProControl {
   mouseReleased() {
     this._dragVSB = false;
     this._dragHSB = false;
+    if (this._selectedIdx >= 0 && this.onRelease) {
+      this.onRelease(this._items[this._selectedIdx], this._selectedIdx);
+    }
   }
 
   mouseWheel(e) {
