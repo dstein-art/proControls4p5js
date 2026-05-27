@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-05-27 — commit 4adec89
+// Last updated: 2026-05-27 — commit 839ce87
 
 // Set ControlStyle before creating controls to choose a built-in look.
 // Per-control overrides still work via opts.theme.
@@ -7821,3 +7821,460 @@ class TimeGraphPanel extends ProControl {
 }
 
 window.TimeGraphPanel = TimeGraphPanel;
+// ListView - scrollable list of strings with row selection
+class ListView extends ProControl {
+  constructor(opts = {}) {
+    super(Object.assign({ min: 0, max: 1, value: 0, x: 0, y: 0 }, opts));
+    this.width       = opts.width       ?? 280;
+    this.height      = opts.height      ?? 200;
+    this.fontSize    = opts.fontSize    ?? 12;
+    this.padding     = opts.padding     ?? 8;
+    this._rowH       = this.fontSize * 1.6;
+    this._scrollY    = 0;
+    this._contentH   = 0;
+    this._selectedIdx = -1;
+    this._hoverIdx   = -1;
+    this._hovered    = false;
+    this.onSelect    = opts.onSelect ?? null;
+    this._items      = [];
+    this.items       = opts.items ?? [];
+  }
+
+  get items()  { return this._items; }
+  set items(v) {
+    this._items  = Array.isArray(v) ? v : [];
+    this._contentH = this._items.length * this._rowH;
+    this._scrollY  = 0;
+    this._selectedIdx = -1;
+  }
+
+  get scrollY()  { return this._scrollY; }
+  set scrollY(v) {
+    const max = Math.max(0, this._contentH - (this.height - this.padding));
+    this._scrollY = constrain(v, 0, max);
+  }
+
+  get selectedIdx()  { return this._selectedIdx; }
+  set selectedIdx(i) {
+    i = constrain(i, -1, this._items.length - 1);
+    this._selectedIdx = i;
+    if (i >= 0) {
+      const rowY = i * this._rowH;
+      const visH = this.height - this.padding;
+      if (rowY < this._scrollY) this._scrollY = rowY;
+      if (rowY + this._rowH > this._scrollY + visH) {
+        this._scrollY = rowY + this._rowH - visH;
+      }
+    }
+  }
+
+  draw() {
+    this._markDrawn();
+    const { x, y, padding, fontSize: fs } = this;
+    const { width: w, height: h } = this;
+
+    this._drawPanel(x, y, w, h);
+
+    const gc = drawingContext;
+    const txt = this.theme.readout;
+    const acc = this.theme.capIndicator;
+    const pan = this.theme.panel;
+
+    gc.save();
+    gc.beginPath();
+    gc.rect(x + 1, y + 1, w - 2, h - 2);
+    gc.clip();
+    gc.textBaseline = 'top';
+    gc.textAlign    = 'left';
+    gc.font = this.theme.font ? `${fs}px ${this.theme.font}` : `${fs}px system-ui, Arial, sans-serif`;
+
+    let cy = y + padding / 2 - this._scrollY;
+
+    for (let i = 0; i < this._items.length; i++) {
+      const itemY = cy + i * this._rowH;
+      if (itemY + this._rowH < y + 1 || itemY > y + h - 1) continue;
+
+      if (i === this._selectedIdx) {
+        gc.fillStyle = lerpColor(color(pan), color(acc), 0.18);
+        gc.fillRect(x + 1, itemY, w - 2, this._rowH);
+      } else if (i === this._hoverIdx) {
+        gc.fillStyle = lerpColor(color(pan), color(acc), 0.08);
+        gc.fillRect(x + 1, itemY, w - 2, this._rowH);
+      }
+
+      gc.fillStyle = txt;
+      gc.fillText(this._items[i], x + padding, itemY);
+    }
+
+    gc.restore();
+
+    const maxScroll = Math.max(0, this._contentH - (h - padding));
+    if (maxScroll > 0) {
+      const sbW = 4, sbX = x + w - sbW;
+      const trackH = h - padding;
+      const thumbH = Math.max(trackH * (h - padding) / this._contentH, 16);
+      const thumbY = y + padding / 2 + (this._scrollY / maxScroll) * (trackH - thumbH);
+
+      push();
+      noStroke();
+      fill(lerpColor(color(this.theme.panel), color(this.theme.track), 0.4));
+      rect(sbX, y + padding / 2, sbW, trackH, 1);
+      fill(this.theme.capIndicator);
+      rect(sbX, thumbY, sbW, thumbH, 1);
+      pop();
+    }
+
+    if (this.disabled) this._drawDisabled(x, y, w, h);
+  }
+
+  mouseMoved() {
+    const wasHovered = this._hovered;
+    this._hovered = mouseX >= this.x && mouseX <= this.x + this.width &&
+                    mouseY >= this.y && mouseY <= this.y + this.height;
+
+    if (this._hovered) {
+      const i = Math.floor((mouseY - this.y - this.padding / 2 + this._scrollY) / this._rowH);
+      this._hoverIdx = i >= 0 && i < this._items.length ? i : -1;
+    } else {
+      this._hoverIdx = -1;
+    }
+  }
+
+  mousePressed() {
+    if (!this._hovered) return;
+    const i = Math.floor((mouseY - this.y - this.padding / 2 + this._scrollY) / this._rowH);
+    if (i >= 0 && i < this._items.length) {
+      this._selectedIdx = i;
+      if (this.onSelect) this.onSelect(this._items[i], i);
+    }
+  }
+
+  mouseWheel(e) {
+    if (!this._hovered) return;
+    const maxScroll = Math.max(0, this._contentH - (this.height - this.padding));
+    if (maxScroll <= 0) return;
+    this._scrollY = constrain(this._scrollY + (e.deltaY ?? e.delta ?? 0) * 0.4, 0, maxScroll);
+    return false;
+  }
+}
+
+// GridView - scrollable table with static header and column auto-sizing
+class GridView extends ProControl {
+  constructor(opts = {}) {
+    super(Object.assign({ min: 0, max: 1, value: 0, x: 0, y: 0 }, opts));
+    this.width       = opts.width       ?? 400;
+    this.height      = opts.height      ?? 220;
+    this.fontSize    = opts.fontSize    ?? 12;
+    this.padding     = opts.padding     ?? 8;
+    this._headerH    = this.fontSize * 1.8;
+    this._rowH       = this.fontSize * 1.6;
+    this._scrollY    = 0;
+    this._scrollX    = 0;
+    this._contentH   = 0;
+    this._selectedIdx = -1;
+    this._hoverIdx   = -1;
+    this._hovered    = false;
+    this._items      = [];
+    this._keys       = [];
+    this._colWidths  = null;
+    this._totalW     = 0;
+    this._dragVSB    = false;
+    this._dragHSB    = false;
+    this._dragRef    = null;
+    this.onSelect    = opts.onSelect ?? null;
+    this.items       = opts.items ?? [];
+  }
+
+  get items()  { return this._items; }
+  set items(v) {
+    this._items  = Array.isArray(v) ? v : [];
+    this._keys   = this._items.length > 0 ? Object.keys(this._items[0]) : [];
+    this._colWidths = null;
+    this._contentH  = this._items.length * this._rowH;
+    this._scrollX   = 0;
+    this._scrollY   = 0;
+    this._selectedIdx = -1;
+  }
+
+  get scrollY()  { return this._scrollY; }
+  set scrollY(v) {
+    const max = Math.max(0, this._contentH - (this.height - this._headerH - this.padding));
+    this._scrollY = constrain(v, 0, max);
+  }
+
+  get scrollX()  { return this._scrollX; }
+  set scrollX(v) {
+    const max = Math.max(0, this._totalW - (this.width - this.padding));
+    this._scrollX = constrain(v, 0, max);
+  }
+
+  get selectedIdx()  { return this._selectedIdx; }
+  set selectedIdx(i) {
+    i = constrain(i, -1, this._items.length - 1);
+    this._selectedIdx = i;
+    if (i >= 0) {
+      const rowY = i * this._rowH;
+      const visH = this.height - this._headerH - this.padding;
+      if (rowY < this._scrollY) this._scrollY = rowY;
+      if (rowY + this._rowH > this._scrollY + visH) {
+        this._scrollY = rowY + this._rowH - visH;
+      }
+    }
+  }
+
+  _computeCols(gc) {
+    if (this._colWidths !== null || this._items.length === 0) return;
+
+    this._colWidths = [];
+    const boldFont = `bold ${this.fontSize}px ${this.theme.font ?? 'system-ui, Arial, sans-serif'}`;
+    const normalFont = `${this.fontSize}px ${this.theme.font ?? 'system-ui, Arial, sans-serif'}`;
+
+    for (const key of this._keys) {
+      gc.font = boldFont;
+      let w = gc.measureText(String(key)).width;
+
+      gc.font = normalFont;
+      for (const item of this._items) {
+        const val = String(item[key] ?? '');
+        w = Math.max(w, gc.measureText(val).width);
+      }
+
+      this._colWidths.push(w + this.padding * 2);
+    }
+
+    this._totalW = this._colWidths.reduce((a, b) => a + b, 0);
+  }
+
+  _drawCells(gc, rowY, item, isHeader, rowH, startX, endX) {
+    const boldFont = `bold ${this.fontSize}px ${this.theme.font ?? 'system-ui, Arial, sans-serif'}`;
+    const normalFont = `${this.fontSize}px ${this.theme.font ?? 'system-ui, Arial, sans-serif'}`;
+
+    let cellX = startX;
+    for (let i = 0; i < this._keys.length; i++) {
+      const colW = this._colWidths[i];
+      const cellRight = cellX + colW;
+
+      if (cellRight < startX || cellX > endX) {
+        cellX += colW;
+        continue;
+      }
+
+      gc.save();
+      gc.beginPath();
+      gc.rect(cellX, rowY, colW, rowH);
+      gc.clip();
+
+      gc.font = isHeader ? boldFont : normalFont;
+      gc.fillStyle = isHeader ? this.theme.label : this.theme.readout;
+      const val = isHeader ? this._keys[i] : String(item[this._keys[i]] ?? '');
+      gc.fillText(val, cellX + this.padding, rowY + 2);
+
+      if (!isHeader && i < this._keys.length - 1) {
+        gc.strokeStyle = lerpColor(color(this.theme.panel), color(this.theme.panelStroke), 0.3);
+        gc.lineWidth = 1;
+        gc.beginPath();
+        gc.moveTo(cellRight, rowY);
+        gc.lineTo(cellRight, rowY + rowH);
+        gc.stroke();
+      }
+
+      gc.restore();
+      cellX += colW;
+    }
+  }
+
+  draw() {
+    this._markDrawn();
+    const { x, y, padding, fontSize: fs } = this;
+    const { width: w, height: h } = this;
+
+    this._drawPanel(x, y, w, h);
+    this._computeCols(drawingContext);
+
+    const gc = drawingContext;
+    const pan = this.theme.panel;
+    const stroke = this.theme.panelStroke;
+    const acc = this.theme.capIndicator;
+
+    const bodyY = y + 1 + this._headerH;
+    const bodyH = h - 2 - this._headerH;
+    const maxW = w - 2;
+    const maxScrollX = Math.max(0, this._totalW - maxW);
+    const maxScrollY = Math.max(0, this._contentH - (bodyH - padding));
+
+    // Clamp scrolls
+    this._scrollX = constrain(this._scrollX, 0, maxScrollX);
+    this._scrollY = constrain(this._scrollY, 0, maxScrollY);
+
+    // Draw header
+    gc.save();
+    gc.beginPath();
+    gc.rect(x + 1, y + 1, w - 2, h - 2);
+    gc.clip();
+
+    const headerBg = lerpColor(color(pan), color(stroke), 0.55);
+    gc.fillStyle = headerBg;
+    gc.fillRect(x + 1, y + 1, w - 2, this._headerH);
+
+    this._drawCells(gc, y + 1, null, true, this._headerH, x + 1 - this._scrollX, x + w - 1 - this._scrollX);
+
+    gc.strokeStyle = lerpColor(color(stroke), color(pan), 0.5);
+    gc.lineWidth = 1;
+    gc.beginPath();
+    gc.moveTo(x + 1, y + 1 + this._headerH);
+    gc.lineTo(x + w - 1, y + 1 + this._headerH);
+    gc.stroke();
+
+    // Draw rows
+    gc.beginPath();
+    gc.rect(x + 1, bodyY, w - 2, bodyH - 1);
+    gc.clip();
+
+    let cy = bodyY + padding / 2 - this._scrollY;
+
+    for (let i = 0; i < this._items.length; i++) {
+      const rowY = cy + i * this._rowH;
+      if (rowY + this._rowH < bodyY || rowY > y + h - 1) continue;
+
+      if (i === this._selectedIdx) {
+        gc.fillStyle = lerpColor(color(pan), color(acc), 0.18);
+        gc.fillRect(x + 1, rowY, w - 2, this._rowH);
+      } else if (i === this._hoverIdx) {
+        gc.fillStyle = lerpColor(color(pan), color(acc), 0.08);
+        gc.fillRect(x + 1, rowY, w - 2, this._rowH);
+      }
+
+      this._drawCells(gc, rowY, this._items[i], false, this._rowH, x + 1 - this._scrollX, x + w - 1 - this._scrollX);
+    }
+
+    gc.restore();
+
+    // Vertical scrollbar
+    const sbW = 4;
+    if (maxScrollY > 0) {
+      const sbX = x + w - sbW - 1;
+      const trackH = bodyH - (maxScrollX > 0 ? sbW : 0);
+      const thumbH = Math.max(trackH * bodyH / this._contentH, 16);
+      const thumbY = bodyY + (this._scrollY / maxScrollY) * (trackH - thumbH);
+
+      push();
+      noStroke();
+      fill(lerpColor(color(this.theme.panel), color(this.theme.track), 0.4));
+      rect(sbX, bodyY, sbW, trackH, 1);
+      fill(this.theme.capIndicator);
+      rect(sbX, thumbY, sbW, thumbH, 1);
+      pop();
+    }
+
+    // Horizontal scrollbar
+    if (maxScrollX > 0) {
+      const sbY = y + h - sbW - 1;
+      const trackW = w - padding - (maxScrollY > 0 ? sbW : 0);
+      const thumbW = Math.max(trackW * w / this._totalW, 16);
+      const thumbX = x + padding / 2 + (this._scrollX / maxScrollX) * (trackW - thumbW);
+
+      push();
+      noStroke();
+      fill(lerpColor(color(this.theme.panel), color(this.theme.track), 0.4));
+      rect(x + padding / 2, sbY, trackW, sbW, 1);
+      fill(this.theme.capIndicator);
+      rect(thumbX, sbY, thumbW, sbW, 1);
+      pop();
+    }
+
+    if (this.disabled) this._drawDisabled(x, y, w, h);
+  }
+
+  mouseMoved() {
+    const wasHovered = this._hovered;
+    this._hovered = mouseX >= this.x && mouseX <= this.x + this.width &&
+                    mouseY >= this.y && mouseY <= this.y + this.height;
+
+    const bodyY = this.y + 1 + this._headerH;
+    const bodyH = this.height - 2 - this._headerH;
+
+    if (this._dragVSB) {
+      const dy = mouseY - this._dragRef.my;
+      const maxScroll = Math.max(0, this._contentH - (bodyH - this.padding));
+      if (maxScroll > 0) {
+        const trackH = bodyH - (this._totalW > this.width - this.padding ? 4 : 0);
+        this._scrollY = this._dragRef.sy + (dy / trackH) * maxScroll;
+      }
+    } else if (this._dragHSB) {
+      const dx = mouseX - this._dragRef.mx;
+      const maxScroll = Math.max(0, this._totalW - (this.width - this.padding));
+      if (maxScroll > 0) {
+        const trackW = this.width - this.padding - (this._contentH > bodyH - this.padding ? 4 : 0);
+        this._scrollX = this._dragRef.sx + (dx / trackW) * maxScroll;
+      }
+    } else if (this._hovered && mouseY >= bodyY && mouseY < this.y + this.height) {
+      const i = Math.floor((mouseY - bodyY - this.padding / 2 + this._scrollY) / this._rowH);
+      this._hoverIdx = i >= 0 && i < this._items.length ? i : -1;
+    } else {
+      this._hoverIdx = -1;
+    }
+  }
+
+  mousePressed() {
+    if (!this._hovered) return;
+
+    const bodyY = this.y + 1 + this._headerH;
+    const bodyH = this.height - 2 - this._headerH;
+    const maxScrollY = Math.max(0, this._contentH - (bodyH - this.padding));
+    const maxScrollX = Math.max(0, this._totalW - (this.width - this.padding));
+
+    // Check horizontal scrollbar
+    if (maxScrollX > 0) {
+      const sbY = this.y + this.height - 5;
+      const trackW = this.width - this.padding - (maxScrollY > 0 ? 4 : 0);
+      const thumbW = Math.max(trackW * this.width / this._totalW, 16);
+      const thumbX = this.x + this.padding / 2 + (this._scrollX / maxScrollX) * (trackW - thumbW);
+
+      if (mouseY >= sbY && mouseY < this.y + this.height && mouseX >= thumbX && mouseX < thumbX + thumbW) {
+        this._dragHSB = true;
+        this._dragRef = { mx: mouseX, sx: this._scrollX };
+        return;
+      }
+    }
+
+    // Check vertical scrollbar
+    if (maxScrollY > 0) {
+      const sbX = this.x + this.width - 5;
+      const trackH = bodyH - (maxScrollX > 0 ? 4 : 0);
+      const thumbH = Math.max(trackH * bodyH / this._contentH, 16);
+      const thumbY = bodyY + (this._scrollY / maxScrollY) * (trackH - thumbH);
+
+      if (mouseX >= sbX && mouseX < this.x + this.width && mouseY >= thumbY && mouseY < thumbY + thumbH) {
+        this._dragVSB = true;
+        this._dragRef = { my: mouseY, sy: this._scrollY };
+        return;
+      }
+    }
+
+    // Check row click
+    if (mouseY >= bodyY) {
+      const i = Math.floor((mouseY - bodyY - this.padding / 2 + this._scrollY) / this._rowH);
+      if (i >= 0 && i < this._items.length) {
+        this._selectedIdx = i;
+        if (this.onSelect) this.onSelect(this._items[i], i);
+      }
+    }
+  }
+
+  mouseReleased() {
+    this._dragVSB = false;
+    this._dragHSB = false;
+  }
+
+  mouseWheel(e) {
+    if (!this._hovered) return;
+    const bodyH = this.height - 2 - this._headerH;
+    const maxScroll = Math.max(0, this._contentH - (bodyH - this.padding));
+    if (maxScroll <= 0) return;
+    this._scrollY = constrain(this._scrollY + (e.deltaY ?? e.delta ?? 0) * 0.4, 0, maxScroll);
+    return false;
+  }
+}
+
+window.ListView = ListView;
+window.GridView = GridView;
