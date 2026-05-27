@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-05-21 — commit 5057b32
+// Last updated: 2026-05-27 — commit 4adec89
 
 // Set ControlStyle before creating controls to choose a built-in look.
 // Per-control overrides still work via opts.theme.
@@ -1831,7 +1831,7 @@ window.ProControlThemes      = ProControlThemes;
 window.proControlBackground  = proControlBackground;
 window.proControlReset       = proControlReset;
 window.proControls         = function() { return [..._proControlRegistry]; };
-window.proControlFullReset = function() { _proControlRegistry.length = 0; _drawnThisFrame.clear(); _proControlWasPressed = false; _proControlWired = false; };
+window.proControlFullReset = function() { _proControlRegistry.length = 0; _drawnThisFrame.clear(); _proControlWasPressed = false; _proTouchActive = false; _proControlWired = false; Object.assign(_autoLayout, { nextX: 20, nextY: 20, rightEdge: 20 }); };
 window.resetAutoLayout     = function() { Object.assign(_autoLayout, { nextX: 20, nextY: 20, rightEdge: 20 }); };
 window.ProControl     = ProControl;
 window.AnalogSlider      = AnalogSlider;
@@ -6259,10 +6259,10 @@ class Markup extends ProControl {
     this._contentH   = 0;
     this._hovered    = false;
     this._blocks     = [];
-    this._links      = [];   // [{x,y,w,h,href}] rebuilt each draw frame
-    this._popupHref  = null; // href shown in the URL popup, null = hidden
-    this.onClick     = opts.onClick ?? null; // onClick(href|null)
-    this.text          = opts.text ?? '= Markup =\nWiki-formatted text panel.\n* Bold: \'\'\'bold\'\'\'\n* Italic: \'\'italic\'\'\n* Links: [[https://example.com|Label]]';   // setter parses immediately
+    this._links      = [];
+    this._popupHref  = null;
+    this.onClick     = opts.onClick ?? null;
+    this.text = opts.text ?? '= Markup =\nWiki-formatted text panel.\n* Bold: \'\'\'bold\'\'\'\n* Italic: \'\'italic\'\'\n* Links: [[https://example.com|Label]]';
   }
 
   get text()  { return this._text; }
@@ -6278,8 +6278,6 @@ class Markup extends ProControl {
     this._scrollY = constrain(v, 0, max);
   }
 
-  // ── Parser ────────────────────────────────────────────────────────────────
-
   _parse(src) {
     const blocks = [];
     let numIdx = 0, num2Idx = 0;
@@ -6287,85 +6285,128 @@ class Markup extends ProControl {
     for (const raw of src.split('\n')) {
       let m;
 
-      if (/^-{4,}\s*$/.test(raw)) {
+      if (/^\s*-{4,}\s*$/.test(raw)) {
         numIdx = 0; num2Idx = 0;
-        blocks.push({ type: 'rule' }); continue;
+        blocks.push({ type: 'rule' });
+        continue;
       }
-      if ((m = raw.match(/^(={1,6})\s*(.*?)\s*\1\s*$/))) {
+
+      if ((m = raw.match(/^\s*(={1,6})\s*(.*?)\s*\1\s*$/))) {
         numIdx = 0; num2Idx = 0;
         const lvl = m[1].length;
-        blocks.push({ type: lvl === 1 ? 'h1' : lvl === 2 ? 'h2' : 'h3',
-                      tokens: this._inline(m[2]) }); continue;
+        blocks.push({
+          type: lvl === 1 ? 'h1' : lvl === 2 ? 'h2' : 'h3',
+          tokens: this._inline(m[2])
+        });
+        continue;
       }
-      if ((m = raw.match(/^\*{2}\s+(.*)/))) {
+
+      if ((m = raw.match(/^\s*\*{2}\s+(.*)/))) {
         numIdx = 0; num2Idx = 0;
-        blocks.push({ type: 'bullet2', tokens: this._inline(m[1]) }); continue;
+        blocks.push({ type: 'bullet2', tokens: this._inline(m[1]) });
+        continue;
       }
-      if ((m = raw.match(/^\*\s+(.*)/))) {
+
+      if ((m = raw.match(/^\s*\*\s+(.*)/))) {
         numIdx = 0; num2Idx = 0;
-        blocks.push({ type: 'bullet', tokens: this._inline(m[1]) }); continue;
+        blocks.push({ type: 'bullet', tokens: this._inline(m[1]) });
+        continue;
       }
-      if ((m = raw.match(/^#{2}\s+(.*)/))) {
-        blocks.push({ type: 'num2', n: ++num2Idx, tokens: this._inline(m[1]) }); continue;
+
+      if ((m = raw.match(/^\s*#{2}\s+(.*)/))) {
+        blocks.push({ type: 'num2', n: ++num2Idx, tokens: this._inline(m[1]) });
+        continue;
       }
-      if ((m = raw.match(/^#\s+(.*)/))) {
+
+      if ((m = raw.match(/^\s*#\s+(.*)/))) {
         num2Idx = 0;
-        blocks.push({ type: 'num', n: ++numIdx, tokens: this._inline(m[1]) }); continue;
+        blocks.push({ type: 'num', n: ++numIdx, tokens: this._inline(m[1]) });
+        continue;
       }
-      if ((m = raw.match(/^:\s*(.*)/))) {
+
+      if ((m = raw.match(/^\s*:\s*(.*)/))) {
         numIdx = 0; num2Idx = 0;
-        blocks.push({ type: 'indent', tokens: this._inline(m[1]) }); continue;
+        blocks.push({ type: 'indent', tokens: this._inline(m[1]) });
+        continue;
       }
+
       if (raw.trim() === '') {
         numIdx = 0; num2Idx = 0;
-        blocks.push({ type: 'spacer' }); continue;
+        blocks.push({ type: 'spacer' });
+        continue;
       }
+
       blocks.push({ type: 'p', tokens: this._inline(raw) });
     }
+
     return blocks;
   }
 
   _inline(text) {
     const toks = [];
     let s = text;
+
     while (s.length > 0) {
       let m;
-      // Bold+italic first (five quotes)
-      if ((m = s.match(/^'{5}(.*?)'{5}([\s\S]*)$/)))
-        { toks.push({ text: m[1], bold: true, italic: true }); s = m[2]; continue; }
-      // Bold (three quotes)
-      if ((m = s.match(/^'{3}(.*?)'{3}([\s\S]*)$/)))
-        { toks.push({ text: m[1], bold: true }); s = m[2]; continue; }
-      // Italic (two quotes)
-      if ((m = s.match(/^'{2}(.*?)'{2}([\s\S]*)$/)))
-        { toks.push({ text: m[1], italic: true }); s = m[2]; continue; }
-      // Wiki link: [[url|label]] captures url and label separately
-      if ((m = s.match(/^\[\[([^\]|]+)\|([^\]]*)\]\]([\s\S]*)$/)))
-        { toks.push({ text: m[2], link: true, href: m[1] }); s = m[3]; continue; }
-      // [[label]] — label doubles as the href
-      if ((m = s.match(/^\[\[([^\]]*)\]\]([\s\S]*)$/)))
-        { toks.push({ text: m[1], link: true, href: m[1] }); s = m[2]; continue; }
-      // Plain text up to next markup marker
+
+      if ((m = s.match(/^'{5}(.*?)'{5}([\s\S]*)$/))) {
+        toks.push({ text: m[1], bold: true, italic: true });
+        s = m[2];
+        continue;
+      }
+
+      if ((m = s.match(/^'{3}(.*?)'{3}([\s\S]*)$/))) {
+        toks.push({ text: m[1], bold: true });
+        s = m[2];
+        continue;
+      }
+
+      if ((m = s.match(/^'{2}(.*?)'{2}([\s\S]*)$/))) {
+        toks.push({ text: m[1], italic: true });
+        s = m[2];
+        continue;
+      }
+
+      if ((m = s.match(/^\[\[([^\]|]+)\|([^\]]*)\]\]([\s\S]*)$/))) {
+        toks.push({ text: m[2], link: true, href: m[1] });
+        s = m[3];
+        continue;
+      }
+
+      if ((m = s.match(/^\[\[([^\]]*)\]\]([\s\S]*)$/))) {
+        toks.push({ text: m[1], link: true, href: m[1] });
+        s = m[2];
+        continue;
+      }
+
       const n = s.search(/'{2}|\[\[/);
-      if (n > 0) { toks.push({ text: s.slice(0, n) }); s = s.slice(n); }
-      else       { toks.push({ text: s }); break; }
+      if (n > 0) {
+        toks.push({ text: s.slice(0, n) });
+        s = s.slice(n);
+      } else {
+        toks.push({ text: s });
+        break;
+      }
     }
+
     return toks;
   }
-
-  // ── Layout ────────────────────────────────────────────────────────────────
 
   _font(bold, italic, size) {
     const fam = this.theme.font ?? 'system-ui, Arial, sans-serif';
     return `${bold ? 'bold ' : ''}${italic ? 'italic ' : ''}${size}px ${fam}`;
   }
 
-  // Wraps inline tokens into visual lines within maxW pixels.
-  // Returns array of lines; each line is [{text, bold, italic, link, x, w}].
   _wrap(tokens, maxW, gc, size) {
     const lines = [];
     let cur = [], x = 0;
-    const flush = () => { if (cur.length) { lines.push(cur); cur = []; x = 0; } };
+    const flush = () => {
+      if (cur.length) {
+        lines.push(cur);
+        cur = [];
+        x = 0;
+      }
+    };
 
     for (const tok of tokens) {
       gc.font = this._font(tok.bold, tok.italic, size);
@@ -6377,11 +6418,30 @@ class Markup extends ProControl {
         x += pw;
       }
     }
+
     flush();
     return lines;
   }
 
-  // ── Draw ─────────────────────────────────────────────────────────────────
+  _openLink(href) {
+    const a = document.createElement('a');
+    a.href = href;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  _isValidUrl(href) {
+    if (href.startsWith('/')) return true;
+    try {
+      const u = new URL(href);
+      return u.protocol === 'http:' || u.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  }
 
   draw() {
     this._markDrawn();
@@ -6409,19 +6469,25 @@ class Markup extends ProControl {
     let cy = y + pad - this._scrollY;
 
     for (const b of this._blocks) {
-
-      if (b.type === 'spacer') { cy += lh * 0.6; continue; }
+      if (b.type === 'spacer') {
+        cy += lh * 0.6;
+        continue;
+      }
 
       if (b.type === 'rule') {
         if (cy > y + pad - 2 && cy < y + ph) {
           gc.save();
-          gc.strokeStyle = dim; gc.lineWidth = 1; gc.globalAlpha = 0.45;
+          gc.strokeStyle = dim;
+          gc.lineWidth = 1;
+          gc.globalAlpha = 0.45;
           gc.beginPath();
-          gc.moveTo(x + pad, cy + 6); gc.lineTo(x + pw - pad, cy + 6);
+          gc.moveTo(x + pad, cy + 6);
+          gc.lineTo(x + pw - pad, cy + 6);
           gc.stroke();
           gc.restore();
         }
-        cy += 14; continue;
+        cy += 14;
+        continue;
       }
 
       if (b.type === 'h1' || b.type === 'h2' || b.type === 'h3') {
@@ -6442,16 +6508,20 @@ class Markup extends ProControl {
             }
             if (b.type === 'h1' && li === lines.length - 1) {
               gc.save();
-              gc.strokeStyle = dim; gc.lineWidth = 1; gc.globalAlpha = 0.3;
+              gc.strokeStyle = dim;
+              gc.lineWidth = 1;
+              gc.globalAlpha = 0.3;
               gc.beginPath();
-              gc.moveTo(x + pad, cy + slh * 0.92); gc.lineTo(x + pw - pad, cy + slh * 0.92);
+              gc.moveTo(x + pad, cy + slh * 0.92);
+              gc.lineTo(x + pw - pad, cy + slh * 0.92);
               gc.stroke();
               gc.restore();
             }
           }
           cy += slh;
         }
-        cy += slh * 0.1; continue;
+        cy += slh * 0.1;
+        continue;
       }
 
       if (b.type === 'bullet' || b.type === 'bullet2') {
@@ -6517,7 +6587,8 @@ class Markup extends ProControl {
         for (const segs of lines) {
           if (cy + lh > y + pad && cy < y + ph) {
             gc.save();
-            gc.fillStyle = dim; gc.globalAlpha = 0.4;
+            gc.fillStyle = dim;
+            gc.globalAlpha = 0.4;
             gc.fillRect(x + pad + 2, cy + 2, 2, lh - 4);
             gc.globalAlpha = 1;
             for (const seg of segs) {
@@ -6536,7 +6607,6 @@ class Markup extends ProControl {
         continue;
       }
 
-      // Paragraph (default)
       const lines = this._wrap(b.tokens, maxW, gc, fs);
       for (const segs of lines) {
         if (cy + lh > y + pad && cy < y + ph) {
@@ -6554,11 +6624,9 @@ class Markup extends ProControl {
       }
     }
 
-    // Total content height = how far cy traveled from the start
     this._contentH = cy + this._scrollY - (y + pad);
     gc.restore();
 
-    // Thin scrollbar when content overflows
     const maxScroll = Math.max(0, this._contentH - (ph - pad * 2));
     if (maxScroll > 0) {
       const trackH = ph - pad * 2;
@@ -6573,18 +6641,16 @@ class Markup extends ProControl {
       pop();
     }
 
-    // URL popup shown when a link is clicked
     if (this._popupHref) {
       const popPad = 6;
       const popH   = 22;
       const popY   = y + ph - popH - 4;
-      const arrow  = '↗ ';   // ↗
+      const arrow  = '↗ ';
 
       gc.save();
       gc.font = `11px ${this.theme.font ?? 'monospace, sans-serif'}`;
       const arrowW = gc.measureText(arrow).width;
 
-      // Truncate URL to fit within panel width minus padding
       const maxUrlW = pw - pad * 2 - arrowW - popPad * 2;
       let url = this._popupHref;
       while (url.length > 1 && gc.measureText(url).width > maxUrlW)
@@ -6594,14 +6660,12 @@ class Markup extends ProControl {
       const boxW = Math.min(arrowW + gc.measureText(url).width + popPad * 2, pw - pad * 2);
       const popX = x + pad;
 
-      // Background
       gc.fillStyle = this.theme.tooltipBg;
       gc.beginPath();
       if (gc.roundRect) gc.roundRect(popX, popY, boxW, popH, 3);
       else gc.rect(popX, popY, boxW, popH);
       gc.fill();
 
-      // Arrow icon in accent colour + URL in tooltip colour
       gc.textBaseline = 'middle';
       gc.textAlign    = 'left';
       gc.fillStyle    = acc;
@@ -6613,8 +6677,6 @@ class Markup extends ProControl {
 
     if (this.disabled) this._drawDisabled(x, y, pw, ph);
   }
-
-  // ── Events ────────────────────────────────────────────────────────────────
 
   mouseMoved() {
     const wasHovered = this._hovered;
@@ -6635,12 +6697,16 @@ class Markup extends ProControl {
       }
       canvas.style.cursor = overLink ? 'pointer' : '';
     } else if (wasHovered) {
-      canvas.style.cursor = '';   // restore on leave
+      canvas.style.cursor = '';
     }
   }
 
   mousePressed() {
-    if (!this._hovered) { this._popupHref = null; return; }
+    if (!this._hovered) {
+      this._popupHref = null;
+      return;
+    }
+
     for (const lnk of this._links) {
       if (mouseX >= lnk.x && mouseX <= lnk.x + lnk.w &&
           mouseY >= lnk.y && mouseY <= lnk.y + lnk.h) {
@@ -6648,19 +6714,14 @@ class Markup extends ProControl {
           this._popupHref = lnk.href;
           this.onClick(lnk.href);
         } else if (this._isValidUrl(lnk.href)) {
-          window.open(lnk.href, '_blank');
+          this._openLink(lnk.href);
         }
         return;
       }
     }
+
     this._popupHref = null;
     if (this.onClick) this.onClick(null);
-  }
-
-  _isValidUrl(href) {
-    if (href.startsWith('/')) return true;
-    try { const u = new URL(href); return u.protocol === 'http:' || u.protocol === 'https:'; }
-    catch { return false; }
   }
 
   mouseWheel(e) {
