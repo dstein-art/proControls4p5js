@@ -4992,7 +4992,15 @@ class Panel extends ProControl {
     opts.x = nx;
     opts.y = ny;
     const newPanel = new Panel(opts);
-    for (const child of this._children) newPanel.add(child.copy());
+    // Copy children with adjusted positions to maintain relative layout
+    const dx = nx - this._x;
+    const dy = ny - this._y;
+    for (const child of this._children) {
+      const childCopy = child.copy();
+      childCopy.x += dx;
+      childCopy.y += dy;
+      newPanel.add(childCopy);
+    }
     return newPanel;
   }
 
