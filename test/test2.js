@@ -7,7 +7,7 @@ function setup() {
   console.log('DEBUG: print.toString():', print.toString().substring(0, 100));
 
   openConsolePanel();
-  let c=new AnalogSlider();
+  let c=new RangeSlider();
   let d=new Dial();
   d.onChange = (value) => {
     console.log('DEBUG: onChange called');
