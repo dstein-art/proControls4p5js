@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-05-27 — commit 2f8e9e8
+// Last updated: 2026-05-30 — commit 166337c
 
 // Set ControlStyle before creating controls to choose a built-in look.
 // Per-control overrides still work via opts.theme.
@@ -155,7 +155,7 @@ const ProControlThemes = {
     scaleTick:       '#6a7078',
     label:           '#202830',
     readout:         '#101820',
-    readoutBg:       '#000000',
+    readoutBg:       '#aab2ba',
     tooltip:         '#101820',
     tooltipBg:       '#d0d8e0dd',
     hoverGlow:       '#0088cc33',
@@ -349,7 +349,8 @@ function proControlReset() {
 // p5.prototype.registerMethod only supports lifecycle hooks (pre/post/init/remove),
 // NOT event names. Instead we use a single 'pre' hook that fires each frame after
 // p5 has already updated mouseX, mouseY, mouseIsPressed from DOM events.
-p5.prototype.registerMethod('pre', function () {
+
+function _proControlPreHook() {
   // One-time canvas setup
   if (!_proControlWired) {
     _proControlWired = true;
@@ -429,16 +430,48 @@ p5.prototype.registerMethod('pre', function () {
     for (const c of _proControlRegistry) c.mouseWheel(e);
   }
   _analogWheelQ.length = 0;
-});
+}
 
-// Auto-draw: render every registered control that wasn't explicitly drawn
-// this frame. Fires after the sketch's draw() so background is already set.
-p5.prototype.registerMethod('post', function () {
+function _proControlPostHook() {
+  // Auto-draw: render every registered control that wasn't explicitly drawn
+  // this frame. Fires after the sketch's draw() so background is already set.
   for (const c of _proControlRegistry) {
     if (!_drawnThisFrame.has(c)) c.draw();
   }
   _drawnThisFrame.clear();
-});
+}
+
+// Support both p5 v1 (registerMethod) and p5 v2 (function wrapping)
+if (typeof p5 !== 'undefined' && p5.prototype.registerMethod) {
+  // p5 v1: Use registerMethod hooks
+  p5.prototype.registerMethod('pre', _proControlPreHook);
+  p5.prototype.registerMethod('post', _proControlPostHook);
+} else {
+  // p5 v2: Defer wrapping until after p5 setup completes
+  const _wrapDrawOnce = () => {
+    if (typeof window.setup === 'function') {
+      const _originalSetup = window.setup;
+      window.setup = function() {
+        _originalSetup.call(this);
+
+        // Now wrap draw after setup has run and p5 is initialized
+        const _originalDraw = typeof window.draw === 'function' ? window.draw : () => {};
+        window.draw = function() {
+          _proControlPreHook.call(window);
+          _originalDraw.call(window);
+          _proControlPostHook.call(window);
+        };
+      };
+    }
+  };
+
+  // Wait for p5 to load, then wrap
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _wrapDrawOnce);
+  } else {
+    setTimeout(_wrapDrawOnce, 0);
+  }
+}
 
 // ─── Base ────────────────────────────────────────────────────────────────────
 
@@ -497,6 +530,13 @@ class ProControl {
       this._y = y;
     }
     this._autoPlacePending = false;
+  }
+
+  // Set position after instantiation (backwards compatibility with p5 controls)
+  position(x, y) {
+    this.x = x;
+    this.y = y;
+    return this;
   }
 
   _isDoubleClick() {
@@ -567,7 +607,7 @@ class ProControl {
     const w = textWidth(txt) + pad * 2;
     noStroke();
     fill(this.theme.readoutBg);
-    rect(cx - w / 2, y, w, 13, 2);
+    rect(cx - w / 2, y, w, 11, 2);
     fill(this.theme.readout);
     textAlign(CENTER, TOP);
     text(txt, cx, y + 1);
@@ -1291,14 +1331,22 @@ class Dial extends ProControl {
     this.showKnob  = opts.showKnob  ?? true;
     this.style = opts.style ?? opts.dialStyle ?? 'classic'; // 'classic' | 'rubber' | 'grooved' | 'pointer'
 
+    this.width  = this.size;
+    this.height = this.size + 26;
+
     this._startAngle = 3 * Math.PI / 4;  // 7:30 o'clock (min)
     this._sweepAngle = 3 * Math.PI / 2;  // 270° clockwise sweep
     this._dragStart  = null;
   }
 
+  // When showScale is true, the dial circle itself is drawn smaller to leave room for scale text
+  _getDialSize() {
+    return this.showScale ? this.size * 0.70 : this.size;
+  }
+
   _cx()     { return this.x + this.size / 2; }
   _cy()     { return this.y + this.size / 2; }
-  _arcR()   { return this.size * 0.36; }
+  _arcR()   { return this._getDialSize() * 0.36; }
   _knobR()  { return this._arcR() - 6; }
   _panelH() { return this.size + 26; }
 
@@ -1478,7 +1526,7 @@ class Dial extends ProControl {
     gc.clip();
     const nG = 26;
     for (let i = 0; i < nG; i++) {
-      const ga  = (i / nG) * Math.PI * 2;
+      const ga  = (i / nG) * Math.PI * 2 + a;  // Rotate grooves with dial value
       const gr  = kr * 0.42; // grooves start at this radius from center
       gc.beginPath();
       gc.moveTo(cx + Math.cos(ga) * gr, cy + Math.sin(ga) * gr);
@@ -1579,10 +1627,10 @@ class Dial extends ProControl {
       const a  = this._startAngle + n * this._sweepAngle;
       const ca = Math.cos(a);
       const sa = Math.sin(a);
-      line(cx + ca * (r + 3), cy + sa * (r + 3),
-           cx + ca * (r + 7), cy + sa * (r + 7));
+      line(cx + ca * (r + 2), cy + sa * (r + 2),
+           cx + ca * (r + 5), cy + sa * (r + 5));
       noStroke();
-      text(nf(this._fromNorm(n), 1, 1), cx + ca * (r + 14), cy + sa * (r + 14));
+      text(nf(this._fromNorm(n), 1, this.decimals), cx + ca * (r + 10), cy + sa * (r + 10));
       stroke(this.theme.scaleTick);
     }
     pop();
@@ -7176,6 +7224,9 @@ class ConsolePanel extends ProControl {
         return;
       }
 
+      // Clear button
+      if (this._inClrBtn(mouseX, mouseY)) { this.clear(); return; }
+
       // Minimize toggle
       if (this._hitBtn(mouseX, mouseY)) {
         this._minimized = !this._minimized;
@@ -7189,8 +7240,6 @@ class ConsolePanel extends ProControl {
         return;
       }
     }
-
-    if (this._inClrBtn(mouseX, mouseY)) { this.clear(); return; }
 
     if (this._minimized) return;
 
