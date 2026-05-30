@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-05-30 — commit 3d6a047 (pre-panel-mouse-fix)
+// Last updated: 2026-05-30 — commit bc45927
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -592,8 +592,8 @@ class ProControl {
 
   _copyOpts() {
     return {
-      x:              this._x,
-      y:              this._y,
+      x:              this.x,
+      y:              this.y,
       min:            this.min,
       max:            this.max,
       value:          this.value,
@@ -711,6 +711,17 @@ class ProControl {
   // hit-detection helpers can compare against geometry without extra adjustments.
   _mx() { const o = globalThis._panelOffset; return o ? mouseX - o.x : mouseX; }
   _my() { const o = globalThis._panelOffset; return o ? mouseY - o.y : mouseY; }
+
+  // Returns true if no higher-z windowed control (registered later, drawn on top)
+  // also has a title bar covering (mx, my). Used to give drag priority to the topmost window.
+  _isTopWindowAt(mx, my) {
+    const myIdx = _proControlRegistry.indexOf(this);
+    return !_proControlRegistry.slice(myIdx + 1).some(c =>
+      c._visible !== false && c.movable && c._titleH > 0 &&
+      mx >= c.x && mx <= c.x + c.width &&
+      my >= c.y && my < c.y + c._titleH
+    );
+  }
 
   // Subclasses override these
   draw()          {}
@@ -5258,8 +5269,9 @@ class Panel extends ProControl {
         return;
       }
 
-      // Title bar drag — grab anywhere else on the bar to move the panel
-      if (this.movable) {
+      // Title bar drag — grab anywhere else on the bar to move the panel.
+      // Only claim if no higher-z windowed control also covers this spot.
+      if (this.movable && this._isTopWindowAt(mouseX, mouseY)) {
         this._draggingPanel = true;
         this._dragPanelOff  = { dx: mouseX - this.x, dy: mouseY - this.y };
         return;
@@ -5772,7 +5784,7 @@ class MessageDialog extends ProControl {
     if (!this._inBounds(mouseX, mouseY)) return;
 
     // Title bar drag start
-    if (this.movable && this._titleH > 0 && mouseY < this.y + this._titleH) {
+    if (this.movable && this._titleH > 0 && mouseY < this.y + this._titleH && this._isTopWindowAt(mouseX, mouseY)) {
       this._draggingPanel = true;
       this._dragPanelOff  = { dx: mouseX - this.x, dy: mouseY - this.y };
       return;
@@ -6108,7 +6120,7 @@ class InputDialog extends ProControl {
       }
 
       // Title bar drag
-      if (this.movable) {
+      if (this.movable && this._isTopWindowAt(mouseX, mouseY)) {
         this._blur();
         this._draggingPanel = true;
         this._dragPanelOff  = { dx: mouseX - this.x, dy: mouseY - this.y };
@@ -7670,7 +7682,7 @@ class ConsolePanel extends ProControl {
       }
 
       // Title bar drag
-      if (this.movable) {
+      if (this.movable && this._isTopWindowAt(mouseX, mouseY)) {
         this._draggingPanel = true;
         this._dragPanelOff  = { dx: mouseX - this.x, dy: mouseY - this.y };
         return;
@@ -8328,7 +8340,7 @@ class TimeGraphPanel extends ProControl {
   mousePressed() {
     if (!this._inBounds(mouseX, mouseY)) return;
     if (this._hitBtn(mouseX, mouseY)) { this._minimized = !this._minimized; return; }
-    if (this.movable && mouseY < this.y + this._titleH) {
+    if (this.movable && mouseY < this.y + this._titleH && this._isTopWindowAt(mouseX, mouseY)) {
       this._draggingPanel = true;
       this._dragPanelOff  = { dx: mouseX - this.x, dy: mouseY - this.y };
       return;
