@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-05-30 — commit d16d4ad
+// Last updated: 2026-05-30 — commit 896c94b
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -590,6 +590,29 @@ class ProControl {
     return this.min + n * (this.max - this.min);
   }
 
+  _copyOpts() {
+    return {
+      x:              this._x,
+      y:              this._y,
+      min:            this.min,
+      max:            this.max,
+      value:          this.value,
+      label:          this.label,
+      disabled:       this.disabled,
+      onChange:       this.onChange,
+      onRelease:      this.onRelease,
+      scale:          this.scale,
+      theme:          Object.assign({}, this.theme),
+      springBack:     this.springBack,
+      springDuration: this.springDuration,
+      springDefault:  this._springDefault,
+    };
+  }
+
+  copy() {
+    return new this.constructor(this._copyOpts());
+  }
+
   _drawPanel(x, y, w, h, r = 4) {
     push();
     fill(this.theme.panel);
@@ -732,6 +755,20 @@ class AnalogSlider extends ProControl {
         this.width = 40;
       }
     }
+  }
+
+  _copyOpts() {
+    return {
+      ...super._copyOpts(),
+      readout:    this.readout,
+      decimals:   this.decimals,
+      horizontal: this.horizontal,
+      style:      this.style,
+      showScale:  this.showScale,
+      showFader:  this.showFader,
+      width:      this.width,
+      height:     this.height,
+    };
   }
 
   // ── geometry helpers ──────────────────────────────────────────────────────
@@ -1351,6 +1388,18 @@ class Dial extends ProControl {
     this._dragStart  = null;
   }
 
+  _copyOpts() {
+    return {
+      ...super._copyOpts(),
+      size:      this.size,
+      readout:   this.readout,
+      decimals:  this.decimals,
+      showScale: this.showScale,
+      showKnob:  this.showKnob,
+      style:     this.style,
+    };
+  }
+
   // When showScale is true, the dial circle itself is drawn smaller to leave room for scale text
   _getDialSize() {
     return this.showScale ? this.size * 0.70 : this.size;
@@ -1716,6 +1765,16 @@ class Switch extends ProControl {
     this._springDefault = opts.springDefault ?? this.state; // spring / reset target
   }
 
+  _copyOpts() {
+    return {
+      ...super._copyOpts(),
+      states: [...this.states],
+      state:  this.state,
+      width:  this.width,
+      height: this.height,
+    };
+  }
+
   _panelW() { return this.width; }
   _panelH() { return this.height + (this.label ? 14 : 0); }
 
@@ -2059,6 +2118,17 @@ class VUMeter extends AnalogSlider {
     this._peakHold   = 0; // frames
   }
 
+  _copyOpts() {
+    return {
+      ...super._copyOpts(),
+      segCount:   this.segCount,
+      colorLow:   this.colorLow,
+      colorMid:   this.colorMid,
+      colorHigh:  this.colorHigh,
+      meterWidth: this.meterWidth,
+    };
+  }
+
   draw() {
     super.draw();
     this._drawVU();
@@ -2131,6 +2201,27 @@ class XYPad extends ProControl {
     this._pad = 10;
     this._springDefaultX = opts.springDefaultX ?? (this.minX + this.maxX) / 2;
     this._springDefaultY = opts.springDefaultY ?? (this.minY + this.maxY) / 2;
+  }
+
+  _copyOpts() {
+    return {
+      ...super._copyOpts(),
+      width:           this.width,
+      height:          this.height,
+      minX:            this.minX,
+      maxX:            this.maxX,
+      minY:            this.minY,
+      maxY:            this.maxY,
+      valueX:          this._valueX,
+      valueY:          this._valueY,
+      scaleX:          this.scaleX,
+      scaleY:          this.scaleY,
+      onChangeX:       this.onChangeX,
+      onChangeY:       this.onChangeY,
+      crosshairColor:  this.crosshairColor,
+      springDefaultX:  this._springDefaultX,
+      springDefaultY:  this._springDefaultY,
+    };
   }
 
   get valueX() { return this._valueX; }
@@ -2331,6 +2422,16 @@ class VUDial extends Dial {
     this._peakHold = 0;
   }
 
+  _copyOpts() {
+    return {
+      ...super._copyOpts(),
+      segCount:  this.segCount,
+      colorLow:  this.colorLow,
+      colorMid:  this.colorMid,
+      colorHigh: this.colorHigh,
+    };
+  }
+
   // background track only — LED ring handles the lit portion
   _drawArcTrack(cx, cy) {
     const r   = this._arcR();
@@ -2424,6 +2525,19 @@ class LEDMeter extends ProControl {
     this.ledColor  = opts.ledColor  ?? null;  // null = theme.capIndicator
     this._pad      = 10;
     this._segT     = Math.max(2, Math.round(this.digitH / 9));
+  }
+
+  _copyOpts() {
+    return {
+      ...super._copyOpts(),
+      digits:   this.digits,
+      decimals: this.decimals,
+      readout:  this.readout,
+      digitW:   this.digitW,
+      digitH:   this.digitH,
+      digitGap: this.digitGap,
+      ledColor: this.ledColor,
+    };
   }
 
   _panelW() {
@@ -2574,6 +2688,19 @@ class ADSRDisplay extends ProControl {
     this.envelopeColor = opts.envelopeColor ?? null;  // null → theme.capIndicator
   }
 
+  _copyOpts() {
+    return {
+      ...super._copyOpts(),
+      attack:        this.attack,
+      decay:         this.decay,
+      sustain:       this.sustain,
+      release:       this.release,
+      width:         this.width,
+      height:        this.height,
+      envelopeColor: this.envelopeColor,
+    };
+  }
+
   draw() {
     this._markDrawn();
     const { x, y } = this;
@@ -2700,6 +2827,17 @@ class Selector extends ProControl {
     this._arrowHover   = null; // 'left' | 'right' | null
 
     this._springDefault = opts.springDefault ?? this.state;
+  }
+
+  _copyOpts() {
+    return {
+      ...super._copyOpts(),
+      options: [...this.options],
+      state:   this.state,
+      style:   this.style,
+      width:   this.width,
+      height:  this.height,
+    };
   }
 
   // ── geometry ───────────────────────────────────────────────────────────────
@@ -3283,6 +3421,43 @@ class MultiSlider extends ProControl {
     }
   }
 
+  _copyOpts() {
+    const slidersMap = {};
+    this._names.forEach((name, i) => {
+      const s = this._children[i];
+      slidersMap[name] = {
+        value:         s.value,
+        min:           s.min,
+        max:           s.max,
+        readout:       s.readout,
+        decimals:      s.decimals,
+        scale:         s.scale,
+        showScale:     s.showScale,
+        showFader:     s.showFader,
+        springBack:    s.springBack,
+        springDuration: s.springDuration,
+        style:         s.style,
+        height:        s.height,
+        width:         s.width,
+      };
+    });
+    const a = this._children[0], b = this._children[1];
+    const gap = (a && b)
+      ? (this.horizontal ? b.y - (a.y + a.height) : b.x - (a.x + a.width))
+      : 4;
+    return {
+      x:          this._x,
+      y:          this._y,
+      label:      this.label,
+      theme:      Object.assign({}, this.theme),
+      horizontal: this.horizontal,
+      onChange:   this.onChange,
+      onRelease:  this.onRelease,
+      gap:        gap,
+      sliders:    slidersMap,
+    };
+  }
+
   _resolveAutoPlace() {
     const bb = this._bb();
     if (!bb) return;
@@ -3429,6 +3604,40 @@ class MultiDial extends ProControl {
     }
   }
 
+  _copyOpts() {
+    const dialsMap = {};
+    this._names.forEach((name, i) => {
+      const d = this._children[i];
+      dialsMap[name] = {
+        value:         d.value,
+        min:           d.min,
+        max:           d.max,
+        readout:       d.readout,
+        decimals:      d.decimals,
+        scale:         d.scale,
+        showScale:     d.showScale,
+        showKnob:      d.showKnob,
+        style:         d.style,
+        size:          d.size,
+      };
+    });
+    const a = this._children[0], b = this._children[1];
+    const gap = (a && b)
+      ? (this.horizontal ? b.x - (a.x + a.width) : b.y - (a.y + a._panelH()))
+      : 4;
+    return {
+      x:          this._x,
+      y:          this._y,
+      label:      this.label,
+      theme:      Object.assign({}, this.theme),
+      horizontal: this.horizontal,
+      onChange:   this.onChange,
+      onRelease:  this.onRelease,
+      gap:        gap,
+      dials:      dialsMap,
+    };
+  }
+
   _resolveAutoPlace() {
     const bb = this._bb();
     if (!bb) return;
@@ -3565,6 +3774,24 @@ class GridPad extends ProControl {
         });
       }
     }
+  }
+
+  _copyOpts() {
+    return {
+      ...super._copyOpts(),
+      rows:     this.rows,
+      cols:     this.cols,
+      mode:     this.mode,
+      cellSize: this.cellSize,
+      cellGap:  this.cellGap,
+      hGroup:   this.hGroup,
+      vGroup:   this.vGroup,
+      groupGap: this.groupGap,
+      rate:     this._rate,
+      options:  this._options.map(o => ({...o})),
+      values:   this._vals.map(row => [...row]),
+      onChange: this.onChange,
+    };
   }
 
   // ── geometry ─────────────────────────────────────────────────────────────────
@@ -3863,6 +4090,16 @@ class TagSelector extends ProControl {
     this._buildLayout();
   }
 
+  _copyOpts() {
+    return {
+      ...super._copyOpts(),
+      words:    [...this.words],
+      selected: [...this._selected],
+      width:    this.width,
+      height:   this._fixedH ?? undefined,
+    };
+  }
+
   get selected() { return [...this._selected]; }
   set selected(arr) { this._selected = new Set(arr); }
 
@@ -4131,6 +4368,19 @@ class SliderSelector extends ProControl {
     this.width  = opts.width  ?? Math.max(50, tickEnd + labelW + 4);
   }
 
+  _copyOpts() {
+    const o = super._copyOpts();
+    delete o.value;
+    return {
+      ...o,
+      options: [...this.options],
+      state:   this.state,
+      style:   this.style,
+      width:   this.width,
+      height:  this.height,
+    };
+  }
+
   get value() { return this.options ? (this.options[this.state] ?? null) : null; }
   set value(v) {
     if (!this.options) return;
@@ -4353,6 +4603,20 @@ class RangeSlider extends ProControl {
       this.width     = opts.width     ?? 50;
       this.showScale = opts.showScale ?? true;
     }
+  }
+
+  _copyOpts() {
+    return {
+      ...super._copyOpts(),
+      readout:    this.readout,
+      decimals:   this.decimals,
+      horizontal: this.horizontal,
+      showFader:  this.showFader,
+      valueLow:   this.valueLow,
+      valueHigh:  this.valueHigh,
+      width:      this.width,
+      height:     this.height,
+    };
   }
 
   // ── geometry ───────────────────────────────────────────────────────────────
@@ -4691,6 +4955,45 @@ class Panel extends ProControl {
     this._initH        = this.height;
     this._initMinimized = this._minimized;
     this._autoLayout   = { nextX: 8, nextY: 8, rightEdge: 8 };  // panel-specific auto-placement
+  }
+
+  _copyOpts() {
+    return {
+      x:            this._x,
+      y:            this._y,
+      label:        this.label,
+      theme:        Object.assign({}, this.theme),
+      width:        this.width,
+      height:       this.height,
+      visible:      this._visible,
+      minimized:    this._minimized,
+      minimizable:  this.minimizable,
+      movable:      this.movable,
+      resizable:    this.resizable,
+      onChange:     this.onChange,
+      onRelease:    this.onRelease,
+    };
+  }
+
+  copy() {
+    const opts = this._copyOpts();
+    const cw = typeof width !== 'undefined' ? width : 800;
+    const ch = typeof height !== 'undefined' ? height : 600;
+    let nx = this._x + this.width;
+    let ny = this._y;
+    if (nx + this.width > cw - 25) {
+      nx = 10;
+      ny = this._y + this.height;
+      if (ny + this.height > ch - 25) {
+        nx = this._x + 15;
+        ny = this._y + 15;
+      }
+    }
+    opts.x = nx;
+    opts.y = ny;
+    const newPanel = new Panel(opts);
+    for (const child of this._children) newPanel.add(child.copy());
+    return newPanel;
   }
 
   get visible()    { return this._visible; }
@@ -5153,6 +5456,16 @@ class Bevel extends ProControl {
     this._autoLayout   = { nextX: 8, nextY: 8, rightEdge: 8 };  // panel-specific auto-placement
   }
 
+  _copyOpts() {
+    return {
+      x:     this._bx,
+      y:     this._by,
+      style: this.style,
+      label: this.label,
+      theme: Object.assign({}, this.theme),
+    };
+  }
+
   // Resolve a px-or-percent value against a total dimension.
   _resolvePos(val, total) {
     if (val === null || val === undefined) return null;
@@ -5303,6 +5616,20 @@ class MessageDialog extends ProControl {
       : 0;
     this.width  = opts.width ?? Math.max(220, btnRowW);
     this.height = opts.height ?? 100;  // updated on first draw
+  }
+
+  _copyOpts() {
+    return {
+      x:        this._x,
+      y:        this._y,
+      label:    this.label,
+      theme:    Object.assign({}, this.theme),
+      message:  this.message,
+      buttons:  [...this.buttons],
+      movable:  this.movable,
+      onButton: this.onButton,
+      width:    this.width,
+    };
   }
 
   get _titleH() { return this.label ? 20 : 0; }
@@ -5508,6 +5835,23 @@ class InputDialog extends ProControl {
     this._initH = this.height;
 
     this._keyHandler = (e) => this._handleKey(e);
+  }
+
+  _copyOpts() {
+    return {
+      x:                 this._x,
+      y:                 this._y,
+      label:             this.label,
+      theme:             Object.assign({}, this.theme),
+      message:           this.message,
+      buttons:           [...this.buttons],
+      movable:           this.movable,
+      onButton:          this.onButton,
+      inputValue:        this.inputValue,
+      inputPlaceholder:  this.inputPlaceholder,
+      onSubmit:          this.onSubmit,
+      width:             this.width,
+    };
   }
 
   get _titleH() { return this.label ? 20 : 0; }
@@ -5822,6 +6166,18 @@ class IconButton extends ProControl {
     this.height  = this.size;
   }
 
+  _copyOpts() {
+    return {
+      ...super._copyOpts(),
+      icon:     this.icon,
+      size:     this.size,
+      toggle:   this.toggle,
+      state:    this.state,
+      onClick:  this.onClick,
+      iconSize: this._iconSz,
+    };
+  }
+
   _containsPoint(mx, my) {
     return mx >= this.x && mx <= this.x + this.size &&
            my >= this.y && my <= this.y + this.size;
@@ -5993,6 +6349,19 @@ class Menu extends ProControl {
     this._subCacheFor  = -1;
 
     this._explicitW = opts.width  != null ? opts.width  : null;
+  }
+
+  _copyOpts() {
+    return {
+      x:           this._x,
+      y:           this._y,
+      label:       this.label,
+      theme:       Object.assign({}, this.theme),
+      items:       this.items.map(i => Array.isArray(i) ? [...i] : i),
+      orientation: this.orientation,
+      onChange:    this.onChange,
+      width:       this._explicitW,
+    };
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────────
@@ -6356,6 +6725,19 @@ class Markup extends ProControl {
   set scrollY(v) {
     const max = Math.max(0, this._contentH - (this.height - this.padding * 2));
     this._scrollY = constrain(v, 0, max);
+  }
+
+  _copyOpts() {
+    return {
+      ...super._copyOpts(),
+      width:       this.width,
+      height:      this.height,
+      fontSize:    this.fontSize,
+      padding:     this.padding,
+      lineSpacing: this.lineSpacing,
+      text:        this._text,
+      onClick:     this.onClick,
+    };
   }
 
   _parse(src) {
@@ -6901,6 +7283,25 @@ class ConsolePanel extends ProControl {
     window.addEventListener('unhandledrejection', this._onRej);
   }
 
+  _copyOpts() {
+    return {
+      x:            this._x,
+      y:            this._y,
+      label:        this.label,
+      theme:        Object.assign({}, this.theme),
+      width:        this.width,
+      height:       this.height,
+      visible:      this._visible,
+      minimized:    this._minimized,
+      minimizable:  this.minimizable,
+      movable:      this.movable,
+      resizable:    this.resizable,
+      maxMessages:  this._maxMsgs,
+      timestamps:   this._showTime,
+      intercept:    Object.keys(this._originals),
+    };
+  }
+
   // ── Public API ────────────────────────────────────────────────────────────
 
   clear() {
@@ -7374,6 +7775,29 @@ class TimeGraphPanel extends ProControl {
     this._hoverFrac   = null;
     this._hoverMouseX = null;
     this._ledLastFlash = -Infinity;
+  }
+
+  _copyOpts() {
+    return {
+      x:            this._x,
+      y:            this._y,
+      label:        this.label,
+      theme:        Object.assign({}, this.theme),
+      width:        this.width,
+      height:       this.height,
+      visible:      this._visible,
+      minimized:    this._minimized,
+      minimizable:  this.minimizable,
+      movable:      this.movable,
+      resizable:    this.resizable,
+      maxSamples:   this._maxSamples,
+      min:          this._yMin,
+      max:          this._yMax,
+      autoAdjustY:  this._autoAdjustY,
+      lineWidth:    this._lineWidth,
+      grid:         this._showGrid,
+      legend:       this._showLegend,
+    };
   }
 
   // ── Public API ────────────────────────────────────────────────────────────
@@ -7921,6 +8345,21 @@ class ListView extends ProControl {
     this.items       = opts.items ?? [];
   }
 
+  _copyOpts() {
+    return {
+      x:        this._x,
+      y:        this._y,
+      label:    this.label,
+      theme:    Object.assign({}, this.theme),
+      width:    this.width,
+      height:   this.height,
+      fontSize: this.fontSize,
+      padding:  this.padding,
+      items:    [...this._items],
+      onSelect: this.onSelect,
+    };
+  }
+
   get items()  { return this._items; }
   set items(v) {
     this._items  = Array.isArray(v) ? v : [];
@@ -8072,6 +8511,21 @@ class GridView extends ProControl {
     this._dragRef    = null;
     this.onSelect    = opts.onSelect ?? null;
     this.items       = opts.items ?? [];
+  }
+
+  _copyOpts() {
+    return {
+      x:        this._x,
+      y:        this._y,
+      label:    this.label,
+      theme:    Object.assign({}, this.theme),
+      width:    this.width,
+      height:   this.height,
+      fontSize: this.fontSize,
+      padding:  this.padding,
+      items:    this._items.map(row => ({...row})),
+      onSelect: this.onSelect,
+    };
   }
 
   get items()  { return this._items; }
