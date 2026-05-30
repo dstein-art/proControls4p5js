@@ -4,14 +4,15 @@
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
-// Save the native print in case it's needed, then override
+// Save the native print in case it's needed, then override both window.print and global print
 const _nativePrintFn = window.print;
-window.print = function(...args) {
+const print = function(...args) {
   // If called with no args, it's probably trying to open the print dialog (native behavior)
   if (args.length === 0) _nativePrintFn();
   // Otherwise, log to console like p5.js does
   else console.log(...args);
 };
+window.print = print;
 
 // Set ControlStyle before creating controls to choose a built-in look.
 // Per-control overrides still work via opts.theme.

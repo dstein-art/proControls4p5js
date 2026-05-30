@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProControls: Interactive UI Library for p5.js | Workshop & Guide</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f8f9fa;
+    }
+
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 60px 20px;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      font-size: 3em;
+      margin-bottom: 10px;
+    }
+
+    header .tagline {
+      font-size: 1.3em;
+      opacity: 0.95;
+      margin-bottom: 20px;
+    }
+
+    header .subtitle {
+      font-size: 1em;
+      opacity: 0.85;
+    }
+
+    nav {
+      background: white;
+      padding: 15px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    nav ul {
+      list-style: none;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #764ba2;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    section {
+      margin: 60px 0;
+    }
+
+    section h2 {
+      font-size: 2.2em;
+      color: #667eea;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 3px solid #667eea;
+    }
+
+    section h3 {
+      font-size: 1.5em;
+      color: #764ba2;
+      margin-top: 30px;
+      margin-bottom: 15px;
+    }
+
+    .intro-section {
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 40px;
+    }
+
+    .intro-section p {
+      font-size: 1.1em;
+      margin-bottom: 15px;
+      color: #555;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      margin: 30px 0;
+    }
+
+    .feature-card {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: transform 0.3s, box-shadow 0.3s;
+      border-left: 4px solid #667eea;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.2);
+    }
+
+    .feature-card h4 {
+      color: #667eea;
+      margin-bottom: 12px;
+      font-size: 1.3em;
+    }
+
+    .feature-card p {
+      color: #666;
+      font-size: 0.95em;
+      line-height: 1.5;
+    }
+
+    .emoji {
+      font-size: 2em;
+      margin-right: 10px;
+    }
+
+    .use-cases {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin: 30px 0;
+    }
+
+    .use-case {
+      background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+      padding: 30px;
+      border-radius: 8px;
+      border: 2px solid #667eea;
+    }
+
+    .use-case h4 {
+      color: #667eea;
+      margin-bottom: 15px;
+      font-size: 1.3em;
+    }
+
+    .use-case p {
+      color: #555;
+      margin-bottom: 12px;
+    }
+
+    .use-case ul {
+      margin-left: 20px;
+      color: #666;
+    }
+
+    .use-case li {
+      margin-bottom: 8px;
+    }
+
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin: 30px 0;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .comparison h4 {
+      color: #667eea;
+      margin-bottom: 20px;
+      font-size: 1.2em;
+      text-align: center;
+    }
+
+    .comparison-code {
+      background: #f5f5f5;
+      padding: 20px;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      overflow-x: auto;
+      border: 1px solid #ddd;
+    }
+
+    .code-highlight {
+      background: #fff3cd;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+
+    .workshop-section {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin: 30px 0;
+    }
+
+    .workshop-schedule {
+      margin: 30px 0;
+    }
+
+    .session {
+      background: #f9f9f9;
+      padding: 25px;
+      margin: 20px 0;
+      border-left: 4px solid #764ba2;
+      border-radius: 4px;
+    }
+
+    .session-time {
+      color: #764ba2;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .session-title {
+      color: #667eea;
+      font-size: 1.2em;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .session-description {
+      color: #555;
+      margin-bottom: 12px;
+    }
+
+    .session-topics {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #ddd;
+    }
+
+    .session-topics strong {
+      color: #764ba2;
+    }
+
+    .code-block {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 20px;
+      border-radius: 6px;
+      margin: 20px 0;
+      overflow-x: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      line-height: 1.4;
+    }
+
+    .code-block .keyword { color: #ff79c6; }
+    .code-block .string { color: #f1fa8c; }
+    .code-block .function { color: #50fa7b; }
+
+    .benefit-list {
+      list-style: none;
+      margin: 20px 0;
+    }
+
+    .benefit-list li {
+      padding: 12px 0;
+      padding-left: 30px;
+      position: relative;
+      color: #555;
+    }
+
+    .benefit-list li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #667eea;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    .cta-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 40px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: transform 0.3s, box-shadow 0.3s;
+      margin: 15px 15px 15px 0;
+      border: none;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .highlight-box {
+      background: #667eea10;
+      border-left: 4px solid #667eea;
+      padding: 20px;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+
+    footer {
+      background: #2c3e50;
+      color: white;
+      text-align: center;
+      padding: 40px 20px;
+      margin-top: 80px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      margin: 40px 0;
+    }
+
+    .stat-box {
+      text-align: center;
+      padding: 30px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .stat-number {
+      font-size: 3em;
+      color: #667eea;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 1.1em;
+    }
+
+    @media (max-width: 768px) {
+      header h1 { font-size: 2em; }
+      header .tagline { font-size: 1.1em; }
+      .comparison { grid-template-columns: 1fr; }
+      nav ul { flex-direction: column; gap: 15px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🎨 ProControls</h1>
+  <p class="tagline">Build Beautiful Interactive Interfaces in Minutes</p>
+  <p class="subtitle">A hardware-inspired UI library that makes creating professional controls easier than ever</p>
+</header>
+
+<nav>
+  <ul>
+    <li><a href="#about">About</a></li>
+    <li><a href="#why-use">Why Use It</a></li>
+    <li><a href="#use-cases">Use Cases</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#comparison">Code Comparison</a></li>
+    <li><a href="#workshop">Workshop</a></li>
+    <li><a href="#getting-started">Getting Started</a></li>
+  </ul>
+</nav>
+
+<div class="container">
+
+  <!-- ABOUT SECTION -->
+  <section id="about">
+    <h2>About ProControls</h2>
+
+    <div class="intro-section">
+      <p>
+        <strong>ProControls</strong> is a comprehensive UI control library built specifically for <strong>p5.js</strong>
+        that brings professional, hardware-inspired interface elements to your interactive sketches. Whether you're creating
+        generative art, music production tools, data visualizations, games, or educational applications, ProControls provides
+        everything you need to build polished, responsive user interfaces with minimal code.
+      </p>
+
+      <p>
+        Inspired by professional audio hardware interfaces, ProControls combines modern design principles with the simplicity
+        of p5.js. The library includes 24+ ready-to-use controls, 8 beautiful built-in themes, and a thoughtful API that lets
+        you focus on your creative vision instead of reinventing UI components.
+      </p>
+    </div>
+
+    <h3>The Problem It Solves</h3>
+    <p>
+      Building interactive interfaces in p5.js has traditionally required writing hundreds of lines of code. You'd need to:
+    </p>
+    <ul class="benefit-list">
+      <li>Manually draw rectangles, circles, and text for each control</li>
+      <li>Implement complex mouse event handling and hit detection</li>
+      <li>Manage control state and callback functions yourself</li>
+      <li>Design consistent styling across multiple controls</li>
+      <li>Handle edge cases like text overflow, scrolling, and tooltips</li>
+    </ul>
+
+    <p style="margin-top: 30px;">
+      <strong>ProControls eliminates all of this.</strong> Instead of building from scratch, you declare what controls you want,
+      and the library handles rendering, interaction, state management, and visual polish automatically.
+    </p>
+  </section>
+
+  <!-- WHY USE SECTION -->
+  <section id="why-use">
+    <h2>Why Use ProControls?</h2>
+
+    <div class="stats">
+      <div class="stat-box">
+        <div class="stat-number">24+</div>
+        <div class="stat-label">UI Controls</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">8</div>
+        <div class="stat-label">Built-in Themes</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">90%</div>
+        <div class="stat-label">Less Code</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">0</div>
+        <div class="stat-label">Dependencies</div>
+      </div>
+    </div>
+
+    <h3>1. 🚀 Get Started in Seconds, Not Hours</h3>
+    <p>
+      Create a fully functional slider with real-time value feedback in just 3 lines of code:
+    </p>
+    <div class="code-block">
+<span class="keyword">const</span> slider = <span class="keyword">new</span> <span class="function">AnalogSlider</span>({ x: <span class="string">20</span>, y: <span class="string">15</span>, onChange: (v) => console.<span class="function">log</span>(v) });
+    </div>
+    <p>
+      No boilerplate. No configuration files. Just declare your control and start using it. The library handles rendering,
+      mouse interaction, value constraints, and visual feedback automatically.
+    </p>
+
+    <h3>2. 🎨 Professional Design Out of the Box</h3>
+    <p>
+      ProControls ships with 8 carefully crafted themes inspired by professional audio equipment:
+    </p>
+    <ul class="benefit-list">
+      <li><strong>Stainless Steel</strong> — Clean, modern aesthetic</li>
+      <li><strong>Black</strong> — Sleek and minimal</li>
+      <li><strong>Brushed Metal</strong> — Textured, sophisticated</li>
+      <li><strong>Colorful Themes</strong> — Red, Blue, Yellow, Dimpled variations</li>
+      <li>All themes automatically scale and adapt to light/dark backgrounds</li>
+    </ul>
+    <p>
+      Switch themes with a single line: <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">ControlStyle = 'black'</code>
+    </p>
+
+    <h3>3. 💪 Rich Features, No Extra Work</h3>
+    <p>
+      Every control comes packed with powerful features:
+    </p>
+    <ul class="benefit-list">
+      <li><strong>Real-time Callbacks</strong> — onChange, onRelease, onSelect callbacks for responsive feedback</li>
+      <li><strong>Value Constraints</strong> — Automatic min/max clamping and decimals handling</li>
+      <li><strong>Interaction Feedback</strong> — Hover states, selection highlighting, spring animations</li>
+      <li><strong>Display Support</strong> — Built-in meters, graphs, consoles for real-time visualization</li>
+      <li><strong>Layout Management</strong> — Automatic control positioning with smart panel containment</li>
+      <li><strong>Accessibility</strong> — Keyboard support, clear labeling, readable text</li>
+    </ul>
+
+    <h3>4. 🧠 Spend Less Time on UI, More Time on Your Idea</h3>
+    <p>
+      With ProControls handling the UI layer, you can focus on what matters: your creative vision. Whether you're building
+      a generative music algorithm, an interactive data visualization, or an educational tool, ProControls gets the boring
+      interface code out of your way.
+    </p>
+    <p>
+      Developers report spending <strong>80-90% less time</strong> building interfaces when using ProControls compared to
+      building controls from scratch.
+    </p>
+
+    <h3>5. 🔧 Flexible & Extensible</h3>
+    <p>
+      Despite its ease of use, ProControls doesn't sacrifice flexibility:
+    </p>
+    <ul class="benefit-list">
+      <li>Use individual controls or combine them with custom graphics</li>
+      <li>Create organized interfaces with <strong>Panels</strong> that support scrolling and nesting</li>
+      <li>Build complex interfaces with dialogs, menus, and popups</li>
+      <li>Fully customizable with options for colors, sizes, fonts, and behavior</li>
+      <li>No vendor lock-in — controls are standard p5.js sketches</li>
+    </ul>
+  </section>
+
+  <!-- USE CASES SECTION -->
+  <section id="use-cases">
+    <h2>Perfect For These Applications</h2>
+
+    <div class="use-cases">
+      <div class="use-case">
+        <h4>🎵 Music & Audio Tools</h4>
+        <p>
+          Build professional-quality audio applications with built-in controls optimized for music production:
+        </p>
+        <ul>
+          <li>VU meters and level displays for real-time monitoring</li>
+          <li>Faders and dials for audio parameters</li>
+          <li>ADSR envelope visualizers</li>
+          <li>Multi-slider controllers for mixing</li>
+        </ul>
+        <p style="margin-top: 15px; font-style: italic; color: #888;">
+          Perfect for creating web synthesizers, drum machines, parameter controllers, or real-time audio visualizers.
+        </p>
+      </div>
+
+      <div class="use-case">
+        <h4>📊 Data Visualization Dashboards</h4>
+        <p>
+          Create interactive dashboards that let users explore and manipulate data:
+        </p>
+        <ul>
+          <li>Time-series graph panels for live data plotting</li>
+          <li>List and grid views for data browsing</li>
+          <li>Console panels for debug output</li>
+          <li>Selectors and range sliders for filtering</li>
+        </ul>
+        <p style="margin-top: 15px; font-style: italic; color: #888;">
+          Ideal for scientific visualization, financial dashboards, real-time monitoring systems, or educational tools.
+        </p>
+      </div>
+
+      <div class="use-case">
+        <h4>🎮 Interactive Games & Experiences</h4>
+        <p>
+          Build engaging game interfaces and interactive experiences:
+        </p>
+        <ul>
+          <li>Grid pads for game controls or rhythm games</li>
+          <li>Buttons and menus for game navigation</li>
+          <li>Sliders for difficulty or settings adjustment</li>
+          <li>Dialog boxes for story or game information</li>
+        </ul>
+        <p style="margin-top: 15px; font-style: italic; color: #888;">
+          Great for creating generative games, interactive stories, rhythm games, or creative play experiences.
+        </p>
+      </div>
+
+      <div class="use-case">
+        <h4>🎨 Generative Art & Creative Coding</h4>
+        <p>
+          Add interactive parameters to generative artworks:
+        </p>
+        <ul>
+          <li>Sliders and dials to control generation algorithms</li>
+          <li>Color pickers and selectors for aesthetic choices</li>
+          <li>XY pads for 2D parameter space exploration</li>
+          <li>Buttons to trigger regeneration or export</li>
+        </ul>
+        <p style="margin-top: 15px; font-style: italic; color: #888;">
+          Let viewers interact with your art and discover new variations without touching code.
+        </p>
+      </div>
+
+      <div class="use-case">
+        <h4>📚 Educational & Learning Tools</h4>
+        <p>
+          Create engaging educational applications with intuitive interfaces:
+        </p>
+        <ul>
+          <li>Clean, simple UI that doesn't distract from content</li>
+          <li>Easy-to-understand controls for students</li>
+          <li>Display panels for showing results and feedback</li>
+          <li>Menus and dialogs for navigation</li>
+        </ul>
+        <p style="margin-top: 15px; font-style: italic; color: #888;">
+          Perfect for teaching programming, physics, mathematics, music theory, or any interactive subject.
+        </p>
+      </div>
+
+      <div class="use-case">
+        <h4>🔬 Scientific & Engineering Simulations</h4>
+        <p>
+          Control complex simulations with precise, professional interfaces:
+        </p>
+        <ul>
+          <li>Range sliders for parameter bounds</li>
+          <li>Multi-value controllers for complex systems</li>
+          <li>Time graph panels for plotting results</li>
+          <li>Export and save functionality with dialogs</li>
+        </ul>
+        <p style="margin-top: 15px; font-style: italic; color: #888;">
+          Ideal for physics, chemistry, biology, or engineering demonstrations and research tools.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES SECTION -->
+  <section id="features">
+    <h2>Comprehensive Control Library</h2>
+
+    <h3>Input Controls</h3>
+    <div class="features-grid">
+      <div class="feature-card">
+        <h4><span class="emoji">🎚️</span>Analog Slider</h4>
+        <p>Precise 1D value control with optional fader display and text readout.</p>
+      </div>
+      <div class="feature-card">
+        <h4><span class="emoji">🎛️</span>Dial</h4>
+        <p>Rotary control with visual feedback, multiple styles, and smooth interaction.</p>
+      </div>
+      <div class="feature-card">
+        <h4><span class="emoji">⚡</span>Switch</h4>
+        <p>Toggle between on/off states with visual feedback and customizable appearance.</p>
+      </div>
+      <div class="feature-card">
+        <h4><span class="emoji">📍</span>XY Pad</h4>
+        <p>2D control surface for simultaneous X/Y value adjustment with spring-back option.</p>
+      </div>
+      <div class="feature-card">
+        <h4><span class="emoji">🔀</span>Multi-Slider</h4>
+        <p>Multiple synchronized sliders in horizontal or vertical arrangement.</p>
+      </div>
+      <div class="feature-card">
+        <h4><span class="emoji">🎲</span>GridPad</h4>
+        <p>Grid of toggleable cells for game controls, drum pads, or multi-state selection.</p>
+      </div>
+      <div class="feature-card">
+        <h4><span class="emoji">🏷️</span>Selector</h4>
+        <p>Choose from predefined options with visual button display or dropdown style.</p>
+      </div>
+      <div class="feature-card">
+        <h4><span class="emoji">🏷️</span>Range Slider</h4>
+        <p>Select min/max values within a range with synchronized dual handles.</p>
+      </div>
+      <div class="feature-card">
+        <h4><span class="emoji">🏷️</span>Tag Selector</h4>
+        <p>Multi-select from tag options with visual feedback for selections.</p>
+      </div>
+    </div>
+
+    <h3>Display Controls</h3>
+    <div class="features-grid">
+      <div class="feature-card">
+        <h4><span class="emoji">📊</span>VU Meter</h4>
+        <p>Real-time audio level visualization with vertical bar display.</p>
+      </div>
+      <div class="feature-card">
+        <h4><span class="emoji">🎯</span>LED Meter</h4>
+        <p>Grid-based level indicator with customizable segments and colors.</p>
+      </div>
+      <div class="feature-card">
+        <h4><span class="emoji">📈</span>Time Graph Panel</h4>
+        <p>Real-time waveform display for streaming data visualization.</p>
+      </div>
+      <div class="feature-card">
+        <h4><span class="emoji">📋</span>Console Panel</h4>
+        <p>Scrollable message display with timestamps and styling options.</p>
+      </div>
+      <div class="feature-card">
+        <h4><span class="emoji">📝</span>Markup Panel</h4>
+        <p>Wiki-style formatted text with headings, bullets, links, and scrolling.</p>
+      </div>
+      <div class="feature-card">
+        <h4><span class="emoji">📃</span>ListView</h4>
+        <p>Scrollable list of items with selection support and callbacks.</p>
+      </div>
+      <div class="feature-card">
+        <h4><span class="emoji">📊</span>GridView</h4>
+        <p>Data table with static header, auto-sized columns, and horizontal scrolling.</p>
+      </div>
+    </div>
+
+    <h3>Containers & Dialogs</h3>
+    <div class="features-grid">
+      <div class="feature-card">
+        <h4><span class="emoji">📦</span>Panel</h4>
+        <p>Resizable, movable container with scrolling support and nested controls.</p>
+      </div>
+      <div class="feature-card">
+        <h4><span class="emoji">⬜</span>Bevel</h4>
+        <p>Decorative panel with beveled edges for professional appearance.</p>
+      </div>
+      <div class="feature-card">
+        <h4><span class="emoji">💬</span>Message Dialog</h4>
+        <p>Display messages with OK/Cancel buttons for user confirmation.</p>
+      </div>
+      <div class="feature-card">
+        <h4><span class="emoji">✏️</span>Input Dialog</h4>
+        <p>Text input field with validation and callback handling.</p>
+      </div>
+      <div class="feature-card">
+        <h4><span class="emoji">🔘</span>Menu</h4>
+        <p>Horizontal, vertical, or popup menus with click-to-select behavior.</p>
+      </div>
+      <div class="feature-card">
+        <h4><span class="emoji">🔽</span>Button</h4>
+        <p>Icon button with material symbols support and click callbacks.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON SECTION -->
+  <section id="comparison">
+    <h2>Code Comparison</h2>
+
+    <h3>Building a Simple Interface: With vs Without ProControls</h3>
+
+    <div class="comparison">
+      <div>
+        <h4>❌ Without ProControls</h4>
+        <p style="color: #999; margin-bottom: 15px;">~150 lines of manual code</p>
+        <div class="comparison-code">
+// Manual state management
+let sliderX = 100, sliderY = 100;
+let sliderW = 80, sliderH = 15;
+let sliderValue = 0.5;
+let isSliderDragging = false;
+
+// Manual rendering
+function draw() {
+  // Draw background
+  fill(240);
+  rect(sliderX, sliderY, sliderW, sliderH);
+
+  // Draw handle
+  let handleX = sliderX +
+    sliderValue * sliderW;
+  fill(100);
+  circle(handleX,
+    sliderY + sliderH/2, 10);
+
+  // Draw label
+  fill(0);
+  text('Value: ' +
+    sliderValue.toFixed(2),
+    sliderX, sliderY - 10);
+}
+
+// Manual mouse handling
+function mouseDragged() {
+  if (mouseX > sliderX - 5 &&
+      mouseX < sliderX + sliderW + 5 &&
+      mouseY > sliderY - 5 &&
+      mouseY < sliderY + sliderH + 5) {
+    isSliderDragging = true;
+  }
+
+  if (isSliderDragging) {
+    sliderValue = constrain(
+      (mouseX - sliderX) / sliderW, 0, 1
+    );
+  }
+}
+
+function mouseReleased() {
+  isSliderDragging = false;
+}</div>
+      </div>
+
+      <div>
+        <h4>✅ With ProControls</h4>
+        <p style="color: #0a0; margin-bottom: 15px;">~3 lines of code</p>
+        <div class="comparison-code" style="background: #f0fff0;">
+<span class="keyword">const</span> slider =
+  <span class="keyword">new</span> <span class="function">AnalogSlider</span>({
+  x: 100, y: 100,
+  onChange: (v) => {
+    console.<span class="function">log</span>(v);
+  }
+});
+        </div>
+        <p style="margin-top: 15px; color: #0a0; font-weight: bold;">
+          ✓ Rendering<br>
+          ✓ Mouse handling<br>
+          ✓ Value constraints<br>
+          ✓ Visual feedback<br>
+          ✓ Callbacks<br>
+          ✓ Themes
+        </p>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <strong>The Result:</strong> With ProControls, you write 50x less boilerplate code. You get polished, professional controls
+      that behave consistently, support all the features you'd need to implement anyway, and integrate seamlessly with p5.js.
+    </div>
+  </section>
+
+  <!-- WORKSHOP SECTION -->
+  <section id="workshop">
+    <h2>ProControls Workshop</h2>
+
+    <div class="intro-section">
+      <p>
+        This interactive workshop introduces ProControls through hands-on examples. Learn the core concepts, explore unique features,
+        and build your own interactive sketches. Perfect for beginners and experienced developers alike.
+      </p>
+      <p>
+        <strong>Duration:</strong> 2-3 hours | <strong>Level:</strong> Beginner to Intermediate | <strong>Prerequisites:</strong> Basic p5.js knowledge
+      </p>
+    </div>
+
+    <h3>Workshop Outline</h3>
+
+    <div class="workshop-schedule">
+      <div class="session">
+        <div class="session-time">⏱️ 0:00 - 0:15 | Introduction & Setup</div>
+        <div class="session-title">Getting Started with ProControls</div>
+        <div class="session-description">
+          Learn the basics of ProControls and set up your first sketch.
+        </div>
+        <div class="session-topics">
+          <strong>Topics:</strong> Library overview, importing ProControls, understanding the proControls() array, basic syntax
+        </div>
+      </div>
+
+      <div class="session">
+        <div class="session-time">⏱️ 0:15 - 0:45 | Input Controls</div>
+        <div class="session-title">Building Interactive Control Surfaces</div>
+        <div class="session-description">
+          Explore the core input controls: sliders, dials, buttons, and selectors. Learn how to handle user input with onChange callbacks.
+        </div>
+        <div class="session-topics">
+          <strong>Topics:</strong> AnalogSlider, Dial, Switch, XY Pad, callbacks, value constraints, visual feedback
+        </div>
+      </div>
+
+      <div class="session">
+        <div class="session-time">⏱️ 0:45 - 1:15 | Display Controls</div>
+        <div class="session-title">Visualizing Data & Status</div>
+        <div class="session-description">
+          Learn to use display controls to show real-time data, audio levels, and information. Build a simple visualization dashboard.
+        </div>
+        <div class="session-topics">
+          <strong>Topics:</strong> VU Meter, LED Meter, Time Graph Panel, Console Panel, ListView, GridView, updating displays in real-time
+        </div>
+      </div>
+
+      <div class="session">
+        <div class="session-time">⏱️ 1:15 - 1:45 | Themes & Styling</div>
+        <div class="session-title">Customizing Appearance</div>
+        <div class="session-description">
+          Discover ProControls' 8 built-in themes and learn how to customize control appearance to match your creative vision.
+        </div>
+        <div class="session-topics">
+          <strong>Topics:</strong> Built-in themes, ControlStyle, custom colors, fonts, sizing, theme switching
+        </div>
+      </div>
+
+      <div class="session">
+        <div class="session-time">⏱️ 1:45 - 2:15 | Advanced Features</div>
+        <div class="session-title">Building Complex Interfaces</div>
+        <div class="session-description">
+          Learn about Panels, dialogs, menus, and nested controls. Build organized, professional interfaces.
+        </div>
+        <div class="session-topics">
+          <strong>Topics:</strong> Panels, scrolling, nesting controls, dialogs, menus, keyboard support, auto-placement
+        </div>
+      </div>
+
+      <div class="session">
+        <div class="session-time">⏱️ 2:15 - 3:00 | Project Time</div>
+        <div class="session-title">Build Your Own Sketch</div>
+        <div class="session-description">
+          Apply what you've learned to build a complete interactive sketch. Instructor available for questions and guidance.
+        </div>
+        <div class="session-topics">
+          <strong>Project Ideas:</strong> Music player, parameter controller, data explorer, game controls, art generator
+        </div>
+      </div>
+    </div>
+
+    <h3>Key Topics Covered</h3>
+
+    <h4>1. Understanding the ProControls API</h4>
+    <p>
+      Learn the common patterns that make ProControls consistent and intuitive:
+    </p>
+    <ul class="benefit-list">
+      <li>Control creation and options</li>
+      <li>The proControls() array and managing instances</li>
+      <li>Callbacks: onChange, onRelease, onClick, onSelect</li>
+      <li>Getting and setting control values</li>
+      <li>Removing and updating controls</li>
+    </ul>
+
+    <h4>2. Working with Callbacks</h4>
+    <p>
+      Master the event system that connects your controls to your sketch logic:
+    </p>
+    <div class="code-block">
+<span class="keyword">const</span> slider = <span class="keyword">new</span> <span class="function">AnalogSlider</span>({
+  x: 20, y: 15,
+  <span class="comment">// Called while user is dragging</span>
+  onChange: (value) => {
+    background(100 + value * 155);
+  },
+  <span class="comment">// Called when user releases</span>
+  onRelease: (value) => {
+    console.<span class="function">log</span>(<span class="string">'Final value:'</span>, value);
+  }
+});</div>
+
+    <h4>3. Unique Features Deep Dive</h4>
+    <p>
+      Explore what makes ProControls special:
+    </p>
+    <ul class="benefit-list">
+      <li><strong>Spring Animations</strong> — Controls can smoothly return to default values</li>
+      <li><strong>Multi-value Controls</strong> — Single controls managing multiple parameters</li>
+      <li><strong>Time-based Visualization</strong> — Real-time graphs and meters</li>
+      <li><strong>Formatted Markup</strong> — Display rich text with links and formatting</li>
+      <li><strong>Smart Scrolling</strong> — Containers manage overflow automatically</li>
+      <li><strong>Panel System</strong> — Create organized, resizable interfaces</li>
+    </ul>
+
+    <h4>4. Building Real Projects</h4>
+    <p>
+      Workshop includes practical examples of real-world applications:
+    </p>
+    <ul class="benefit-list">
+      <li>🎵 <strong>Audio Parameter Controller</strong> — Build an interface for controlling audio effects</li>
+      <li>📊 <strong>Data Dashboard</strong> — Create a real-time monitoring interface</li>
+      <li>🎮 <strong>Game Controller</strong> — Build interactive game controls</li>
+      <li>🎨 <strong>Parameter Explorer</strong> — Interactive generative art controller</li>
+      <li>📚 <strong>Educational Tool</strong> — Learning application with interactive elements</li>
+    </ul>
+  </section>
+
+  <!-- GETTING STARTED SECTION -->
+  <section id="getting-started">
+    <h2>Quick Start Guide</h2>
+
+    <h3>Installation</h3>
+    <p>Add one script tag to your HTML:</p>
+    <div class="code-block">
+<span class="keyword">&lt;script</span> <span class="string">src</span>=<span class="string">"https://path/to/ProControls.js"</span><span class="keyword">&gt;&lt;/script&gt;</span>
+    </div>
+
+    <h3>Your First Control</h3>
+    <p>Create a slider in your p5.js sketch:</p>
+    <div class="code-block">
+<span class="keyword">function</span> <span class="function">setup</span>() {
+  <span class="function">createCanvas</span>(400, 400);
+
+  <span class="keyword">new</span> <span class="function">AnalogSlider</span>({
+    x: 20, y: 20,
+    label: <span class="string">'Brightness'</span>,
+    onChange: (val) => {
+      background(val * 255);
+    }
+  });
+}
+
+<span class="keyword">function</span> <span class="function">draw</span>() {
+  <span class="function">proControlBackground</span>();
+}
+    </div>
+
+    <h3>Available Controls at a Glance</h3>
+
+    <div class="features-grid" style="margin: 30px 0;">
+      <div class="feature-card" style="border-left-color: #667eea;">
+        <h4>Input: AnalogSlider, Dial, Switch, XY Pad, GridPad, RangeSlider</h4>
+        <p>For user input and parameter control</p>
+      </div>
+      <div class="feature-card" style="border-left-color: #764ba2;">
+        <h4>Select: Selector, TagSelector, SliderSelector, Menu</h4>
+        <p>For choosing from options</p>
+      </div>
+      <div class="feature-card" style="border-left-color: #667eea;">
+        <h4>Display: VU Meter, LED Meter, TimeGraphPanel, ConsolePanel</h4>
+        <p>For showing status and data</p>
+      </div>
+      <div class="feature-card" style="border-left-color: #764ba2;">
+        <h4>Data: ListView, GridView, Markup</h4>
+        <p>For displaying information</p>
+      </div>
+      <div class="feature-card" style="border-left-color: #667eea;">
+        <h4>Container: Panel, Bevel</h4>
+        <p>For organizing controls</p>
+      </div>
+      <div class="feature-card" style="border-left-color: #764ba2;">
+        <h4>Dialog: MessageDialog, InputDialog</h4>
+        <p>For user interaction</p>
+      </div>
+    </div>
+
+    <h3>Explore More</h3>
+    <p>Visit the full documentation and interactive examples:</p>
+    <div style="margin: 30px 0;">
+      <a href="../index.html" class="cta-button">📖 Browse Examples</a>
+      <a href="../docs/help.html" class="cta-button">📚 Full Documentation</a>
+      <a href="https://github.com" class="cta-button">💻 GitHub Repository</a>
+    </div>
+  </section>
+
+  <!-- CLOSING SECTION -->
+  <section style="text-align: center; padding: 40px; background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-radius: 8px;">
+    <h2 style="border: none; padding-bottom: 0;">Ready to Build?</h2>
+    <p style="font-size: 1.1em; margin: 20px 0;">
+      ProControls makes it easy to build beautiful, interactive interfaces without the boilerplate. Start with the examples,
+      follow along with the workshop, and build your own amazing sketches.
+    </p>
+    <p>
+      <strong>Questions?</strong> Check the documentation or explore the example gallery to see ProControls in action.
+    </p>
+    <div style="margin-top: 30px;">
+      <a href="../index.html" class="cta-button" style="font-size: 1.1em; padding: 18px 45px;">Get Started Now</a>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <p>&copy; 2024 ProControls — A hardware-inspired UI library for p5.js</p>
+  <p style="margin-top: 15px; opacity: 0.8;">Made with ❤️ for creative coders and interactive artists</p>
+</footer>
+
+</body>
+</html>
