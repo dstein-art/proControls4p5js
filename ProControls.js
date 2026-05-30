@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-05-30 — commit 2d98a50
+// Last updated: 2026-05-30 — commit 3d6a047 (pre-panel-mouse-fix)
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -704,6 +704,14 @@ class ProControl {
     }
   }
 
+  // Return mouse coordinates normalized to panel-local space.
+  // When a control is inside a Panel, globalThis._panelOffset holds the panel's
+  // screen-space origin. Subtracting it converts screen-space mouseX/mouseY into
+  // the same coordinate space as this.x / this.y (panel-relative), so all
+  // hit-detection helpers can compare against geometry without extra adjustments.
+  _mx() { const o = globalThis._panelOffset; return o ? mouseX - o.x : mouseX; }
+  _my() { const o = globalThis._panelOffset; return o ? mouseY - o.y : mouseY; }
+
   // Subclasses override these
   draw()          {}
   mousePressed()  {}
@@ -1314,7 +1322,7 @@ class AnalogSlider extends ProControl {
 
   mousePressed() {
     if (this.disabled) return;
-    if (this._capHit(mouseX, mouseY)) {
+    if (this._capHit(this._mx(), this._my())) {
       if (this._isDoubleClick()) {
         this._cancelSpring();
         this.value = this._springDefault;
@@ -1341,7 +1349,7 @@ class AnalogSlider extends ProControl {
 
   mouseMoved() {
     if (this.disabled) return;
-    this._hovered = this._containsPoint(mouseX, mouseY);
+    this._hovered = this._containsPoint(this._mx(), this._my());
 
     if (this._active && this._dragStart) {
       let normDelta;
@@ -1705,7 +1713,7 @@ class Dial extends ProControl {
 
   mousePressed() {
     if (this.disabled) return;
-    if (this._containsPoint(mouseX, mouseY)) {
+    if (this._containsPoint(this._mx(), this._my())) {
       if (this._isDoubleClick()) {
         this._cancelSpring();
         this.value = this._springDefault;
@@ -1730,7 +1738,7 @@ class Dial extends ProControl {
 
   mouseMoved() {
     if (this.disabled) return;
-    this._hovered = this._containsPoint(mouseX, mouseY);
+    this._hovered = this._containsPoint(this._mx(), this._my());
     if (this._active && this._dragStart) {
       const dy        = this._dragStart.my - mouseY;
       const normDelta = dy / 150;
@@ -1892,18 +1900,19 @@ class Switch extends ProControl {
 
   mouseMoved() {
     if (this.disabled) return;
-    this._hovered = this._containsPoint(mouseX, mouseY);
+    this._hovered = this._containsPoint(this._mx(), this._my());
   }
 
   mousePressed() {
     if (this.disabled) return;
-    const slot = this._slotAt(mouseX, mouseY);
+    const mx = this._mx(), my = this._my();
+    const slot = this._slotAt(mx, my);
     if (slot < 0) {
       // Label area: double-click resets to initial state
       const inLabel = this.label &&
-                      mouseX >= this.x && mouseX <= this.x + this.width &&
-                      mouseY >  this.y + this.height &&
-                      mouseY <= this.y + this._panelH();
+                      mx >= this.x && mx <= this.x + this.width &&
+                      my >  this.y + this.height &&
+                      my <= this.y + this._panelH();
       if (inLabel && this._isDoubleClick()) {
         this._cancelSpring();
         this.state = this._springDefault;
@@ -2328,7 +2337,7 @@ class XYPad extends ProControl {
 
   mousePressed() {
     if (this.disabled) return;
-    if (this._containsPoint(mouseX, mouseY)) {
+    if (this._containsPoint(this._mx(), this._my())) {
       if (this._isDoubleClick()) {
         this._cancelSpring();
         this._valueX = this._springDefaultX;
@@ -2341,7 +2350,7 @@ class XYPad extends ProControl {
       }
       this._cancelSpring();
       this._active = true;
-      this._updateXY(mouseX, mouseY);
+      this._updateXY(this._mx(), this._my());
     }
   }
 
@@ -2379,8 +2388,8 @@ class XYPad extends ProControl {
 
   mouseMoved() {
     if (this.disabled) return;
-    this._hovered = this._containsPoint(mouseX, mouseY);
-    if (this._active) this._updateXY(mouseX, mouseY);
+    this._hovered = this._containsPoint(this._mx(), this._my());
+    if (this._active) this._updateXY(this._mx(), this._my());
   }
 
   _updateXY(mx, my) {
@@ -3177,12 +3186,13 @@ class Selector extends ProControl {
 
   mousePressed() {
     if (this.disabled) return;
-    const inBody  = mouseX >= this.x && mouseX <= this.x + this.width &&
-                    mouseY >= this.y && mouseY <= this.y + this.height;
+    const mx = this._mx(), my = this._my();
+    const inBody  = mx >= this.x && mx <= this.x + this.width &&
+                    my >= this.y && my <= this.y + this.height;
     const inLabel = this.label &&
-                    mouseX >= this.x && mouseX <= this.x + this.width &&
-                    mouseY >  this.y + this.height &&
-                    mouseY <= this.y + this._panelH();
+                    mx >= this.x && mx <= this.x + this.width &&
+                    my >  this.y + this.height &&
+                    my <= this.y + this._panelH();
     if (!inBody && !inLabel) return;
 
     // Label: double-click resets; single click records time only
@@ -3192,7 +3202,7 @@ class Selector extends ProControl {
     }
 
     if (this.style === 'arrow') {
-      const zone = this._arrowZone(mouseX, mouseY);
+      const zone = this._arrowZone(mx, my);
       if (!zone) return;
       if (zone === 'center') {
         // Center display: double-click resets; single click does nothing
@@ -3212,7 +3222,7 @@ class Selector extends ProControl {
       this._active      = true;
       if (this.onChange) this.onChange({index: this.state, label: this.options[this.state]});
     } else {
-      if (this._inTeeth(mouseX, mouseY)) {
+      if (this._inTeeth(mx, my)) {
         // Gear wheel: normal drag interaction only — rapid double-clicks intentional
         this._cancelSpring();
         this._active        = true;
@@ -3221,7 +3231,7 @@ class Selector extends ProControl {
         this._angleAtDrag   = this._gearAngle;
         this._drumOffset    = 0;
         this._teethPress    = true;
-        this._teethPressBot = mouseY >= this.y + this.height / 2;
+        this._teethPressBot = my >= this.y + this.height / 2;
       } else {
         // Drum display: double-click resets
         if (this._isDoubleClick()) { this._resetToDefault(); return; }
@@ -3232,7 +3242,7 @@ class Selector extends ProControl {
         this._angleAtDrag   = this._gearAngle;
         this._drumOffset    = 0;
         this._teethPress    = false;
-        this._teethPressBot = mouseY >= this.y + this.height / 2;
+        this._teethPressBot = my >= this.y + this.height / 2;
       }
     }
   }
@@ -3293,9 +3303,9 @@ class Selector extends ProControl {
 
   mouseMoved() {
     if (this.disabled) return;
-    this._hovered = this._containsPoint(mouseX, mouseY);
+    this._hovered = this._containsPoint(this._mx(), this._my());
     if (this.style === 'arrow') {
-      this._arrowHover = this._arrowZone(mouseX, mouseY);
+      this._arrowHover = this._arrowZone(this._mx(), this._my());
       return;
     }
     if (!this._active || this._dragY === null) return;
@@ -3963,11 +3973,11 @@ class GridPad extends ProControl {
   // ── input ─────────────────────────────────────────────────────────────────────
 
   mousePressed() {
-    if (this.disabled || !this._containsPoint(mouseX, mouseY)) return;
-    const cell = this._cellAt(mouseX, mouseY);
+    if (this.disabled || !this._containsPoint(this._mx(), this._my())) return;
+    const cell = this._cellAt(this._mx(), this._my());
     if (!cell) {
       // Label area: double-click resets all cells to initial values
-      if (this.label && mouseY >= this.y + this._totalH() - 16 && this._isDoubleClick()) {
+      if (this.label && this._my() >= this.y + this._totalH() - 16 && this._isDoubleClick()) {
         this._vals = this._initVals.map(row => [...row]);
         if (this.onChange) this.onChange(this.values);
         if (this.onRelease) this.onRelease(this.values);
@@ -4035,7 +4045,7 @@ class GridPad extends ProControl {
 
   mouseMoved() {
     if (this.disabled) return;
-    this._hovered = this._containsPoint(mouseX, mouseY);
+    this._hovered = this._containsPoint(this._mx(), this._my());
   }
 
   _tickSpring() {
@@ -4255,26 +4265,27 @@ class TagSelector extends ProControl {
 
   mousePressed() {
     if (this.disabled) return;
+    const mx = this._mx(), my = this._my();
 
     // Scrollbar interaction takes priority
     if (this._maxScrollY > 0) {
       const { trackX, trackY, trackH, thumbH, thumbY } = this._sbGeom();
-      if (mouseX >= trackX && mouseX <= trackX + this._sbW &&
-          mouseY >= trackY && mouseY <= trackY + trackH) {
-        if (mouseY >= thumbY && mouseY <= thumbY + thumbH) {
+      if (mx >= trackX && mx <= trackX + this._sbW &&
+          my >= trackY && my <= trackY + trackH) {
+        if (my >= thumbY && my <= thumbY + thumbH) {
           this._sbDragging        = true;
           this._sbDragStartY      = mouseY;
           this._sbDragStartScroll = this._scrollY;
         } else {
           // Click on track — jump scroll so thumb centres on click
-          const ratio = (mouseY - trackY - thumbH / 2) / (trackH - thumbH);
+          const ratio = (my - trackY - thumbH / 2) / (trackH - thumbH);
           this._scrollY = constrain(ratio * this._maxScrollY, 0, this._maxScrollY);
         }
         return;
       }
     }
 
-    const word = this._pillAt(mouseX, mouseY);
+    const word = this._pillAt(mx, my);
     if (word) {
       let added = null, removed = null;
       if (this._selected.has(word)) {
@@ -4289,9 +4300,9 @@ class TagSelector extends ProControl {
     }
 
     if (this.label) {
-      const inLabel = mouseX >= this.x && mouseX <= this.x + this.width &&
-                      mouseY >  this.y + this.height - this._labelH &&
-                      mouseY <= this.y + this.height;
+      const inLabel = mx >= this.x && mx <= this.x + this.width &&
+                      my >  this.y + this.height - this._labelH &&
+                      my <= this.y + this.height;
       if (inLabel && this._isDoubleClick()) {
         this._selected = new Set(this._initSel);
         if (this.onChange) this.onChange(this.selected, null, null);
@@ -4312,7 +4323,7 @@ class TagSelector extends ProControl {
   }
 
   mouseMoved() {
-    this._hovered = this._containsPoint(mouseX, mouseY);
+    this._hovered = this._containsPoint(this._mx(), this._my());
 
     if (this._sbDragging) {
       const { trackH, thumbH } = this._sbGeom();
@@ -4327,13 +4338,14 @@ class TagSelector extends ProControl {
 
     if (this._maxScrollY > 0) {
       const { trackX, thumbY, thumbH } = this._sbGeom();
-      this._sbThumbHov = mouseX >= trackX && mouseX <= trackX + this._sbW &&
-                         mouseY >= thumbY  && mouseY <= thumbY + thumbH;
+      const mx = this._mx(), my = this._my();
+      this._sbThumbHov = mx >= trackX && mx <= trackX + this._sbW &&
+                         my >= thumbY  && my <= thumbY + thumbH;
     } else {
       this._sbThumbHov = false;
     }
 
-    this._hoveredWord = this._pillAt(mouseX, mouseY);
+    this._hoveredWord = this._pillAt(this._mx(), this._my());
   }
 }
 
@@ -4531,7 +4543,7 @@ class SliderSelector extends ProControl {
 
   mousePressed() {
     if (this.disabled) return;
-    if (this._capHit(mouseX, mouseY)) {
+    if (this._capHit(this._mx(), this._my())) {
       this._active = true;
     }
   }
@@ -4545,9 +4557,9 @@ class SliderSelector extends ProControl {
 
   mouseMoved() {
     if (this.disabled) return;
-    this._hovered = this._containsPoint(mouseX, mouseY);
+    this._hovered = this._containsPoint(this._mx(), this._my());
     if (this._active) {
-      const nearest = this._nearestTick(mouseY);
+      const nearest = this._nearestTick(this._my());
       if (nearest !== this.state) {
         this.state = nearest;
         if (this.onChange) this.onChange(this.state, this.options[this.state]);
@@ -4845,7 +4857,7 @@ class RangeSlider extends ProControl {
 
   mousePressed() {
     if (this.disabled) return;
-    const cap = this._whichCap(mouseX, mouseY);
+    const cap = this._whichCap(this._mx(), this._my());
     if (!cap) return;
     if (this._isDoubleClick()) {
       if (cap === 'low') this.valueLow  = this._defaultLow;
@@ -4870,7 +4882,7 @@ class RangeSlider extends ProControl {
 
   mouseMoved() {
     if (this.disabled) return;
-    this._hovered = this._containsPoint(mouseX, mouseY);
+    this._hovered = this._containsPoint(this._mx(), this._my());
     if (!this._dragging || !this._dragStart) return;
 
     if (this.horizontal) {
@@ -4898,10 +4910,11 @@ class RangeSlider extends ProControl {
   mouseWheel(e) {
     if (this.disabled || !this._hovered) return;
     const delta = (e.deltaY ?? e.delta ?? 0) * 0.001;
+    const mx = this._mx(), my = this._my();
     if (this.horizontal) {
       const lowX  = this._lowX();
       const highX = this._highX();
-      if (abs(mouseX - lowX) <= abs(mouseX - highX)) {
+      if (abs(mx - lowX) <= abs(mx - highX)) {
         this.valueLow  = this._fromNorm(constrain(this._normLow()  + delta, 0, this._normHigh()));
       } else {
         this.valueHigh = this._fromNorm(constrain(this._normHigh() + delta, this._normLow(), 1));
@@ -4909,7 +4922,7 @@ class RangeSlider extends ProControl {
     } else {
       const lowY  = this._lowY();
       const highY = this._highY();
-      if (abs(mouseY - lowY) <= abs(mouseY - highY)) {
+      if (abs(my - lowY) <= abs(my - highY)) {
         this.valueLow  = this._fromNorm(constrain(this._normLow()  - delta, 0, this._normHigh()));
       } else {
         this.valueHigh = this._fromNorm(constrain(this._normHigh() - delta, this._normLow(), 1));
@@ -4992,13 +5005,9 @@ class Panel extends ProControl {
     opts.x = nx;
     opts.y = ny;
     const newPanel = new Panel(opts);
-    // Copy children with adjusted positions to maintain relative layout
-    const dx = nx - this._x;
-    const dy = ny - this._y;
+    // Copy children with same relative positions (x, y are relative to panel)
     for (const child of this._children) {
       const childCopy = child.copy();
-      childCopy.x += dx;
-      childCopy.y += dy;
       newPanel.add(childCopy);
     }
     return newPanel;
@@ -5156,9 +5165,16 @@ class Panel extends ProControl {
            my >= this.y + this._titleH && my <= this.y + this._titleH + this._viewH();
   }
 
-  // Call fn with children using their absolute coordinates
+  // Store panel screen-space origin so children's _mx()/_my() can normalize
+  // mouseX/mouseY into panel-local space (matching this.x / this.y geometry).
+  // Includes scroll so a scrolled child at local x=10 maps correctly.
   _withOffsetMouse(fn) {
-    fn();
+    const prev = globalThis._panelOffset;
+    globalThis._panelOffset = {
+      x: this.x - this._scrollX,
+      y: this.y + this._titleH - this._scrollY,
+    };
+    try { fn(); } finally { globalThis._panelOffset = prev; }
   }
 
   // ── Event handlers ──────────────────────────────────────────────────────────
@@ -5201,11 +5217,13 @@ class Panel extends ProControl {
     }
 
     if (this._inViewport(mouseX, mouseY)) {
-      for (const c of this._children) c.mouseMoved();
+      this._withOffsetMouse(() => { for (const c of this._children) c.mouseMoved(); });
     } else {
-      for (const c of this._children) {
-        if (c._hovered) { c._hovered = false; c.mouseMoved(); }
-      }
+      this._withOffsetMouse(() => {
+        for (const c of this._children) {
+          if (c._hovered) { c._hovered = false; c.mouseMoved(); }
+        }
+      });
     }
 
     // Resize cursor — only update on enter/leave to avoid stomping other controls' cursors
@@ -6293,7 +6311,7 @@ class IconButton extends ProControl {
 
   mousePressed() {
     if (this.disabled) return;
-    if (this._containsPoint(mouseX, mouseY)) {
+    if (this._containsPoint(this._mx(), this._my())) {
       this._active = true;
       const buttonLabel = this.label || this.icon;
       const callbackData = { buttonState: true, label: buttonLabel };
@@ -6303,7 +6321,7 @@ class IconButton extends ProControl {
 
   mouseReleased() {
     if (!this._active) return;
-    if (this._containsPoint(mouseX, mouseY)) {
+    if (this._containsPoint(this._mx(), this._my())) {
       if (this.toggle) {
         this.state = !this.state;
       }
@@ -6318,7 +6336,7 @@ class IconButton extends ProControl {
 
   mouseMoved() {
     if (this.disabled) return;
-    this._hovered = this._containsPoint(mouseX, mouseY);
+    this._hovered = this._containsPoint(this._mx(), this._my());
   }
 }
 
@@ -7146,8 +7164,9 @@ class Markup extends ProControl {
 
   mouseMoved() {
     const wasHovered = this._hovered;
-    this._hovered = mouseX >= this.x && mouseX <= this.x + this.width &&
-                    mouseY >= this.y && mouseY <= this.y + this.height;
+    const mx = this._mx(), my = this._my();
+    this._hovered = mx >= this.x && mx <= this.x + this.width &&
+                    my >= this.y && my <= this.y + this.height;
 
     const canvas = document.querySelector('canvas');
     if (!canvas) return;
@@ -7155,8 +7174,8 @@ class Markup extends ProControl {
     if (this._hovered) {
       let overLink = false;
       for (const lnk of this._links) {
-        if (mouseX >= lnk.x && mouseX <= lnk.x + lnk.w &&
-            mouseY >= lnk.y && mouseY <= lnk.y + lnk.h) {
+        if (mx >= lnk.x && mx <= lnk.x + lnk.w &&
+            my >= lnk.y && my <= lnk.y + lnk.h) {
           overLink = true;
           break;
         }
@@ -7172,10 +7191,10 @@ class Markup extends ProControl {
       this._popupHref = null;
       return;
     }
-
+    const mx = this._mx(), my = this._my();
     for (const lnk of this._links) {
-      if (mouseX >= lnk.x && mouseX <= lnk.x + lnk.w &&
-          mouseY >= lnk.y && mouseY <= lnk.y + lnk.h) {
+      if (mx >= lnk.x && mx <= lnk.x + lnk.w &&
+          my >= lnk.y && my <= lnk.y + lnk.h) {
         if (this.onClick) {
           this._popupHref = lnk.href;
           this.onClick(lnk.href);
@@ -8455,11 +8474,12 @@ class ListView extends ProControl {
 
   mouseMoved() {
     const wasHovered = this._hovered;
-    this._hovered = mouseX >= this.x && mouseX <= this.x + this.width &&
-                    mouseY >= this.y && mouseY <= this.y + this.height;
+    const mx = this._mx(), my = this._my();
+    this._hovered = mx >= this.x && mx <= this.x + this.width &&
+                    my >= this.y && my <= this.y + this.height;
 
     if (this._hovered) {
-      const i = Math.floor((mouseY - this.y - this.padding / 2 + this._scrollY) / this._rowH);
+      const i = Math.floor((my - this.y - this.padding / 2 + this._scrollY) / this._rowH);
       this._hoverIdx = i >= 0 && i < this._items.length ? i : -1;
     } else {
       this._hoverIdx = -1;
@@ -8468,7 +8488,8 @@ class ListView extends ProControl {
 
   mousePressed() {
     if (!this._hovered) return;
-    const i = Math.floor((mouseY - this.y - this.padding / 2 + this._scrollY) / this._rowH);
+    const my = this._my();
+    const i = Math.floor((my - this.y - this.padding / 2 + this._scrollY) / this._rowH);
     if (i >= 0 && i < this._items.length) {
       this._selectedIdx = i;
       if (this.onSelect) this.onSelect(this._items[i], i);
@@ -8738,8 +8759,9 @@ class GridView extends ProControl {
 
   mouseMoved() {
     const wasHovered = this._hovered;
-    this._hovered = mouseX >= this.x && mouseX <= this.x + this.width &&
-                    mouseY >= this.y && mouseY <= this.y + this.height;
+    const mx = this._mx(), my = this._my();
+    this._hovered = mx >= this.x && mx <= this.x + this.width &&
+                    my >= this.y && my <= this.y + this.height;
 
     const bodyY = this.y + 1 + this._headerH;
     const bodyH = this.height - 2 - this._headerH;
@@ -8758,8 +8780,8 @@ class GridView extends ProControl {
         const trackW = this.width - this.padding - (this._contentH > bodyH - this.padding ? 4 : 0);
         this._scrollX = this._dragRef.sx + (dx / trackW) * maxScroll;
       }
-    } else if (this._hovered && mouseY >= bodyY && mouseY < this.y + this.height) {
-      const i = Math.floor((mouseY - bodyY - this.padding / 2 + this._scrollY) / this._rowH);
+    } else if (this._hovered && my >= bodyY && my < this.y + this.height) {
+      const i = Math.floor((my - bodyY - this.padding / 2 + this._scrollY) / this._rowH);
       this._hoverIdx = i >= 0 && i < this._items.length ? i : -1;
     } else {
       this._hoverIdx = -1;
@@ -8768,6 +8790,7 @@ class GridView extends ProControl {
 
   mousePressed() {
     if (!this._hovered) return;
+    const mx = this._mx(), my = this._my();
 
     const bodyY = this.y + 1 + this._headerH;
     const bodyH = this.height - 2 - this._headerH;
@@ -8781,7 +8804,7 @@ class GridView extends ProControl {
       const thumbW = Math.max(trackW * this.width / this._totalW, 16);
       const thumbX = this.x + this.padding / 2 + (this._scrollX / maxScrollX) * (trackW - thumbW);
 
-      if (mouseY >= sbY && mouseY < this.y + this.height && mouseX >= thumbX && mouseX < thumbX + thumbW) {
+      if (my >= sbY && my < this.y + this.height && mx >= thumbX && mx < thumbX + thumbW) {
         this._dragHSB = true;
         this._dragRef = { mx: mouseX, sx: this._scrollX };
         return;
@@ -8795,7 +8818,7 @@ class GridView extends ProControl {
       const thumbH = Math.max(trackH * bodyH / this._contentH, 16);
       const thumbY = bodyY + (this._scrollY / maxScrollY) * (trackH - thumbH);
 
-      if (mouseX >= sbX && mouseX < this.x + this.width && mouseY >= thumbY && mouseY < thumbY + thumbH) {
+      if (mx >= sbX && mx < this.x + this.width && my >= thumbY && my < thumbY + thumbH) {
         this._dragVSB = true;
         this._dragRef = { my: mouseY, sy: this._scrollY };
         return;
@@ -8803,8 +8826,8 @@ class GridView extends ProControl {
     }
 
     // Check row click
-    if (mouseY >= bodyY) {
-      const i = Math.floor((mouseY - bodyY - this.padding / 2 + this._scrollY) / this._rowH);
+    if (my >= bodyY) {
+      const i = Math.floor((my - bodyY - this.padding / 2 + this._scrollY) / this._rowH);
       if (i >= 0 && i < this._items.length) {
         this._selectedIdx = i;
         if (this.onSelect) this.onSelect(this._items[i], i);
