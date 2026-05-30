@@ -2,6 +2,17 @@
 // Copyright © David Stein 2026
 // Last updated: 2026-05-30 — commit 43fb9d5
 
+// q5 compatibility: Define print() as a console.log wrapper
+// p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
+// Save the native print in case it's needed, then override
+const _nativePrintFn = window.print;
+window.print = function(...args) {
+  // If called with no args, it's probably trying to open the print dialog (native behavior)
+  if (args.length === 0) _nativePrintFn();
+  // Otherwise, log to console like p5.js does
+  else console.log(...args);
+};
+
 // Set ControlStyle before creating controls to choose a built-in look.
 // Per-control overrides still work via opts.theme.
 //   ControlStyle = 'black';     // dark electronic (default)
@@ -8362,10 +8373,3 @@ class GridView extends ProControl {
 
 window.ListView = ListView;
 window.GridView = GridView;
-
-// q5 compatibility: provide print() function if not already defined (p5 provides this)
-if (!window.print || window.print.toString().includes('[native code]')) {
-  window.print = function(...args) {
-    console.log(...args);
-  };
-}
