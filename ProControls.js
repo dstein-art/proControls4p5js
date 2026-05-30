@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-05-30 — commit 166337c
+// Last updated: 2026-05-30 — commit 43fb9d5
 
 // Set ControlStyle before creating controls to choose a built-in look.
 // Per-control overrides still work via opts.theme.
@@ -8362,3 +8362,10 @@ class GridView extends ProControl {
 
 window.ListView = ListView;
 window.GridView = GridView;
+
+// q5 compatibility: provide print() function if not already defined (p5 provides this)
+if (!window.print || window.print.toString().includes('[native code]')) {
+  window.print = function(...args) {
+    console.log(...args);
+  };
+}
