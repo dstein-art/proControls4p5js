@@ -5148,12 +5148,9 @@ class Panel extends ProControl {
            my >= this.y + this._titleH && my <= this.y + this._titleH + this._viewH();
   }
 
-  // Temporarily remap mouseX/mouseY to panel-local content coords while calling fn.
+  // Call fn with children using their absolute coordinates
   _withOffsetMouse(fn) {
-    const ox = window.mouseX, oy = window.mouseY;
-    window.mouseX = ox - this.x + this._scrollX;
-    window.mouseY = oy - (this.y + this._titleH) + this._scrollY;
-    try { fn(); } finally { window.mouseX = ox; window.mouseY = oy; }
+    fn();
   }
 
   // ── Event handlers ──────────────────────────────────────────────────────────
@@ -5196,12 +5193,11 @@ class Panel extends ProControl {
     }
 
     if (this._inViewport(mouseX, mouseY)) {
-      this._withOffsetMouse(() => { for (const c of this._children) c.mouseMoved(); });
-    } else {
-      const ox = window.mouseX, oy = window.mouseY;
-      window.mouseX = -99999; window.mouseY = -99999;
       for (const c of this._children) c.mouseMoved();
-      window.mouseX = ox; window.mouseY = oy;
+    } else {
+      for (const c of this._children) {
+        if (c._hovered) { c._hovered = false; c.mouseMoved(); }
+      }
     }
 
     // Resize cursor — only update on enter/leave to avoid stomping other controls' cursors
