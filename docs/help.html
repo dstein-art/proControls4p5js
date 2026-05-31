@@ -1695,6 +1695,7 @@ const loop = new IconButton({
           <tr><td><code>.movable</code></td><td>Read/write. Prevents title-bar dragging when <code>false</code>.</td></tr>
           <tr><td><code>.resizable</code></td><td>Read/write. When <code>true</code>, a grip appears in the bottom-right corner allowing the user to drag-resize the panel.</td></tr>
           <tr><td><code>.scrollX / .scrollY</code></td><td>Current scroll offset in pixels. Read or write to programmatically scroll the panel.</td></tr>
+          <tr><td><code>.clone()</code></td><td>Returns a new Panel with identical options and a deep copy of all child controls. The copy is positioned to the right of the original (or below if it would overflow the canvas). Each cloned child is independent — changing values on the copy does not affect the original.</td></tr>
         </tbody>
       </table>
     </div>

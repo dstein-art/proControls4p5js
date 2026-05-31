@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-05-31 — commit 33b6a2d
+// Last updated: 2026-05-31 — commit 3180650
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -590,7 +590,7 @@ class ProControl {
     return this.min + n * (this.max - this.min);
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
       x:              this.x,
       y:              this.y,
@@ -609,8 +609,8 @@ class ProControl {
     };
   }
 
-  copy() {
-    return new this.constructor(this._copyOpts());
+  clone() {
+    return new this.constructor(this._cloneOpts());
   }
 
   _drawPanel(x, y, w, h, r = 4) {
@@ -776,9 +776,9 @@ class AnalogSlider extends ProControl {
     }
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
-      ...super._copyOpts(),
+      ...super._cloneOpts(),
       readout:    this.readout,
       decimals:   this.decimals,
       horizontal: this.horizontal,
@@ -1407,9 +1407,9 @@ class Dial extends ProControl {
     this._dragStart  = null;
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
-      ...super._copyOpts(),
+      ...super._cloneOpts(),
       size:      this.size,
       readout:   this.readout,
       decimals:  this.decimals,
@@ -1784,9 +1784,9 @@ class Switch extends ProControl {
     this._springDefault = opts.springDefault ?? this.state; // spring / reset target
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
-      ...super._copyOpts(),
+      ...super._cloneOpts(),
       states: [...this.states],
       state:  this.state,
       width:  this.width,
@@ -2138,9 +2138,9 @@ class VUMeter extends AnalogSlider {
     this._peakHold   = 0; // frames
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
-      ...super._copyOpts(),
+      ...super._cloneOpts(),
       segCount:   this.segCount,
       colorLow:   this.colorLow,
       colorMid:   this.colorMid,
@@ -2223,9 +2223,9 @@ class XYPad extends ProControl {
     this._springDefaultY = opts.springDefaultY ?? (this.minY + this.maxY) / 2;
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
-      ...super._copyOpts(),
+      ...super._cloneOpts(),
       width:           this.width,
       height:          this.height,
       minX:            this.minX,
@@ -2442,9 +2442,9 @@ class VUDial extends Dial {
     this._peakHold = 0;
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
-      ...super._copyOpts(),
+      ...super._cloneOpts(),
       segCount:  this.segCount,
       colorLow:  this.colorLow,
       colorMid:  this.colorMid,
@@ -2547,9 +2547,9 @@ class LEDMeter extends ProControl {
     this._segT     = Math.max(2, Math.round(this.digitH / 9));
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
-      ...super._copyOpts(),
+      ...super._cloneOpts(),
       digits:   this.digits,
       decimals: this.decimals,
       readout:  this.readout,
@@ -2708,9 +2708,9 @@ class ADSRDisplay extends ProControl {
     this.envelopeColor = opts.envelopeColor ?? null;  // null → theme.capIndicator
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
-      ...super._copyOpts(),
+      ...super._cloneOpts(),
       attack:        this.attack,
       decay:         this.decay,
       sustain:       this.sustain,
@@ -2849,9 +2849,9 @@ class Selector extends ProControl {
     this._springDefault = opts.springDefault ?? this.state;
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
-      ...super._copyOpts(),
+      ...super._cloneOpts(),
       options: [...this.options],
       state:   this.state,
       style:   this.style,
@@ -3442,7 +3442,7 @@ class MultiSlider extends ProControl {
     }
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     const slidersMap = {};
     this._names.forEach((name, i) => {
       const s = this._children[i];
@@ -3625,7 +3625,7 @@ class MultiDial extends ProControl {
     }
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     const dialsMap = {};
     this._names.forEach((name, i) => {
       const d = this._children[i];
@@ -3797,9 +3797,9 @@ class GridPad extends ProControl {
     }
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
-      ...super._copyOpts(),
+      ...super._cloneOpts(),
       rows:     this.rows,
       cols:     this.cols,
       mode:     this.mode,
@@ -4111,9 +4111,9 @@ class TagSelector extends ProControl {
     this._buildLayout();
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
-      ...super._copyOpts(),
+      ...super._cloneOpts(),
       words:    [...this.words],
       selected: [...this._selected],
       width:    this.width,
@@ -4391,8 +4391,8 @@ class SliderSelector extends ProControl {
     this.width  = opts.width  ?? Math.max(50, tickEnd + labelW + 4);
   }
 
-  _copyOpts() {
-    const o = super._copyOpts();
+  _cloneOpts() {
+    const o = super._cloneOpts();
     delete o.value;
     return {
       ...o,
@@ -4628,9 +4628,9 @@ class RangeSlider extends ProControl {
     }
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
-      ...super._copyOpts(),
+      ...super._cloneOpts(),
       readout:    this.readout,
       decimals:   this.decimals,
       horizontal: this.horizontal,
@@ -4981,7 +4981,7 @@ class Panel extends ProControl {
     this._autoLayout   = { nextX: 8, nextY: 8, rightEdge: 8 };  // panel-specific auto-placement
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
       x:            this._x,
       y:            this._y,
@@ -4999,8 +4999,8 @@ class Panel extends ProControl {
     };
   }
 
-  copy() {
-    const opts = this._copyOpts();
+  clone() {
+    const opts = this._cloneOpts();
     const cw = typeof width !== 'undefined' ? width : 800;
     const ch = typeof height !== 'undefined' ? height : 600;
     let nx = this._x + this.width;
@@ -5018,7 +5018,7 @@ class Panel extends ProControl {
     const newPanel = new Panel(opts);
     // Copy children with same relative positions (x, y are relative to panel)
     for (const child of this._children) {
-      const childCopy = child.copy();
+      const childCopy = child.clone();
       newPanel.add(childCopy);
     }
     return newPanel;
@@ -5490,7 +5490,7 @@ class Bevel extends ProControl {
     this._autoLayout   = { nextX: 8, nextY: 8, rightEdge: 8 };  // panel-specific auto-placement
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
       x:     this._bx,
       y:     this._by,
@@ -5652,7 +5652,7 @@ class MessageDialog extends ProControl {
     this.height = opts.height ?? 100;  // updated on first draw
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
       x:        this._x,
       y:        this._y,
@@ -5871,7 +5871,7 @@ class InputDialog extends ProControl {
     this._keyHandler = (e) => this._handleKey(e);
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
       x:                 this._x,
       y:                 this._y,
@@ -6200,9 +6200,9 @@ class IconButton extends ProControl {
     this.height  = this.size;
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
-      ...super._copyOpts(),
+      ...super._cloneOpts(),
       icon:     this.icon,
       size:     this.size,
       toggle:   this.toggle,
@@ -6385,7 +6385,7 @@ class Menu extends ProControl {
     this._explicitW = opts.width  != null ? opts.width  : null;
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
       x:           this._x,
       y:           this._y,
@@ -6761,9 +6761,9 @@ class Markup extends ProControl {
     this._scrollY = constrain(v, 0, max);
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
-      ...super._copyOpts(),
+      ...super._cloneOpts(),
       width:       this.width,
       height:      this.height,
       fontSize:    this.fontSize,
@@ -7318,7 +7318,7 @@ class ConsolePanel extends ProControl {
     window.addEventListener('unhandledrejection', this._onRej);
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
       x:            this._x,
       y:            this._y,
@@ -7812,7 +7812,7 @@ class TimeGraphPanel extends ProControl {
     this._ledLastFlash = -Infinity;
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
       x:            this._x,
       y:            this._y,
@@ -8380,7 +8380,7 @@ class ListView extends ProControl {
     this.items       = opts.items ?? [];
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
       x:        this._x,
       y:        this._y,
@@ -8550,7 +8550,7 @@ class GridView extends ProControl {
     this.items       = opts.items ?? [];
   }
 
-  _copyOpts() {
+  _cloneOpts() {
     return {
       x:        this._x,
       y:        this._y,
