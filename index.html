@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8RE9R8QLJW"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-8RE9R8QLJW');
+</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ProControls for p5.js</title>
@@ -706,7 +715,7 @@
     <div class="col-card">
       <div class="col-card-header">
         <h3>Panel</h3>
-        <p>Draggable, scrollable container for grouping controls. Add any control with <code style="font-size:11px">pnl.add()</code>.</p>
+        <p>Draggable, scrollable container for grouping controls. Add any control with <code style="font-size:11px">pnl.add()</code>. Create a single onChange/onRelease handler for all controls in the panel.</p>
       </div>
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=panel&s=black" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="Panel example"></iframe>

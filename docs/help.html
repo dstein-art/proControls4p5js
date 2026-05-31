@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8RE9R8QLJW"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-8RE9R8QLJW');
+</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ProControls — Documentation</title>
@@ -753,8 +762,8 @@
         <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, the fader animates back to its initial value after mouse/touch release.</td></tr>
         <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete.</td></tr>
         <tr><td>springDefault</td><td>number</td><td>value</td><td>Value to restore on double-click reset (and spring-back target). Defaults to the initial <code>value</code>. Override when the control is rebuilt dynamically to pin the reset point.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value.</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange(value[, control])</code> — called every time the value changes during interaction.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease(value[, control])</code> — called on mouse/touch release.</td></tr>
       </tbody>
     </table>
 
@@ -818,8 +827,8 @@
         <tr><td>horizontal</td><td>boolean</td><td>false</td><td>When <code>true</code>, each child is a horizontal slider and the group stacks them vertically. Default <code>width</code> becomes 180 and default <code>height</code> becomes 44 per slider.</td></tr>
         <tr><td>gap</td><td>number</td><td>4</td><td>Pixel gap between adjacent sliders.</td></tr>
         <tr><td>label</td><td>string</td><td>''</td><td>Group label (not drawn — available for identification).</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with a <code>{ key: value, … }</code> object when any slider changes. Keys are slider labels with spaces and punctuation removed.</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with a <code>{ key: value, … }</code> object on mouse/touch release.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({ key: value, … }[, control])</code> — called when any slider changes. Keys are slider labels with spaces and punctuation removed.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({ key: value, … }[, control])</code> — called on mouse/touch release.</td></tr>
         <tr><td>style</td><td>string</td><td>'knob'</td><td>Shared slider style — <code>'knob'</code>, <code>'wheel'</code>, or <code>'button'</code>. Can be overridden per-slider.</td></tr>
         <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, all sliders animate back to their initial values after release. Can be overridden per-slider.</td></tr>
         <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete. Can be overridden per-slider.</td></tr>
@@ -925,12 +934,10 @@
         <tr><td>showScale</td><td>boolean</td><td>true (v) / false (h)</td><td>Draw tick marks and value labels alongside the track.</td></tr>
         <tr><td>showFader</td><td>boolean</td><td>true</td><td>Draw the cap handles. Set to <code>false</code> to show only the range fill (display-only mode).</td></tr>
         <tr><td>label</td><td>string</td><td>''</td><td>Caption drawn at the top of the panel.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(valueLow, valueHigh)</code> whenever either handle moves.</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with <code>(valueLow, valueHigh)</code> on mouse/touch release.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({lo, hi}[, control])</code> — called whenever either handle moves.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({lo, hi}[, control])</code> — called on mouse/touch release.</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value (or values object for multi-controls).</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
 </tbody>
     </table>
 
@@ -954,7 +961,7 @@
   valueLow: 0.2, valueHigh: 0.8,
   label: 'RANGE',
   readout: 'raw', decimals: 2,
-  onChange: (lo, hi) => console.log(lo, hi),
+  onChange: ({lo, hi}) => console.log(lo, hi),
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=rangeslider" width="110" height="265" scrolling="no" frameborder="0" loading="lazy" title="RangeSlider vertical live example"></iframe>
@@ -972,7 +979,7 @@
   horizontal: true,
   label: 'RANGE',
   readout: 'raw', decimals: 2,
-  onChange: (lo, hi) => console.log(lo, hi),
+  onChange: ({lo, hi}) => console.log(lo, hi),
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=rangeslider_h" width="260" height="80" scrolling="no" frameborder="0" loading="lazy" title="RangeSlider horizontal live example"></iframe>
@@ -1000,8 +1007,8 @@
         <tr><td>style</td><td>string</td><td>'classic'</td><td>Knob visual style — <code>'classic'</code> · <code>'rubber'</code> · <code>'grooved'</code> · <code>'pointer'</code>. See dial styles below.</td></tr>
         <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, the knob animates back to its initial value after mouse/touch release.</td></tr>
         <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value (or values object for multi-controls).</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange(value[, control])</code> — called every time the value changes.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease(value[, control])</code> — called on mouse/touch release.</td></tr>
 </tbody>
     </table>
 
@@ -1067,8 +1074,8 @@
         <tr><td>horizontal</td><td>boolean</td><td>true</td><td>When <code>true</code> (default), dials are arranged in a horizontal row. When <code>false</code>, dials are stacked in a vertical column.</td></tr>
         <tr><td>style</td><td>string</td><td>'classic'</td><td>Shared knob style — <code>'classic'</code>, <code>'rubber'</code>, <code>'grooved'</code>, <code>'pointer'</code> (overridable per-dial).</td></tr>
         <tr><td>gap</td><td>number</td><td>4</td><td>Pixel gap between adjacent dials.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>{ key: value, … }</code> when any dial changes. Keys are dial labels with spaces and punctuation removed.</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with <code>{ key: value, … }</code> on mouse/touch release.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({ key: value, … }[, control])</code> — called when any dial changes. Keys are dial labels with spaces and punctuation removed.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({ key: value, … }[, control])</code> — called on mouse/touch release.</td></tr>
         <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, all dials animate back to their initial values after release. Can be overridden per-dial.</td></tr>
         <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete. Can be overridden per-dial.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Shared theme override. See <a href="#themes">Themes</a>.</td></tr>
@@ -1154,14 +1161,12 @@
         <tr><td>scaleX</td><td>string</td><td>'linear'</td><td><code>'linear'</code> or <code>'log'</code>. Log requires <code>minX &gt; 0</code>.</td></tr>
         <tr><td>scaleY</td><td>string</td><td>'linear'</td><td><code>'linear'</code> or <code>'log'</code>. Log requires <code>minY &gt; 0</code>.</td></tr>
         <tr><td>crosshairColor</td><td>string</td><td>theme accent</td><td>Color of the crosshair dot and lines.</td></tr>
-        <tr><td>onChangeX</td><td>function</td><td>null</td><td>Called with the new X value when it changes.</td></tr>
-        <tr><td>onChangeY</td><td>function</td><td>null</td><td>Called with the new Y value when it changes.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(valueX, valueY)</code> when either axis changes.</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with <code>(valueX, valueY)</code> on release.</td></tr>
+        <tr><td>onChangeX</td><td>function</td><td>null</td><td><code>onChangeX(x[, control])</code> — called with the new X value when only X changes.</td></tr>
+        <tr><td>onChangeY</td><td>function</td><td>null</td><td><code>onChangeY(y[, control])</code> — called with the new Y value when only Y changes.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({x, y}[, control])</code> — called when either axis changes.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({x, y}[, control])</code> — called on release.</td></tr>
         <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, both axes animate back to their initial values after mouse/touch release.</td></tr>
         <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value (or values object for multi-controls).</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
 </tbody>
     </table>
 
@@ -1177,7 +1182,7 @@
   valueX: 0, valueY: 0,
   label: 'XY',
   crosshairColor: '#ff6600',
-  onChange: (vx, vy) => console.log(vx, vy),
+  onChange: ({x, y}) => console.log(x, y),
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=xypad" width="260" height="260" scrolling="no" frameborder="0" loading="lazy" title="XYPad live example"></iframe>
@@ -1197,7 +1202,7 @@
   crosshairColor: '#ff6600',
   springBack: true,
   springDuration: 0.6,
-  onChange: (vx, vy) => console.log(vx, vy),
+  onChange: ({x, y}) => console.log(x, y),
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=xypad_spring" width="260" height="260" scrolling="no" frameborder="0" loading="lazy" title="XYPad spring-back live example"></iframe>
@@ -1228,11 +1233,9 @@
         <tr><td>rate</td><td>number</td><td>0.02</td><td>Percent change per frame while mouse is held (percent mode only).</td></tr>
         <tr><td>label</td><td>string</td><td>''</td><td>Label drawn below the grid.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
-        <tr><td>onChange(values)</td><td>function</td><td>null</td><td>Called with a 2-D copy of values when any cell changes. In colorselect mode the grid contains the semantic <code>value</code> for each cell.</td></tr>
-        <tr><td>onRelease(…)</td><td>function</td><td>null</td><td>Toggle/percent: called with values on release. Button mode: called with <code>(row, col)</code> on release.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange(values[, control])</code> — called with a 2-D copy of values when any cell changes. In colorselect mode the grid contains the semantic <code>value</code> for each cell.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease(values[, control])</code> — toggle/percent: called with the values array on release. Button mode: called with <code>({r, c}[, control])</code> — row and column of the released cell.</td></tr>
         <tr><td>onPress(row, col)</td><td>function</td><td>null</td><td>Button mode only — called with the row and column of the pressed cell.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value (or values object for multi-controls).</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
 </tbody>
     </table>
 
@@ -1261,7 +1264,7 @@
       <thead><tr><th>Action</th><th>Effect</th></tr></thead>
       <tbody>
         <tr><td>Press cell</td><td>Cell highlights; <code>onPress(row, col)</code> fires.</td></tr>
-        <tr><td>Release</td><td>Cell returns to default; <code>onRelease(row, col)</code> fires.</td></tr>
+        <tr><td>Release</td><td>Cell returns to default; <code>onRelease({r, c})</code> fires.</td></tr>
       </tbody>
     </table>
 
@@ -1363,9 +1366,8 @@
         <tr><td>springDefault</td><td>number</td><td>state</td><td>State index to restore on double-click reset. Defaults to <code>state</code>. Useful when the control is rebuilt dynamically and you want reset to always target a fixed index.</td></tr>
         <tr><td>width</td><td>number</td><td>48</td><td>Panel width in pixels.</td></tr>
         <tr><td>height</td><td>number</td><td>auto</td><td>Defaults to <code>70</code> for 2-state; <code>states.length × 26 + 20</code> for N-state.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(stateIndex, stateLabel)</code> on every click.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value (or values object for multi-controls).</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({index, label}[, control])</code> — called on every click.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({index, label}[, control])</code> — called on mouse/touch release.</td></tr>
 </tbody>
     </table>
 
@@ -1383,7 +1385,7 @@ sw.states[sw.state]  <span class="cmt">// active label string</span></code></pre
   states: ['OFF', 'ON'],
   label: 'POWER',
   state: 1,
-  onChange: (i, s) => console.log(s),
+  onChange: ({index, label}) => console.log(label),
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=switch2" width="120" height="130" scrolling="no" frameborder="0" loading="lazy" title="Switch 2-state live example"></iframe>
@@ -1399,7 +1401,7 @@ sw.states[sw.state]  <span class="cmt">// active label string</span></code></pre
   states: ['BLACK', 'STEEL', 'WHITE', 'BRUSH'],
   state: 0,
   label: 'STYLE',
-  onChange: (i, s) => console.log(s),
+  onChange: ({index, label}) => console.log(label),
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=switchn" width="130" height="175" scrolling="no" frameborder="0" loading="lazy" title="Switch N-state live example"></iframe>
@@ -1427,7 +1429,7 @@ sw.states[sw.state]  <span class="cmt">// active label string</span></code></pre
         <tr><td>iconSize</td><td>number</td><td>auto</td><td>Icon font size in pixels. Defaults to <code>round(size × 0.58)</code>.</td></tr>
         <tr><td>x, y</td><td>number</td><td>0, 0</td><td>Canvas position of the top-left corner.</td></tr>
         <tr><td>label</td><td>string</td><td>''</td><td>Text caption drawn inside the button below the icon.</td></tr>
-        <tr><td>onClick</td><td>function</td><td>null</td><td>Called on release. For toggle buttons receives the new <code>state</code> (<code>true</code>/<code>false</code>); for momentary buttons called with no arguments.</td></tr>
+        <tr><td>onClick</td><td>function</td><td>null</td><td><code>onClick({buttonState, label}[, control])</code> — called on release. <code>buttonState</code> is <code>true</code> on press, <code>false</code> on release; for momentary buttons always <code>false</code>.</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Suppresses all interaction and draws a disabled overlay.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
       </tbody>
@@ -1489,15 +1491,13 @@ const loop = new IconButton({
         <tr><td>style</td><td>string</td><td>'rotary'</td><td>Visual style — <code>'rotary'</code> or <code>'arrow'</code>. See style descriptions below.</td></tr>
         <tr><td>width</td><td>number</td><td>140</td><td>Total panel width in pixels.</td></tr>
         <tr><td>height</td><td>number</td><td>40</td><td>Panel height in pixels.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(index, label)</code> whenever the selection changes.</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with <code>(index, label)</code> when the mouse/touch is released.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({index, label}[, control])</code> — called whenever the selection changes.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({index, label}[, control])</code> — called on mouse/touch release.</td></tr>
         <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, the selection snaps back to its initial state after <code>springDuration</code> seconds.</td></tr>
         <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds before snapping back when <code>springBack</code> is enabled.</td></tr>
         <tr><td>label</td><td>string</td><td>''</td><td>Caption drawn below the panel.</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value (or values object for multi-controls).</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
 </tbody>
     </table>
 
@@ -1521,7 +1521,7 @@ const loop = new IconButton({
   options: ['SINE', 'SQUARE', 'SAW', 'TRI', 'NOISE'],
   state: 0,
   label: 'WAVE',
-  onChange: (i, lbl) => console.log(lbl),
+  onChange: ({index, label}) => console.log(label),
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=selector" width="220" height="100" scrolling="no" frameborder="0" loading="lazy" title="Selector rotary live example"></iframe>
@@ -1539,7 +1539,7 @@ const loop = new IconButton({
   options: ['SINE', 'SQUARE', 'SAW', 'TRI', 'NOISE'],
   state: 0,
   label: 'WAVE',
-  onChange: (i, lbl) => console.log(lbl),
+  onChange: ({index, label}) => console.log(label),
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=selector_arrow" width="220" height="100" scrolling="no" frameborder="0" loading="lazy" title="Selector arrow live example"></iframe>
@@ -1561,11 +1561,10 @@ const loop = new IconButton({
         <tr><td>width</td><td>number</td><td>200</td><td>Panel width in pixels. Chips wrap to new rows when they exceed this width.</td></tr>
         <tr><td>height</td><td>number</td><td>auto</td><td>Panel height. Omit to auto-size to fit all chips. Provide a fixed value to enable vertical scrolling when chips overflow — a thin scrollbar appears automatically and mouse-wheel or drag scrolls the content.</td></tr>
         <tr><td>label</td><td>string</td><td>''</td><td>Caption shown at the bottom of the panel. Double-click it to reset selection.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(selectedArray, addedWord, removedWord)</code> on each toggle. Exactly one of <code>addedWord</code> / <code>removedWord</code> is non-null per click; both are null on a label double-click reset.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({selected, added, removed}[, control])</code> — called on each toggle. Exactly one of <code>added</code> / <code>removed</code> is non-null per click; both are null on a label double-click reset.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({selected, added: null, removed: null}[, control])</code> — called on mouse/touch release.</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value (or values object for multi-controls).</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
 </tbody>
     </table>
 
@@ -1588,7 +1587,7 @@ const loop = new IconButton({
   words: ['REVERB', 'DELAY', 'CHORUS', 'FLANGER', 'PHASER',
           'DISTORT', 'COMPRESS', 'EQ', 'GATE', 'LIMITER'],
   label: 'FX',
-  onChange: (sel, added, removed) => console.log(sel, added, removed),
+  onChange: ({selected, added, removed}) => console.log(selected, added, removed),
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=tagSelector" width="260" height="130" scrolling="no" frameborder="0" loading="lazy" title="TagSelector live example"></iframe>
@@ -1611,12 +1610,10 @@ const loop = new IconButton({
         <tr><td>width</td><td>number</td><td>auto</td><td>Panel width. Defaults to a size that fits the longest option label with padding.</td></tr>
         <tr><td>height</td><td>number</td><td>auto</td><td>Panel height. Defaults to enough vertical space for all options at 22 px spacing (min 80 px).</td></tr>
         <tr><td>label</td><td>string</td><td>''</td><td>Caption rendered at the top of the panel.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(index, string)</code> whenever the selection changes during drag or scroll.</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with <code>(index, string)</code> on mouse release.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({index, label}[, control])</code> — called whenever the selection changes during drag or scroll.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({index, label}[, control])</code> — called on mouse release.</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value (or values object for multi-controls).</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
 </tbody>
     </table>
 
@@ -1648,7 +1645,7 @@ const loop = new IconButton({
   options: ['REVERB', 'DELAY', 'CHORUS', 'FLANGER', 'PHASER'],
   state: 1,
   label: 'FX MODE',
-  onChange: (i, v) => console.log(i, v),
+  onChange: ({index, label}) => console.log(index, label),
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=sliderSelector" width="260" height="160" scrolling="no" frameborder="0" loading="lazy" title="SliderSelector live example"></iframe>
@@ -1676,8 +1673,8 @@ const loop = new IconButton({
           <tr><td>minimizable</td><td>boolean</td><td>true</td><td>When <code>false</code> the <strong>−/+</strong> toggle button is hidden and the panel cannot be collapsed.</td></tr>
           <tr><td>movable</td><td>boolean</td><td>true</td><td>When <code>false</code> dragging the title bar does not reposition the panel.</td></tr>
           <tr><td>resizable</td><td>boolean</td><td>false</td><td>When <code>true</code> a resize grip appears in the bottom-right corner; drag it to change the panel's <code>width</code> and <code>height</code> at runtime.</td></tr>
-          <tr><td>onChange</td><td>function</td><td>null</td><td>Called with a <code>{ fieldName: value, … }</code> snapshot object whenever any child control's value changes. See <em>onChange / values</em> below.</td></tr>
-          <tr><td>onRelease</td><td>function</td><td>null</td><td>Called with the same snapshot object when the user releases a child control.</td></tr>
+          <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({ fieldName: value, … }[, panel])</code> — called with a snapshot of all child values whenever any child changes. See <em>onChange / values</em> below.</td></tr>
+          <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({ fieldName: value, … }[, panel])</code> — called with the same snapshot on release.</td></tr>
           <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
         </tbody>
       </table>
@@ -1689,8 +1686,8 @@ const loop = new IconButton({
         <thead><tr><th>Name</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td><code>.add(control)</code></td><td>Attach a ProControl to the panel. The control is removed from the global registry and managed by the panel from that point on. Returns <code>this</code> for chaining.</td></tr>
-          <tr><td><code>.onChange</code></td><td>Callback fired with the full <code>{ fieldName: value, … }</code> snapshot whenever any child changes. Can be set at construction or assigned later.</td></tr>
-          <tr><td><code>.onRelease</code></td><td>Callback fired with the same snapshot when the user releases any child control. Can be set at construction or assigned later.</td></tr>
+          <tr><td><code>.onChange</code></td><td>Callback fired as <code>onChange(snapshot[, panel])</code> whenever any child changes. Can be set at construction or assigned later.</td></tr>
+          <tr><td><code>.onRelease</code></td><td>Callback fired as <code>onRelease(snapshot[, panel])</code> when the user releases any child control. Can be set at construction or assigned later.</td></tr>
           <tr><td><code>.values</code></td><td>Read-only getter. Returns a fresh <code>{ fieldName: value, … }</code> snapshot of every child control's current value — same object shape as the <code>onChange</code> and <code>onRelease</code> arguments. Useful for polling the panel state without setting up a callback.</td></tr>
           <tr><td><code>.visible</code></td><td>Get/set panel visibility. When set to <code>false</code> the panel and all children stop drawing and receiving events.</td></tr>
           <tr><td><code>.minimized</code></td><td>Get/set minimized state. When <code>true</code> the panel collapses to only the title bar; the small <strong>−/+</strong> button in the title bar also toggles this.</td></tr>
@@ -1893,7 +1890,7 @@ pnl.add(new Dial({ x: 125, y: 95, size: 65, label: 'RETURN', readout: 'raw', dec
         <tr><td>width</td><td>number</td><td>auto</td><td>Dialog width. Defaults to at least 220 px or wide enough to fit all buttons on one row, whichever is larger.</td></tr>
         <tr><td>label</td><td>string</td><td>''</td><td>Title bar text. When set a styled title bar is shown at the top and the dialog can be repositioned by dragging it.</td></tr>
         <tr><td>movable</td><td>boolean</td><td>true</td><td>When <code>false</code> the dialog cannot be dragged.</td></tr>
-        <tr><td>onButton</td><td>function</td><td>null</td><td>Called with <code>(index, label)</code> when a button is clicked.</td></tr>
+        <tr><td>onButton</td><td>function</td><td>null</td><td><code>onButton(index, label[, control])</code> — called when a button is clicked.</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
       </tbody>
@@ -1946,11 +1943,10 @@ pnl.add(new Dial({ x: 125, y: 95, size: 65, label: 'RETURN', readout: 'raw', dec
         <tr><td>width</td><td>number</td><td>auto</td><td>Dialog width. Defaults to at least 220 px or wide enough to fit all buttons.</td></tr>
         <tr><td>label</td><td>string</td><td>''</td><td>Title bar text. When set the dialog can be dragged.</td></tr>
         <tr><td>movable</td><td>boolean</td><td>true</td><td>When <code>false</code> the dialog cannot be dragged.</td></tr>
-        <tr><td>onButton</td><td>function</td><td>null</td><td>Called with <code>(index, label)</code> when a button is clicked.</td></tr>
-        <tr><td>onSubmit</td><td>function</td><td>null</td><td>Called with the current <code>inputValue</code> string when <kbd>Enter</kbd> is pressed.</td></tr>
+        <tr><td>onButton</td><td>function</td><td>null</td><td><code>onButton(index, label, value[, control])</code> — called when a button is clicked. <code>value</code> is the current input field text.</td></tr>
+        <tr><td>onSubmit</td><td>function</td><td>null</td><td><code>onSubmit(value[, control])</code> — called with the current input text when <kbd>Enter</kbd> is pressed.</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables all interaction.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
 </tbody>
     </table>
 
@@ -1973,7 +1969,7 @@ pnl.add(new Dial({ x: 125, y: 95, size: 65, label: 'RETURN', readout: 'raw', dec
         <tr><td><kbd>Backspace</kbd> / <kbd>Delete</kbd></td><td>Removes the character before / after the cursor.</td></tr>
         <tr><td><kbd>←</kbd> / <kbd>→</kbd></td><td>Moves the cursor one character.</td></tr>
         <tr><td><kbd>Home</kbd> / <kbd>End</kbd></td><td>Jumps to the start or end of the text.</td></tr>
-        <tr><td><kbd>Enter</kbd></td><td>Fires <code>onSubmit(inputValue)</code>.</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>Fires <code>onSubmit(value[, control])</code>.</td></tr>
       </tbody>
     </table>
 
@@ -1987,8 +1983,8 @@ pnl.add(new Dial({ x: 125, y: 95, size: 65, label: 'RETURN', readout: 'raw', dec
   message: 'Enter a new name for the channel:',
   inputPlaceholder: 'Channel name...',
   buttons: ['Cancel', 'OK'],
-  onSubmit: v => console.log('submit', v),
-  onButton: (i, lbl) => console.log(i, lbl),
+  onSubmit: (v) => console.log('submit', v),
+  onButton: (i, lbl, v) => console.log(i, lbl, v),
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=inputDialog" width="290" height="195" scrolling="no" frameborder="0" loading="lazy" title="InputDialog live example"></iframe>
@@ -2011,11 +2007,9 @@ pnl.add(new Dial({ x: 125, y: 95, size: 65, label: 'RETURN', readout: 'raw', dec
         <tr><td>orientation</td><td>string</td><td>'top'</td><td>Where the bar sits and which way submenus open: <code>'top'</code> — bar across the top, submenus open downward. <code>'bottom'</code> — bar across the bottom, submenus open upward. <code>'left'</code> — bar down the left side, submenus open rightward. <code>'right'</code> — bar down the right side, submenus open leftward. <code>'popup'</code> — floating vertical menu positioned at <code>x, y</code>; submenus and their arrow indicators automatically flip left or right depending on which half of the canvas the menu sits in.</td></tr>
         <tr><td>x, y</td><td>number</td><td>0, 0</td><td>Canvas position of the top-left corner of the menu bar.</td></tr>
         <tr><td>width</td><td>number</td><td>auto</td><td>Bar width. Horizontal: defaults to the total of all item widths. Vertical: defaults to the widest item label.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Called with <code>(label, path)</code> when a leaf item is selected. <code>label</code> is the selected item's text; <code>path</code> is an array of labels from root to selection, e.g. <code>['Edit', 'Undo']</code>.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({label, path}[, control])</code> — called when a leaf item is selected. <code>label</code> is the selected item's text; <code>path</code> is an array from root to selection, e.g. <code>['Edit', 'Undo']</code>.</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Suppresses all interaction and draws a disabled overlay.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td>Callback function, invoked every time the value changes during interaction. Receives the new value (or values object for multi-controls).</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
 </tbody>
     </table>
 
@@ -2040,7 +2034,7 @@ pnl.add(new Dial({ x: 125, y: 95, size: 65, label: 'RETURN', readout: 'raw', dec
     'View',
     ['Help', 'About', 'Docs'],
   ],
-  onChange: (lbl, path) => console.log(path),
+  onChange: ({label, path}) => console.log(path),
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=menu_top" width="400" height="120" scrolling="no" frameborder="0" loading="lazy" title="Menu top live example"></iframe>
@@ -2059,7 +2053,7 @@ pnl.add(new Dial({ x: 125, y: 95, size: 65, label: 'RETURN', readout: 'raw', dec
     'View',
     ['Help', 'About', 'Docs'],
   ],
-  onChange: (lbl, path) => console.log(path),
+  onChange: ({label, path}) => console.log(path),
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=menu_left" width="200" height="240" scrolling="no" frameborder="0" loading="lazy" title="Menu left live example"></iframe>
@@ -2088,7 +2082,7 @@ pnl.add(new Dial({ x: 125, y: 95, size: 65, label: 'RETURN', readout: 'raw', dec
     'View',
     ['Help', 'About', 'Docs'],
   ],
-  onChange: (lbl, path) => console.log(path),
+  onChange: ({label, path}) => console.log(path),
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=popupMenu" width="300" height="200" scrolling="no" frameborder="0" loading="lazy" title="PopupMenu live example"></iframe>
@@ -2276,7 +2270,7 @@ pnl.add(new Dial({ x: 125, y: 95, size: 65, label: 'RETURN', readout: 'raw', dec
         <tr><td>fontSize</td><td>number</td><td>12</td><td>Base font size in pixels. Headings scale relative to this.</td></tr>
         <tr><td>padding</td><td>number</td><td>10</td><td>Inner padding on all sides.</td></tr>
         <tr><td>lineSpacing</td><td>number</td><td>1.5</td><td>Line-height multiplier applied to <code>fontSize</code>.</td></tr>
-        <tr><td>onClick</td><td>function</td><td>null</td><td>Called on any click inside the panel. Receives the link's URL string when a link is clicked, or <code>null</code> when clicking non-link text.</td></tr>
+        <tr><td>onClick</td><td>function</td><td>null</td><td><code>onClick(url[, control])</code> — called on any click. <code>url</code> is the link's URL string when a link is clicked, or <code>null</code> when clicking non-link text.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
       </tbody>
     </table>
@@ -2553,8 +2547,7 @@ for (let i = 0; i &lt; 5; i++) console.log('redraw tick');</textarea>
         <tr><td>fontSize</td><td>number</td><td>12</td><td>Text size in pixels. Row height is computed as <code>fontSize × 1.6</code>.</td></tr>
         <tr><td>padding</td><td>number</td><td>8</td><td>Padding from the panel edges in pixels.</td></tr>
         <tr><td>items</td><td>array</td><td>[]</td><td>Array of strings to display. Trigger re-render by reassigning (e.g., <code>lv.items = newList</code>).</td></tr>
-        <tr><td>onSelect</td><td>function</td><td>null</td><td>Callback fired on row click: <code>(item, index) => {}</code>.</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
+        <tr><td>onSelect</td><td>function</td><td>null</td><td><code>onSelect({item, index}[, control])</code> — called on row click and release.</td></tr>
 </tbody>
     </table>
 
@@ -2585,7 +2578,7 @@ for (let i = 0; i &lt; 5; i++) console.log('redraw tick');</textarea>
   x: 20, y: 15,
   width: 240, height: 160,
   items: ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta'],
-  onSelect: (item, i) => console.log('selected:', i, item),
+  onSelect: ({item, index}) => console.log('selected:', index, item),
 });</textarea>
       <iframe class="example-frame" src="example.html?c=listView&s=black" width="300" height="220" scrolling="no" frameborder="0" loading="lazy" title="ListView live example"></iframe>
     </div>
@@ -2607,8 +2600,7 @@ for (let i = 0; i &lt; 5; i++) console.log('redraw tick');</textarea>
         <tr><td>fontSize</td><td>number</td><td>12</td><td>Text size in pixels. Header height is <code>fontSize × 1.8</code>; row height is <code>fontSize × 1.6</code>.</td></tr>
         <tr><td>padding</td><td>number</td><td>8</td><td>Padding from the panel edges and between cells in pixels.</td></tr>
         <tr><td>items</td><td>array</td><td>[]</td><td>Array of objects. All items must have the same keys. Column names and widths are derived from the first object. Assign to trigger re-render.</td></tr>
-        <tr><td>onSelect</td><td>function</td><td>null</td><td>Callback fired on row click: <code>(item, index) => {}</code>.</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td>Callback function, invoked when the mouse button is released. Receives the final value.</td></tr>
+        <tr><td>onSelect</td><td>function</td><td>null</td><td><code>onSelect({item, index}[, control])</code> — called on row click and release. <code>item</code> is the row object.</td></tr>
 </tbody>
     </table>
 
@@ -2654,7 +2646,7 @@ for (let i = 0; i &lt; 5; i++) console.log('redraw tick');</textarea>
     { name: 'Gamma',   type: 'saw',    freq: 880 },
     { name: 'Delta',   type: 'noise',  freq: 110 },
   ],
-  onSelect: (item, i) => console.log('selected row', i, item.name),
+  onSelect: ({item, index}) => console.log('selected row', index, item.name),
 });</textarea>
       <iframe class="example-frame" src="example.html?c=gridView&s=black" width="420" height="240" scrolling="no" frameborder="0" loading="lazy" title="GridView live example"></iframe>
     </div>
