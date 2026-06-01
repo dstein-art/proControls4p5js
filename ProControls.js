@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-05-31 — commit 3180650
+// Last updated: 2026-05-31 — commit dbe4c8e
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -7291,7 +7291,10 @@ class ConsolePanel extends ProControl {
     this._gripSz = 12;
     this._btnSz  = 10;
 
+    this._paused        = false;
+    this._displayMsgs   = null;    // frozen snapshot shown when paused; null = live
     this._clrHov        = false;
+    this._pauseHov      = false;
     this._dragSB        = false;
     this._dragSBRef     = null;
     this._draggingPanel = false;
@@ -7340,10 +7343,12 @@ class ConsolePanel extends ProControl {
   // ── Public API ────────────────────────────────────────────────────────────
 
   clear() {
-    this._msgs        = [];
-    this._scrollY     = 0;
-    this._contentH    = 0;
-    this._layoutDirty = true;
+    this._msgs         = [];
+    this._displayMsgs  = null;
+    this._paused       = false;
+    this._scrollY      = 0;
+    this._contentH     = 0;
+    this._layoutDirty  = true;
   }
 
   get visible()    { return this._visible; }
@@ -7380,15 +7385,20 @@ class ConsolePanel extends ProControl {
       last.count++;
       last.time  = time;
       last.lines = null;   // invalidate so prefix re-renders with new count/time
-      this._layoutDirty   = true;
-      this._pendingBottom = true;
+      if (!this._paused) {
+        this._layoutDirty   = true;
+        this._pendingBottom = true;
+      }
+      this._ledLastFlash = millis();
       return;
     }
 
     this._msgs.push({ type, text, time, count: 1, lines: null, lineCount: 1 });
     if (this._msgs.length > this._maxMsgs) this._msgs.shift();
-    this._layoutDirty   = true;
-    this._pendingBottom = true;
+    if (!this._paused) {
+      this._layoutDirty   = true;
+      this._pendingBottom = true;
+    }
     this._ledLastFlash  = millis();
   }
 
@@ -7432,6 +7442,18 @@ class ConsolePanel extends ProControl {
     return mx >= r.x && mx <= r.x + r.w && my >= r.y && my <= r.y + r.h;
   }
 
+  // Pause/go button — left of CLR button
+  _pauseBtnRect() {
+    const clrR = this._clrBtnRect();
+    const bw = 22, bh = 14;
+    return { x: clrR.x - 4 - bw, y: clrR.y, w: bw, h: bh };
+  }
+
+  _inPauseBtn(mx, my) {
+    const r = this._pauseBtnRect();
+    return mx >= r.x && mx <= r.x + r.w && my >= r.y && my <= r.y + r.h;
+  }
+
   _inResizeHandle(mx, my) {
     if (!this.resizable || this._minimized) return false;
     return mx >= this.x + this.width  - this._gripSz && mx <= this.x + this.width &&
@@ -7442,18 +7464,19 @@ class ConsolePanel extends ProControl {
 
   _buildLayout() {
     this._layoutDirty = false;
+    const msgs    = this._displayMsgs ?? this._msgs;
     const sbExtra = this._needsScroll() ? this._sbW : 0;
     const availW  = this.width - this._padX * 2 - sbExtra;
     textSize(9);
     if (this.theme.font) textFont(this.theme.font);
 
     if (this._lastWidth !== this.width) {
-      for (const m of this._msgs) m.lines = null;
+      for (const m of msgs) m.lines = null;
       this._lastWidth = this.width;
     }
 
     let h = this._padY;
-    for (const m of this._msgs) {
+    for (const m of msgs) {
       if (!m.lines) {
         const countSuffix = m.count > 1 ? ` ×${m.count}` : '';
         const prefix = this._showTime ? `[${m.time}${countSuffix}] ` : (m.count > 1 ? `×${m.count} ` : '');
@@ -7507,6 +7530,7 @@ class ConsolePanel extends ProControl {
     _drawBevelTitleBar(theme, x, y, width, this._titleH, this._minimized, this.label);
     _drawTitleLED(x, y, this._titleH, 1 - (millis() - this._ledLastFlash) / 400);
     this._drawClrBtn();
+    this._drawPauseBtn();
     if (this.minimizable) this._drawToggleBtn();
 
     if (this._minimized) return;
@@ -7526,7 +7550,8 @@ class ConsolePanel extends ProControl {
     textAlign(LEFT, TOP);
     noStroke();
     let curY = contentY + this._padY - this._scrollY;
-    for (const m of this._msgs) {
+    const renderMsgs = this._displayMsgs ?? this._msgs;
+    for (const m of renderMsgs) {
       if (!m.lines) continue;
       fill(this._typeCol(m.type));
       for (const line of m.lines) {
@@ -7576,6 +7601,34 @@ class ConsolePanel extends ProControl {
     textAlign(CENTER, CENTER);
     if (this.theme.font) textFont(this.theme.font);
     text('CLR', r.x + r.w / 2, r.y + r.h / 2);
+    pop();
+  }
+
+  _drawPauseBtn() {
+    const r = this._pauseBtnRect();
+    const { theme } = this;
+    push();
+    noStroke();
+    fill(this._pauseHov
+      ? lerpColor(color(theme.capBody), color(theme.capHighlight), 0.5)
+      : this._paused
+        ? lerpColor(color(theme.capBody), color(theme.capHighlight), 0.3)
+        : lerpColor(color(theme.panel), color(theme.panelStroke), 0.7));
+    rect(r.x, r.y, r.w, r.h, 2);
+    const cx = r.x + r.w / 2;
+    const cy = r.y + r.h / 2;
+    if (this._paused) {
+      // Play triangle
+      fill(theme.capHighlight);
+      noStroke();
+      triangle(cx - 3.5, cy - 4.5, cx - 3.5, cy + 4.5, cx + 4.5, cy);
+    } else {
+      // Pause: two vertical bars
+      fill(theme.label);
+      noStroke();
+      rect(cx - 4.5, cy - 3.5, 3, 7);
+      rect(cx + 1.5, cy - 3.5, 3, 7);
+    }
     pop();
   }
 
@@ -7645,7 +7698,8 @@ class ConsolePanel extends ProControl {
       return;
     }
 
-    this._clrHov = this._inClrBtn(mouseX, mouseY);
+    this._clrHov   = this._inClrBtn(mouseX, mouseY);
+    this._pauseHov = this._inPauseBtn(mouseX, mouseY);
 
     if (this.resizable && !this._minimized) {
       const was = this._gripHovered;
@@ -7674,6 +7728,20 @@ class ConsolePanel extends ProControl {
 
       // Clear button
       if (this._inClrBtn(mouseX, mouseY)) { this.clear(); return; }
+
+      // Pause / go button
+      if (this._inPauseBtn(mouseX, mouseY)) {
+        this._paused = !this._paused;
+        if (this._paused) {
+          this._displayMsgs = [...this._msgs];
+          this._layoutDirty = true;
+        } else {
+          this._displayMsgs  = null;
+          this._layoutDirty  = true;
+          this._pendingBottom = true;
+        }
+        return;
+      }
 
       // Minimize toggle
       if (this._hitBtn(mouseX, mouseY)) {
