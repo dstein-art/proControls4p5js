@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-01 — commit 69cc19a
+// Last updated: 2026-06-01 — commit 5cdf7b0
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -299,7 +299,8 @@ function _drawStainlessOverlay(theme) {
 // Controls self-register on construction. p5.registerMethod hooks dispatch
 // events to every registered control so the sketch needs no event boilerplate.
 
-const _proControlRegistry  = [];
+const _proControlRegistry    = [];
+const _proControlNameCounters = {};   // per-class fallback counter for auto-naming
 const _drawnThisFrame  = new Set();
 let   _proControlWired      = false;
 let   _proControlWasPressed = false;
@@ -502,6 +503,20 @@ class ProControl {
     this.max      = opts.max      ?? 1;
     this.value    = Math.max(this.min, Math.min(this.max, opts.value ?? this.min));
     this.label    = opts.label    ?? '';
+
+    // name: explicit > sanitized-label > ClassName+counter
+    if (opts.name !== undefined) {
+      this.name = opts.name;
+    } else {
+      const sanitized = this.label.replace(/[^a-zA-Z0-9]/g, '');
+      if (sanitized) {
+        this.name = sanitized;
+      } else {
+        const cn = this.constructor.name;
+        _proControlNameCounters[cn] = (_proControlNameCounters[cn] ?? 0) + 1;
+        this.name = cn + _proControlNameCounters[cn];
+      }
+    }
     this.disabled = opts.disabled ?? false;
     this.onChange  = opts.onChange  ?? null;
     this.onRelease = opts.onRelease ?? null;
@@ -598,6 +613,7 @@ class ProControl {
       max:            this.max,
       value:          this.value,
       label:          this.label,
+      name:           this.name,
       disabled:       this.disabled,
       onChange:       this.onChange,
       onRelease:      this.onRelease,
@@ -1983,7 +1999,7 @@ window.ProControlThemes      = ProControlThemes;
 window.proControlBackground  = proControlBackground;
 window.proControlReset       = proControlReset;
 window.proControls         = function() { return [..._proControlRegistry]; };
-window.proControlFullReset = function() { _proControlRegistry.length = 0; _drawnThisFrame.clear(); _proControlWasPressed = false; _proTouchActive = false; _proControlWired = false; Object.assign(_autoLayout, { nextX: 20, nextY: 20, rightEdge: 20 }); };
+window.proControlFullReset = function() { _proControlRegistry.length = 0; _drawnThisFrame.clear(); _proControlWasPressed = false; _proTouchActive = false; _proControlWired = false; Object.assign(_autoLayout, { nextX: 20, nextY: 20, rightEdge: 20 }); for (const k in _proControlNameCounters) delete _proControlNameCounters[k]; };
 window.resetAutoLayout     = function() { Object.assign(_autoLayout, { nextX: 20, nextY: 20, rightEdge: 20 }); };
 window.ProControl     = ProControl;
 window.AnalogSlider      = AnalogSlider;
@@ -3444,9 +3460,10 @@ class MultiSlider extends ProControl {
 
   _cloneOpts() {
     const slidersMap = {};
-    this._names.forEach((name, i) => {
-      const s = this._children[i];
-      slidersMap[name] = {
+    this._children.forEach(s => {
+      slidersMap[s.name] = {
+        name:          s.name,
+        label:         s.label,
         value:         s.value,
         min:           s.min,
         max:           s.max,
@@ -3470,6 +3487,7 @@ class MultiSlider extends ProControl {
       x:          this._x,
       y:          this._y,
       label:      this.label,
+      name:       this.name,
       theme:      Object.assign({}, this.theme),
       horizontal: this.horizontal,
       onChange:   this.onChange,
@@ -3492,7 +3510,7 @@ class MultiSlider extends ProControl {
 
   _values() {
     const v = {};
-    this._names.forEach((n, i) => { v[n] = this._children[i].value; });
+    this._children.forEach(c => { v[c.name] = c.value; });
     return v;
   }
 
@@ -3500,14 +3518,13 @@ class MultiSlider extends ProControl {
 
   set values(obj) {
     for (const [n, val] of Object.entries(obj)) {
-      const i = this._names.indexOf(n);
-      if (i !== -1) this._children[i].value = val;
+      const child = this._children.find(c => c.name === n);
+      if (child) child.value = val;
     }
   }
 
   slider(name) {
-    const i = this._names.indexOf(name);
-    return i !== -1 ? this._children[i] : null;
+    return this._children.find(c => c.name === name) ?? null;
   }
 
   set disabled(v) {
@@ -3627,9 +3644,10 @@ class MultiDial extends ProControl {
 
   _cloneOpts() {
     const dialsMap = {};
-    this._names.forEach((name, i) => {
-      const d = this._children[i];
-      dialsMap[name] = {
+    this._children.forEach(d => {
+      dialsMap[d.name] = {
+        name:          d.name,
+        label:         d.label,
         value:         d.value,
         min:           d.min,
         max:           d.max,
@@ -3650,6 +3668,7 @@ class MultiDial extends ProControl {
       x:          this._x,
       y:          this._y,
       label:      this.label,
+      name:       this.name,
       theme:      Object.assign({}, this.theme),
       horizontal: this.horizontal,
       onChange:   this.onChange,
@@ -3672,7 +3691,7 @@ class MultiDial extends ProControl {
 
   _values() {
     const v = {};
-    this._names.forEach((n, i) => { v[n] = this._children[i].value; });
+    this._children.forEach(c => { v[c.name] = c.value; });
     return v;
   }
 
@@ -3680,14 +3699,13 @@ class MultiDial extends ProControl {
 
   set values(obj) {
     for (const [n, val] of Object.entries(obj)) {
-      const i = this._names.indexOf(n);
-      if (i !== -1) this._children[i].value = val;
+      const child = this._children.find(c => c.name === n);
+      if (child) child.value = val;
     }
   }
 
   dial(name) {
-    const i = this._names.indexOf(name);
-    return i !== -1 ? this._children[i] : null;
+    return this._children.find(c => c.name === name) ?? null;
   }
 
   set disabled(v) {
