@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-05-31 — commit dbe4c8e
+// Last updated: 2026-06-01 — commit 69cc19a
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -7388,6 +7388,11 @@ class ConsolePanel extends ProControl {
       if (!this._paused) {
         this._layoutDirty   = true;
         this._pendingBottom = true;
+      } else {
+        // _displayMsgs is a shallow copy — if the last display entry is this same
+        // object, the count is still visible so re-layout to show the new count.
+        const dispLast = this._displayMsgs?.[this._displayMsgs.length - 1];
+        if (dispLast === last) this._layoutDirty = true;
       }
       this._ledLastFlash = millis();
       return;
