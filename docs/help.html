@@ -660,6 +660,7 @@
       <a href="#timeGraphPanel">TimeGraphPanel</a>
       <a href="#listView">ListView</a>
       <a href="#gridView">GridView</a>
+      <a href="#heatMapView">HeatMapView</a>
       <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
       <a href="displaysTutorial.html">Displays Tutorial</a>
     </div>
@@ -2652,6 +2653,69 @@ for (let i = 0; i &lt; 5; i++) console.log('redraw tick');</textarea>
   onSelect: ({item, index}) => console.log('selected row', index, item.name),
 });</textarea>
       <iframe class="example-frame" src="example.html?c=gridView&s=black" width="420" height="240" scrolling="no" frameborder="0" loading="lazy" title="GridView live example"></iframe>
+    </div>
+  </section>
+
+  <section id="heatMapView">
+    <h2 id="heatMapView">HeatMapView <span class="tag ext">Display</span></h2>
+    <p class="desc">Multidimensional heatmap grid with drill-down navigation. Visualize hierarchical data by grouping and summing a numeric field across dimension levels. Click cells to explore deeper levels; use breadcrumbs or right-click to navigate back. Color intensity reflects the relative magnitude of values at each level.</p>
+
+    <div class="sig">new HeatMapView(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>0, 0</td><td>Canvas position of the panel's top-left corner.</td></tr>
+        <tr><td>width</td><td>number</td><td>400</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>280</td><td>Panel height in pixels.</td></tr>
+        <tr><td>fontSize</td><td>number</td><td>12</td><td>Text size in pixels. Breadcrumb height is <code>fontSize × 1.8</code>.</td></tr>
+        <tr><td>padding</td><td>number</td><td>8</td><td>Padding from the panel edges in pixels.</td></tr>
+        <tr><td>fields</td><td>array</td><td>[]</td><td>Array of field names defining the drill-down hierarchy. E.g., <code>['product', 'brand', 'trim']</code>.</td></tr>
+        <tr><td>valueField</td><td>string</td><td>null</td><td>Name of the numeric field to sum and visualize. E.g., <code>'quantity'</code> or <code>'revenue'</code>.</td></tr>
+        <tr><td>items</td><td>array</td><td>[]</td><td>Array of objects with keys matching fields and valueField. Trigger re-render by reassigning (e.g., <code>hm.items = newData</code>).</td></tr>
+        <tr><td>onSelect</td><td>function</td><td>null</td><td><code>onSelect({path, value, items}[, control])</code> — called when clicking a leaf-level cell. <code>path</code> is an array of values drilled to, <code>value</code> is the sum, <code>items</code> are matching raw rows.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.items</code></td><td>Get/set the array of data objects. Resets drill path and all state when assigned.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Interaction</h3>
+    <table class="opts">
+      <thead><tr><th>Gesture</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Click cell</strong></td><td>If not at the deepest level, drill down to show sub-groups. If at deepest level, select the cell and fire <code>onSelect</code> callback.</td></tr>
+        <tr><td><strong>Right-click</strong></td><td>Pop back one drill level. Disabled at root level.</td></tr>
+        <tr><td><strong>Click breadcrumb</strong></td><td>Jump directly to any drill depth (e.g., click "cars" in "All › cars › ford" to jump back to the product level).</td></tr>
+        <tr><td><strong>Hover</strong></td><td>Cell borders highlight with <code>theme.hoverGlow</code>. Selected cells show <code>theme.capIndicator</code> border.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const sampleData = [
+  {product:'cars', brand:'ford', trim:'Taurus', quantity:1423},
+  {product:'cars', brand:'ford', trim:'Mustang', quantity:2850},
+  {product:'cars', brand:'honda', trim:'Civic', quantity:2100},
+  {product:'trucks', brand:'chevy', trim:'Silverado', quantity:1800},
+  {product:'trucks', brand:'ford', trim:'F-250', quantity:2100},
+];
+
+const hm = new HeatMapView({
+  x: 20, y: 15,
+  width: 360, height: 260,
+  fields: ['product', 'brand', 'trim'],
+  valueField: 'quantity',
+  items: sampleData,
+  onSelect: ({path, value, items}) => console.log('Leaf:', path.join(' > '), 'Total:', value),
+});</textarea>
+      <iframe class="example-frame" src="example.html?c=heatMapView&s=black" width="420" height="300" scrolling="no" frameborder="0" loading="lazy" title="HeatMapView live example"></iframe>
     </div>
   </section>
 

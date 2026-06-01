@@ -70,6 +70,7 @@ const SIZES = {
   timeGraphPanel:  [360, 200],
   listView:        [300, 220],
   gridView:        [420, 220],
+  heatMapView:     [380, 260],
 };
 
 const [W, H] = SIZES[CTRL] || [300, 200];
@@ -850,6 +851,30 @@ const gv = new GridView({
     { name: 'Eta',     type: 'saw',    freq: 550, amp: 0.3 },
   ],
   onSelect: (item, i) => console.log('selected row', i, item),
+});`,
+
+  heatMapView: `\
+const sampleData = [
+  {product:'cars', brand:'ford', trim:'Taurus', quantity:1423},
+  {product:'cars', brand:'ford', trim:'F-150', quantity:3200},
+  {product:'cars', brand:'ford', trim:'Mustang', quantity:2850},
+  {product:'cars', brand:'honda', trim:'Civic', quantity:2100},
+  {product:'cars', brand:'honda', trim:'Accord', quantity:1950},
+  {product:'cars', brand:'toyota', trim:'Camry', quantity:3400},
+  {product:'cars', brand:'toyota', trim:'Corolla', quantity:2650},
+  {product:'trucks', brand:'chevy', trim:'Silverado', quantity:1800},
+  {product:'trucks', brand:'chevy', trim:'Colorado', quantity:950},
+  {product:'trucks', brand:'ford', trim:'F-250', quantity:2100},
+  {product:'trucks', brand:'ram', trim:'1500', quantity:2750},
+];
+
+const hm = new HeatMapView({
+  x: 10, y: 10,
+  width: 360, height: 240,
+  fields: ['product', 'brand', 'trim'],
+  valueField: 'quantity',
+  items: sampleData,
+  onSelect: ({path, value, items}) => console.log('Selected:', path.join(' > '), 'Total:', value),
 });`,
 };
 

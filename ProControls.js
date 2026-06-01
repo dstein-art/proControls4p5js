@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-01 — commit 7016810
+// Last updated: 2026-06-01 — commit 095d9d9
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -4388,9 +4388,10 @@ window.TagSelector = TagSelector;
 class SliderSelector extends ProControl {
   constructor(opts = {}) {
     super(Object.assign({ min: 0, max: 1, value: 0 }, opts));
-    this.options  = opts.options ?? ['A', 'B', 'C'];
-    this.state    = constrain(opts.state ?? 0, 0, Math.max(0, this.options.length - 1));
-    this.style    = opts.style ?? 'knob';  // 'knob' | 'button'
+    this.options       = opts.options ?? ['A', 'B', 'C'];
+    this.state         = constrain(opts.state ?? 0, 0, Math.max(0, this.options.length - 1));
+    this._defaultState = this.state;
+    this.style         = opts.style ?? 'knob';  // 'knob' | 'button'
 
     this._capH     = this.style === 'button' ? 20 : 24;
     this._trackPad = this._capH / 2 + (this.label ? 10 : 2);  // extra top room for label
@@ -4415,7 +4416,7 @@ class SliderSelector extends ProControl {
     return {
       ...o,
       options: [...this.options],
-      state:   this.state,
+      state:   this._defaultState,   // clone resets to same default
       style:   this.style,
       width:   this.width,
       height:  this.height,
@@ -4573,6 +4574,15 @@ class SliderSelector extends ProControl {
   mousePressed() {
     if (this.disabled) return;
     if (this._capHit(this._mx(), this._my())) {
+      if (this._isDoubleClick()) {
+        this._active = false;
+        if (this.state !== this._defaultState) {
+          this.state = this._defaultState;
+          if (this.onChange) this.onChange({index: this.state, label: this.options[this.state]}, this);
+          if (this.onRelease) this.onRelease({index: this.state, label: this.options[this.state]}, this);
+        }
+        return;
+      }
       this._active = true;
     }
   }
@@ -8956,5 +8966,369 @@ class GridView extends ProControl {
   }
 }
 
+// HeatMapView - multidimensional heatmap with drill-down navigation
+class HeatMapView extends ProControl {
+  constructor(opts = {}) {
+    super(Object.assign({ min: 0, max: 1, value: 0, x: 0, y: 0 }, opts));
+    this.width       = opts.width       ?? 400;
+    this.height      = opts.height      ?? 280;
+    this.fontSize    = opts.fontSize    ?? 12;
+    this.padding     = opts.padding     ?? 8;
+    this.fields      = opts.fields      ?? [];
+    this.valueField  = opts.valueField  ?? null;
+    this.onSelect    = opts.onSelect    ?? null;
+
+    this._items      = [];
+    this._drillPath  = [];  // [{field, value}, ...]
+    this._cells      = [];  // [{label, value, t, rawItems}, ...]
+    this._crumbs     = [];  // [{label, x, w, depth}, ...]
+    this._selectedIdx = -1;
+    this._hoverIdx   = -1;
+    this._hovered    = false;
+    this._breadcrumbH = this.fontSize * 1.8;
+
+    this.items = opts.items ?? [];
+  }
+
+  _cloneOpts() {
+    return {
+      x:          this._x,
+      y:          this._y,
+      label:      this.label,
+      theme:      Object.assign({}, this.theme),
+      width:      this.width,
+      height:     this.height,
+      fontSize:   this.fontSize,
+      padding:    this.padding,
+      fields:     [...this.fields],
+      valueField: this.valueField,
+      items:      this._items.map(row => ({...row})),
+      onSelect:   this.onSelect,
+    };
+  }
+
+  get items()  { return this._items; }
+  set items(v) {
+    this._items   = Array.isArray(v) ? v : [];
+    this._drillPath = [];
+    this._rebuild();
+  }
+
+  _currentField() {
+    return this.fields[this._drillPath.length] ?? null;
+  }
+
+  _isAtLeaf() {
+    return this._drillPath.length >= this.fields.length - 1;
+  }
+
+  _rebuild() {
+    if (this._items.length === 0 || !this._currentField()) {
+      this._cells = [];
+      return;
+    }
+
+    let filtered = this._items;
+    for (const step of this._drillPath) {
+      filtered = filtered.filter(row => row[step.field] === step.value);
+    }
+
+    const field = this._currentField();
+    const grouped = {};
+    const rawItemsMap = {};
+
+    for (const row of filtered) {
+      const key = row[field];
+      if (!grouped[key]) {
+        grouped[key] = 0;
+        rawItemsMap[key] = [];
+      }
+      grouped[key] += row[this.valueField] ?? 0;
+      rawItemsMap[key].push(row);
+    }
+
+    const values = Object.values(grouped);
+    const minVal = Math.min(...values);
+    const maxVal = Math.max(...values);
+    const range = maxVal - minVal || 1;
+
+    this._cells = Object.keys(grouped)
+      .sort()
+      .map(label => ({
+        label,
+        value: grouped[label],
+        t: (grouped[label] - minVal) / range,
+        rawItems: rawItemsMap[label],
+      }));
+
+    this._selectedIdx = -1;
+  }
+
+  _cellLayout() {
+    const n = this._cells.length;
+    if (n === 0) return { cols: 0, rows: 0, cellW: 0, cellH: 0, gridX: this.x, gridY: this.y };
+
+    const gridY = this.y + this.padding + this._breadcrumbH;
+    const gridH = this.height - this.padding * 2 - this._breadcrumbH;
+    const gridW = this.width - this.padding * 2;
+
+    const cols = Math.max(1, Math.ceil(Math.sqrt(n)));
+    const rows = Math.ceil(n / cols);
+
+    const cellGap = 2;
+    const cellW = (gridW - cellGap * (cols - 1)) / cols;
+    const cellH = (gridH - cellGap * (rows - 1)) / rows;
+
+    return { cols, rows, cellW, cellH, gridX: this.x + this.padding, gridY, gridW, gridH };
+  }
+
+  _formatValue(v) {
+    if (v >= 1e6) return (v / 1e6).toFixed(1) + 'M';
+    if (v >= 1e3) return (v / 1e3).toFixed(1) + 'K';
+    return Math.round(v).toString();
+  }
+
+  _hitCell(mx, my) {
+    const layout = this._cellLayout();
+    if (layout.cols === 0) return -1;
+
+    const relX = mx - layout.gridX;
+    const relY = my - layout.gridY;
+
+    if (relX < 0 || relY < 0 || relX > layout.gridW || relY > layout.gridH) return -1;
+
+    const cellGap = 2;
+    const col = Math.floor(relX / (layout.cellW + cellGap));
+    const row = Math.floor(relY / (layout.cellH + cellGap));
+
+    if (col >= layout.cols || row >= layout.rows) return -1;
+
+    const idx = row * layout.cols + col;
+    return idx < this._cells.length ? idx : -1;
+  }
+
+  _hitCrumb(mx, my) {
+    const crumbY = this.y + this.padding;
+    if (mx < this.x || mx > this.x + this.width || my < crumbY || my > crumbY + this._breadcrumbH) {
+      return -1;
+    }
+
+    for (const crumb of this._crumbs) {
+      if (mx >= crumb.x && mx <= crumb.x + crumb.w) {
+        return crumb.depth;
+      }
+    }
+    return -1;
+  }
+
+  _drillDown(idx) {
+    if (idx < 0 || idx >= this._cells.length) return;
+    const field = this._currentField();
+    if (!field) return;
+
+    this._drillPath.push({ field, value: this._cells[idx].label });
+    this._rebuild();
+  }
+
+  _drillUp() {
+    if (this._drillPath.length > 0) {
+      this._drillPath.pop();
+      this._rebuild();
+    }
+  }
+
+  draw() {
+    this._markDrawn();
+    const { x, y, padding, fontSize: fs } = this;
+    const { width: w, height: h } = this;
+
+    this._drawPanel(x, y, w, h);
+
+    const gc = drawingContext;
+    gc.save();
+
+    // Breadcrumb
+    this._drawBreadcrumb(gc);
+
+    // Heat cells
+    this._drawCells(gc);
+
+    gc.restore();
+
+    if (this.disabled) this._drawDisabled(x, y, w, h);
+  }
+
+  _drawBreadcrumb(gc) {
+    const y = this.y + this.padding;
+    let x = this.x + this.padding;
+    const h = this._breadcrumbH;
+
+    gc.font = this.theme.font ? `${this.fontSize}px ${this.theme.font}` : `${this.fontSize}px system-ui, Arial, sans-serif`;
+    gc.textBaseline = 'middle';
+    gc.textAlign = 'left';
+    gc.fillStyle = this.theme.readout;
+
+    this._crumbs = [];
+
+    // "All" crumb
+    const allText = 'All';
+    const allMetrics = gc.measureText(allText);
+    const allW = allMetrics.width + 8;
+
+    gc.fillStyle = this._drillPath.length === 0 ? this.theme.capIndicator : this.theme.readout;
+    gc.fillText(allText, x + 4, y + h / 2);
+
+    this._crumbs.push({ label: 'All', x, w: allW, depth: 0 });
+    x += allW + 4;
+
+    // Path crumbs
+    for (let i = 0; i < this._drillPath.length; i++) {
+      const sep = ' › ';
+      const sepW = gc.measureText(sep).width;
+
+      gc.fillStyle = this.theme.readout;
+      gc.fillText(sep, x, y + h / 2);
+      x += sepW;
+
+      const label = this._drillPath[i].value;
+      const metrics = gc.measureText(label);
+      const labelW = metrics.width + 8;
+
+      gc.fillStyle = i === this._drillPath.length - 1 ? this.theme.capIndicator : this.theme.readout;
+      gc.fillText(label, x + 4, y + h / 2);
+
+      this._crumbs.push({ label, x, w: labelW, depth: i + 1 });
+      x += labelW + 4;
+
+      if (x > this.x + this.width - this.padding) break;
+    }
+  }
+
+  _drawCells(gc) {
+    if (this._cells.length === 0) return;
+
+    const layout = this._cellLayout();
+    const cellGap = 2;
+
+    gc.font = this.theme.font ? `${this.fontSize}px ${this.theme.font}` : `${this.fontSize}px system-ui, Arial, sans-serif`;
+    gc.textBaseline = 'middle';
+    gc.textAlign = 'center';
+
+    for (let idx = 0; idx < this._cells.length; idx++) {
+      const cell = this._cells[idx];
+      const col = idx % layout.cols;
+      const row = Math.floor(idx / layout.cols);
+
+      const cx = layout.gridX + col * (layout.cellW + cellGap);
+      const cy = layout.gridY + row * (layout.cellH + cellGap);
+
+      // Heat color: panel + capIndicator gradient by t (heat)
+      const heatColor = lerpColor(
+        color(this.theme.panel),
+        color(this.theme.capIndicator),
+        0.15 + cell.t * 0.75
+      );
+
+      gc.fillStyle = heatColor;
+      gc.fillRect(cx, cy, layout.cellW, layout.cellH);
+
+      // Border
+      if (idx === this._selectedIdx) {
+        gc.strokeStyle = this.theme.capIndicator;
+        gc.lineWidth = 2;
+      } else if (idx === this._hoverIdx) {
+        gc.strokeStyle = this.theme.hoverGlow;
+        gc.lineWidth = 1;
+      } else {
+        gc.strokeStyle = this.theme.panelStroke;
+        gc.lineWidth = 1;
+      }
+      gc.strokeRect(cx, cy, layout.cellW, layout.cellH);
+
+      // Text
+      const labelY = cy + layout.cellH / 2 - this.fontSize / 2;
+      const valueY = labelY + this.fontSize + 3;
+
+      gc.fillStyle = this.theme.readout;
+      gc.fillText(cell.label, cx + layout.cellW / 2, labelY);
+
+      gc.fillStyle = this.theme.scaleText;
+      gc.font = this.theme.font ? `bold ${this.fontSize * 0.8}px ${this.theme.font}` : `bold ${this.fontSize * 0.8}px system-ui, Arial, sans-serif`;
+      gc.fillText(this._formatValue(cell.value), cx + layout.cellW / 2, valueY);
+
+      // Drill indicator (if not at leaf)
+      if (!this._isAtLeaf()) {
+        gc.fillStyle = this.theme.capIndicator;
+        gc.font = this.theme.font ? `${this.fontSize + 2}px ${this.theme.font}` : `${this.fontSize + 2}px system-ui, Arial, sans-serif`;
+        gc.textBaseline = 'bottom';
+        gc.textAlign = 'right';
+        gc.fillText('›', cx + layout.cellW - 4, cy + layout.cellH - 2);
+      }
+    }
+  }
+
+  mouseMoved() {
+    const wasHovered = this._hovered;
+    const mx = this._mx(), my = this._my();
+
+    this._hovered = mx >= this.x && mx <= this.x + this.width &&
+                    my >= this.y && my <= this.y + this.height;
+
+    if (this._hovered) {
+      const cellIdx = this._hitCell(mx, my);
+      this._hoverIdx = cellIdx >= 0 ? cellIdx : -1;
+    } else {
+      this._hoverIdx = -1;
+    }
+  }
+
+  mousePressed() {
+    if (!this._hovered) return;
+
+    const mx = this._mx(), my = this._my();
+
+    // Right-click: drill up
+    if (mouseButton === RIGHT) {
+      this._drillUp();
+      return;
+    }
+
+    // Check breadcrumb hit
+    const crumbDepth = this._hitCrumb(mx, my);
+    if (crumbDepth >= 0) {
+      this._drillPath = this._drillPath.slice(0, crumbDepth);
+      this._rebuild();
+      return;
+    }
+
+    // Check cell hit
+    const cellIdx = this._hitCell(mx, my);
+    if (cellIdx >= 0) {
+      if (this._isAtLeaf()) {
+        // At leaf: select and fire callback
+        this._selectedIdx = cellIdx;
+        if (this.onSelect) {
+          const cell = this._cells[cellIdx];
+          const path = this._drillPath.map(p => p.value);
+          this.onSelect({ path, value: cell.value, items: cell.rawItems }, this);
+        }
+      } else {
+        // Not at leaf: drill down
+        this._drillDown(cellIdx);
+      }
+    }
+  }
+
+  mouseReleased() {
+    // Could fire onRelease here if needed in future
+  }
+
+  mouseWheel(e) {
+    // Optional: scroll through cells if there are many
+    // For now, no-op
+  }
+}
+
 window.ListView = ListView;
 window.GridView = GridView;
+window.HeatMapView = HeatMapView;

@@ -1,51 +1,84 @@
+let pad1;
+let osc1, osc2;
+let started=false;
+
+let myPanel;
+
+let mySlider;
+let heatmap;
+
+function setupPanel(p) {
+  p.add(new XYPad({x:10,y:10,springBack:true,springDuration:30,min:-40,max:40}));
+  p.started=false;
+  p.osc1 = new p5.Oscillator("square");
+  p.osc1.amp(1); 
+  p.osc2 = new p5.Oscillator("square");
+  p.osc2.amp(1); 
+  p.startFreqSlider=new AnalogSlider({x:180,y:10,height:150,min:100,max:500,value:100});
+  p.add(p.startFreqSlider);
+  p.onChange =panelChanged;
+}
+
 function setup() {
-  createCanvas(600, 600);
-
-  // Debug: check what print is
-  console.log('DEBUG: typeof print:', typeof print);
-  console.log('DEBUG: typeof window.print:', typeof window.print);
-  console.log('DEBUG: print.toString():', print.toString().substring(0, 100));
-
-  let myPanel=new Panel({x:10,y:10,width:200,height:250,resizable:true,label:'My Panel'});
-
+  createCanvas(1000, 600);
   openConsolePanel();
-  let c=new RangeSlider();
-  let d=new Dial();
-  let a=new AnalogSlider({x:120});
 
-  myPanel.add(c);
-  myPanel.add(d);
+  myPanel = new Panel();
+  setupPanel(myPanel);
 
-  let newPanel=myPanel.copy();
+  let newPanel = new Panel();
+  setupPanel(newPanel);
+  newPanel.position(10,300);
 
-  console.log('My Panel children:');
-  for (const c of myPanel._children) {
-    console.log(c.constructor.name, c.label,c.x,c.y);
-  } 
+  mySlider=new AnalogSlider();
 
-  console.log('New Panel children:');
-  for (const c of newPanel._children) {
-    console.log(c.constructor.name, c.label,c.x,c.y);
-  } 
+  // HeatMapView test
+  const sampleData = [
+    {product:'cars', brand:'ford', trim:'Taurus', quantity:1423},
+    {product:'cars', brand:'ford', trim:'F-150', quantity:3200},
+    {product:'cars', brand:'ford', trim:'Mustang', quantity:2850},
+    {product:'cars', brand:'honda', trim:'Civic', quantity:2100},
+    {product:'cars', brand:'honda', trim:'Accord', quantity:1950},
+    {product:'cars', brand:'toyota', trim:'Camry', quantity:3400},
+    {product:'cars', brand:'toyota', trim:'Corolla', quantity:2650},
+    {product:'trucks', brand:'chevy', trim:'Silverado', quantity:1800},
+    {product:'trucks', brand:'chevy', trim:'Colorado', quantity:950},
+    {product:'trucks', brand:'ford', trim:'F-250', quantity:2100},
+    {product:'trucks', brand:'ram', trim:'1500', quantity:2750},
+  ];
 
+  heatmap = new HeatMapView({
+    x: 450, y: 10,
+    width: 500, height: 360,
+    fields: ['product', 'brand', 'trim'],
+    valueField: 'quantity',
+    items: sampleData,
+    label: 'Sales by Product/Brand/Trim',
+    onSelect: (d) => {
+      console.log('Selected:', d.path.join(' > '), 'Value:', d.value, 'Items:', d.items.length);
+    }
+  });
 
+}
 
-  d.onChange = (value) => {
-    console.log('DEBUG: onChange called');
-    print(value);
-  }
-  d.onRelease = (value) => {
-    print('release', value);
-  }
-  c.onChange = (value) => {
-    print(value);
-  }
-  c.onRelease = (value) => {
-    print('release', value);
+function panelChanged(value,o) {
+
+  //print(o.startFreq.value);
+  let f1=o.values.XYPad1.x+o.startFreqSlider.value;
+  let f2=o.values.XYPad1.y+o.startFreqSlider.value;
+
+  o.osc1.freq(f1);
+  o.osc2.freq(f2);
+
+  if (!o.started) {
+    o.osc1.start();
+    o.osc2.start();
+    o.started=true;
   }
 }
 
-function draw() {
-  background(200);
 
+function draw() {
+  background(220);
+  //print(mySlider.value);
 }

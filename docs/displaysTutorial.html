@@ -1642,6 +1642,51 @@ function draw() {
     </div>
   </div>
 
+  <!-- HeatMapView -->
+  <div class="example-row">
+    <div class="example-col">
+      <h2>HeatMapView — Multidimensional heatmap with drill-down</h2>
+      <p>
+        A <strong>HeatMapView</strong> displays a grid of colored cells representing hierarchical data grouped by multiple dimensions.
+        Each cell's color intensity reflects the magnitude of its aggregated value. Click any cell to drill down one level; use
+        breadcrumbs at the top to jump back to earlier drill levels, or right-click to pop back one level.
+        When you reach the deepest dimension, clicking a cell fires the <code>onSelect</code> callback with the full drill path.
+      </p>
+      <div class="live-example">
+        <div class="live-toolbar">
+          <span class="live-title">HeatMapView</span>
+        </div>
+        <textarea class="live-code" spellcheck="false">const sampleData = [
+  {product:'cars', brand:'ford', trim:'Taurus', quantity:1423},
+  {product:'cars', brand:'ford', trim:'F-150', quantity:3200},
+  {product:'cars', brand:'honda', trim:'Civic', quantity:2100},
+  {product:'cars', brand:'honda', trim:'Accord', quantity:1950},
+  {product:'trucks', brand:'chevy', trim:'Silverado', quantity:1800},
+  {product:'trucks', brand:'ford', trim:'F-250', quantity:2100},
+];
+
+const hm = new HeatMapView({
+  x: 20, y: 15,
+  width: 360, height: 260,
+  fields: ['product', 'brand', 'trim'],
+  valueField: 'quantity',
+  items: sampleData,
+  onSelect: ({path, value, items}) => {
+    console.log('Drilled to:', path.join(' > '));
+    console.log('Total value:', value);
+    console.log('Matching items:', items.length);
+  },
+});</textarea>
+        <iframe class="example-frame" src="example.html?c=heatMapView" width="420" height="300" scrolling="no" frameborder="0" loading="lazy" title="HeatMapView live example"></iframe>
+      </div>
+      <div class="tip">
+        <strong>Tip:</strong> The <code>fields</code> array defines the drill-down hierarchy. Start with product, then brand, then trim.
+        The <code>valueField</code> specifies which property to sum at each level. Reassign <code>hm.items</code> with new data to update the heatmap.
+        Use the breadcrumb bar to navigate, or right-click any cell to pop back one level.
+      </div>
+    </div>
+  </div>
+
 </div><!-- /page -->
 
 <script>
