@@ -607,6 +607,7 @@
       <tr><td>max</td><td>number</td><td>1</td><td>Maximum value of the range.</td></tr>
       <tr><td>value</td><td>number</td><td>min</td><td>Initial value. Writable at any time via <code>ctrl.value = v</code>.</td></tr>
       <tr><td>label</td><td>string</td><td>''</td><td>Text label drawn on the control.</td></tr>
+      <tr><td>name</td><td>string</td><td>auto</td><td>Identifier used as a field key in composite controls (e.g. <code>MultiSlider.values</code>). Resolution order: (1) explicit <code>name</code> option, (2) label with spaces and punctuation removed (<code>"My Freq"</code> → <code>"MyFreq"</code>), (3) <code>ClassName</code> + auto-incrementing counter (<code>"AnalogSlider1"</code>). Readable and writable at any time via <code>ctrl.name</code>.</td></tr>
       <tr><td>scale</td><td>string</td><td>'linear'</td><td><code>'linear'</code> or <code>'log'</code>. Log requires <code>min &gt; 0</code>. Affects dragging, scrolling, and tick labels.</td></tr>
       <tr><td>disabled</td><td>boolean</td><td>false</td><td>Draws a translucent overlay and blocks all interaction.</td></tr>
       <tr><td>onChange</td><td>function</td><td>null</td><td>Called with the new value whenever it changes during interaction.</td></tr>

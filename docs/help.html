@@ -827,8 +827,9 @@
         <tr><td>horizontal</td><td>boolean</td><td>false</td><td>When <code>true</code>, each child is a horizontal slider and the group stacks them vertically. Default <code>width</code> becomes 180 and default <code>height</code> becomes 44 per slider.</td></tr>
         <tr><td>gap</td><td>number</td><td>4</td><td>Pixel gap between adjacent sliders.</td></tr>
         <tr><td>label</td><td>string</td><td>''</td><td>Group label (not drawn — available for identification).</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({ key: value, … }[, control])</code> — called when any slider changes. Keys are slider labels with spaces and punctuation removed.</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({ key: value, … }[, control])</code> — called on mouse/touch release.</td></tr>
+        <tr><td>name</td><td>string</td><td>auto</td><td>Identifier for this group. Each child slider also has its own <code>name</code> (defaults to its key with spaces/punctuation removed), which becomes the field key in <code>.values</code> and <code>.slider(name)</code>. Override a child's name via its per-slider object: <code>sliders: { freq: { name: 'f', … } }</code>.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({ name: value, … }[, control])</code> — called when any slider changes. Keys are each child slider's <code>.name</code> (label with spaces/punctuation removed by default).</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({ name: value, … }[, control])</code> — called on mouse/touch release.</td></tr>
         <tr><td>style</td><td>string</td><td>'knob'</td><td>Shared slider style — <code>'knob'</code>, <code>'wheel'</code>, or <code>'button'</code>. Can be overridden per-slider.</td></tr>
         <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, all sliders animate back to their initial values after release. Can be overridden per-slider.</td></tr>
         <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete. Can be overridden per-slider.</td></tr>
@@ -840,8 +841,8 @@
     <table class="opts">
       <thead><tr><th>Property / method</th><th>Description</th></tr></thead>
       <tbody>
-        <tr><td><code>.values</code></td><td>Getter — returns <code>{ key: value, … }</code> for all sliders (keys are labels with spaces/punctuation stripped). Setter accepts the same format to update any subset.</td></tr>
-        <tr><td><code>.slider(name)</code></td><td>Returns the named child <code>AnalogSlider</code> for direct access (e.g. <code>.value</code>, <code>.disabled</code>).</td></tr>
+        <tr><td><code>.values</code></td><td>Getter — returns <code>{ name: value, … }</code> for all sliders. Keys are each child's <code>.name</code> property (label with spaces/punctuation removed by default; override via <code>name</code> in the per-slider opts). Setter accepts the same format to update any subset.</td></tr>
+        <tr><td><code>.slider(name)</code></td><td>Returns the child <code>AnalogSlider</code> whose <code>.name</code> matches, for direct access (e.g. <code>.value</code>, <code>.disabled</code>).</td></tr>
         <tr><td><code>.disabled</code></td><td>Getter/setter — propagates to all child sliders.</td></tr>
       </tbody>
     </table>
@@ -1074,8 +1075,9 @@
         <tr><td>horizontal</td><td>boolean</td><td>true</td><td>When <code>true</code> (default), dials are arranged in a horizontal row. When <code>false</code>, dials are stacked in a vertical column.</td></tr>
         <tr><td>style</td><td>string</td><td>'classic'</td><td>Shared knob style — <code>'classic'</code>, <code>'rubber'</code>, <code>'grooved'</code>, <code>'pointer'</code> (overridable per-dial).</td></tr>
         <tr><td>gap</td><td>number</td><td>4</td><td>Pixel gap between adjacent dials.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({ key: value, … }[, control])</code> — called when any dial changes. Keys are dial labels with spaces and punctuation removed.</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({ key: value, … }[, control])</code> — called on mouse/touch release.</td></tr>
+        <tr><td>name</td><td>string</td><td>auto</td><td>Identifier for this group. Each child dial also has its own <code>name</code> (defaults to its key with spaces/punctuation removed), which becomes the field key in <code>.values</code> and <code>.dial(name)</code>. Override a child's name via its per-dial object: <code>dials: { freq: { name: 'f', … } }</code>.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({ name: value, … }[, control])</code> — called when any dial changes. Keys are each child dial's <code>.name</code> property (label with spaces/punctuation removed by default).</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({ name: value, … }[, control])</code> — called on mouse/touch release.</td></tr>
         <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, all dials animate back to their initial values after release. Can be overridden per-dial.</td></tr>
         <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete. Can be overridden per-dial.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Shared theme override. See <a href="#themes">Themes</a>.</td></tr>
@@ -1086,8 +1088,8 @@
     <table class="opts">
       <thead><tr><th>Property / method</th><th>Description</th></tr></thead>
       <tbody>
-        <tr><td><code>.values</code></td><td>Getter — returns <code>{ key: value, … }</code> (keys are labels with spaces/punctuation stripped). Setter accepts same format.</td></tr>
-        <tr><td><code>.dial(name)</code></td><td>Returns the named child <code>Dial</code> for direct access.</td></tr>
+        <tr><td><code>.values</code></td><td>Getter — returns <code>{ name: value, … }</code> for all dials. Keys are each child's <code>.name</code> property (label with spaces/punctuation removed by default; override via <code>name</code> in the per-dial opts). Setter accepts same format.</td></tr>
+        <tr><td><code>.dial(name)</code></td><td>Returns the child <code>Dial</code> whose <code>.name</code> matches, for direct access.</td></tr>
         <tr><td><code>.disabled</code></td><td>Getter/setter — propagates to all child dials.</td></tr>
       </tbody>
     </table>
