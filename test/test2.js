@@ -59,6 +59,19 @@ function setup() {
     }
   });
 
+  // PianoKeyboard test
+  let piano = new PianoKeyboard({
+    x: 20, y: 400,
+    width: 600, height: 140,
+    firstNote: 'C3',
+    noteCount: 25,
+    highlightedNotes: ['C3', 'E3', 'G3'],
+    label: 'Piano Keyboard (C major chord highlighted)',
+    onSelect: (d) => {
+      console.log('Piano:', d.note, 'MIDI:', d.midi, 'Octave:', d.octave);
+    }
+  });
+
 }
 
 function panelChanged(value,o) {

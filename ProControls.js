@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-01 — commit 062cf6f
+// Last updated: 2026-06-02 — commit 758c2ea
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -9329,6 +9329,263 @@ class HeatMapView extends ProControl {
   }
 }
 
+// PianoKeyboard - interactive piano keyboard with note selection
+const _PIANO_NOTE_MAP = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
+const _PIANO_NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const _WHITE_SEMITONES = new Set([0, 2, 4, 5, 7, 9, 11]);
+
+class PianoKeyboard extends ProControl {
+  constructor(opts = {}) {
+    super(Object.assign({ min: 0, max: 1, value: 0, x: 0, y: 0 }, opts));
+    this.width = opts.width ?? 500;
+    this.height = opts.height ?? 120;
+    this.fontSize = opts.fontSize ?? 12;
+    this.padding = opts.padding ?? 8;
+    this.onSelect = opts.onSelect ?? null;
+
+    this._firstMidi = this._parseNote(opts.firstNote ?? 'C4');
+    this._noteCount = opts.noteCount ?? 25;
+    this._keys = [];
+    this._pressedMidi = null;
+    this._hoveredMidi = null;
+    this._highlightSet = new Set();
+
+    this.highlightedNotes = opts.highlightedNotes ?? [];
+    this._buildKeys();
+  }
+
+  _parseNote(str) {
+    const match = str.match(/^([A-G][#b]?)(\d+)$/);
+    if (!match) return 60; // default to middle C
+    const [, noteName, octaveStr] = match;
+    const octave = parseInt(octaveStr);
+    const semitone = _PIANO_NOTE_MAP[noteName] ?? 0;
+    return (octave + 1) * 12 + semitone;
+  }
+
+  _midiToNote(midi) {
+    const semitone = midi % 12;
+    const octave = Math.floor(midi / 12) - 1;
+    return _PIANO_NOTE_NAMES[semitone] + octave;
+  }
+
+  _buildKeys() {
+    this._keys = [];
+    const padding = this.padding;
+    const availableW = this.width - padding * 2;
+    const availableH = this.height - padding * 2;
+
+    // Count white keys to determine white key width
+    let whiteCount = 0;
+    for (let i = 0; i < this._noteCount; i++) {
+      const midi = this._firstMidi + i;
+      if (_WHITE_SEMITONES.has(midi % 12)) whiteCount++;
+    }
+    if (whiteCount === 0) whiteCount = 1;
+
+    const whiteKeyW = availableW / whiteCount;
+    const blackKeyW = whiteKeyW * 0.62;
+    const blackKeyH = availableH * 0.60;
+    const gap = 1;
+
+    let whiteIndex = 0;
+    for (let i = 0; i < this._noteCount; i++) {
+      const midi = this._firstMidi + i;
+      const semitone = midi % 12;
+      const isWhite = _WHITE_SEMITONES.has(semitone);
+
+      if (isWhite) {
+        const x = this.x + padding + whiteIndex * whiteKeyW;
+        const y = this.y + padding;
+        const w = whiteKeyW - gap;
+        const h = availableH;
+        this._keys.push({ midi, isBlack: false, x, y, w, h, note: this._midiToNote(midi) });
+        whiteIndex++;
+      }
+    }
+
+    // Add black keys
+    whiteIndex = 0;
+    for (let i = 0; i < this._noteCount; i++) {
+      const midi = this._firstMidi + i;
+      const semitone = midi % 12;
+      const isBlack = !_WHITE_SEMITONES.has(semitone);
+
+      if (isBlack) {
+        // Black keys: C#/Db D#/Eb F#/Gb G#/Ab A#/Bb
+        // Position: after C (0.6), after D (1.6), after F (3.6), after G (4.6), after A (5.6)
+        let blackOffset = 0;
+        if (semitone === 1) blackOffset = 0.62;      // C#
+        else if (semitone === 3) blackOffset = 1.62; // D#
+        else if (semitone === 6) blackOffset = 3.62; // F#
+        else if (semitone === 8) blackOffset = 4.62; // G#
+        else if (semitone === 10) blackOffset = 5.62; // A#
+
+        // Count white keys before this black key
+        let whitesBefore = 0;
+        for (let j = 0; j < i; j++) {
+          const testMidi = this._firstMidi + j;
+          if (_WHITE_SEMITONES.has(testMidi % 12)) whitesBefore++;
+        }
+
+        const x = this.x + padding + whiteKeyW * whitesBefore + blackKeyW * 0.19;
+        const y = this.y + padding;
+        const w = blackKeyW;
+        const h = blackKeyH;
+        this._keys.push({ midi, isBlack: true, x, y, w, h, note: this._midiToNote(midi) });
+      }
+    }
+  }
+
+  set highlightedNotes(arr) {
+    this._highlightSet.clear();
+    arr.forEach(noteStr => {
+      const midi = this._parseNote(noteStr);
+      this._highlightSet.add(midi);
+    });
+  }
+
+  draw() {
+    this._markDrawn();
+    const { x, y } = this;
+    const { width: w, height: h, padding } = this;
+
+    this._drawPanel(x, y, w, h);
+
+    const gc = drawingContext;
+    gc.save();
+
+    // Draw white keys first (background layer)
+    for (const key of this._keys) {
+      if (key.isBlack) continue;
+
+      const baseColor = color(this.theme.capHighlight);
+      let fillColor = baseColor;
+
+      if (this._pressedMidi === key.midi) {
+        fillColor = color(this.theme.capIndicator);
+      } else if (this._highlightSet.has(key.midi)) {
+        fillColor = lerpColor(baseColor, color(this.theme.capIndicator), 0.55);
+      } else if (this._hoveredMidi === key.midi) {
+        fillColor = lerpColor(baseColor, color(this.theme.capIndicator), 0.18);
+      }
+
+      gc.fillStyle = fillColor.toString('#rrggbb');
+      gc.fillRect(key.x - x, key.y - y, key.w, key.h);
+      gc.strokeStyle = '#000000';
+      gc.lineWidth = 1;
+      gc.strokeRect(key.x - x, key.y - y, key.w, key.h);
+    }
+
+    // Draw black keys on top (foreground layer)
+    for (const key of this._keys) {
+      if (!key.isBlack) continue;
+
+      const baseColor = color(this.theme.capShadow);
+      let fillColor = baseColor;
+
+      if (this._pressedMidi === key.midi) {
+        fillColor = color(this.theme.capIndicator);
+      } else if (this._highlightSet.has(key.midi)) {
+        fillColor = lerpColor(baseColor, color(this.theme.capIndicator), 0.55);
+      } else if (this._hoveredMidi === key.midi) {
+        fillColor = lerpColor(baseColor, color(this.theme.capIndicator), 0.18);
+      }
+
+      gc.fillStyle = fillColor.toString('#rrggbb');
+      gc.fillRect(key.x - x, key.y - y, key.w, key.h);
+      gc.strokeStyle = '#111111';
+      gc.lineWidth = 1;
+      gc.strokeRect(key.x - x, key.y - y, key.w, key.h);
+    }
+
+    // Draw C note labels
+    gc.font = `${this.fontSize}px ${this.theme.font || 'monospace'}`;
+    gc.fillStyle = color(this.theme.scaleText).toString('#rrggbb');
+    gc.textAlign = 'center';
+    gc.textBaseline = 'bottom';
+    for (const key of this._keys) {
+      if (!key.isBlack && (key.midi % 12) === 0) {
+        const labelX = key.x - x + key.w / 2;
+        const labelY = key.y - y + key.h - 4;
+        gc.fillText(key.note, labelX, labelY);
+      }
+    }
+
+    gc.restore();
+
+    if (this.disabled) this._drawDisabled(x, y, w, h);
+  }
+
+  _hitKey(mx, my) {
+    // Check black keys first (higher z-order)
+    for (const key of this._keys) {
+      if (!key.isBlack) continue;
+      if (mx >= key.x && mx < key.x + key.w && my >= key.y && my < key.y + key.h) {
+        return key.midi;
+      }
+    }
+    // Check white keys
+    for (const key of this._keys) {
+      if (key.isBlack) continue;
+      if (mx >= key.x && mx < key.x + key.w && my >= key.y && my < key.y + key.h) {
+        return key.midi;
+      }
+    }
+    return -1;
+  }
+
+  mouseMoved() {
+    const mx = this._mx();
+    const my = this._my();
+    this._hovered = mx >= this.x && mx <= this.x + this.width && my >= this.y && my <= this.y + this.height;
+    if (this._hovered) {
+      const midi = this._hitKey(mx, my);
+      this._hoveredMidi = midi >= 0 ? midi : null;
+    } else {
+      this._hoveredMidi = null;
+    }
+  }
+
+  mousePressed() {
+    if (!this._hovered) return;
+    const mx = this._mx();
+    const my = this._my();
+    const midi = this._hitKey(mx, my);
+    if (midi === -1) return;
+    this._pressedMidi = midi;
+    if (this.onSelect) {
+      this.onSelect({ note: this._midiToNote(midi), midi, octave: Math.floor(midi / 12) - 1 }, this);
+    }
+  }
+
+  mouseReleased() {
+    // Could fire onRelease if needed in future
+  }
+
+  mouseWheel(e) {
+    return false; // suppress scroll
+  }
+
+  _cloneOpts() {
+    return {
+      x: this._x,
+      y: this._y,
+      label: this.label,
+      theme: this.theme,
+      width: this.width,
+      height: this.height,
+      fontSize: this.fontSize,
+      padding: this.padding,
+      firstNote: this._midiToNote(this._firstMidi),
+      noteCount: this._noteCount,
+      highlightedNotes: Array.from(this._highlightSet).map(m => this._midiToNote(m)),
+      onSelect: this.onSelect
+    };
+  }
+}
+
 window.ListView = ListView;
 window.GridView = GridView;
 window.HeatMapView = HeatMapView;
+window.PianoKeyboard = PianoKeyboard;
