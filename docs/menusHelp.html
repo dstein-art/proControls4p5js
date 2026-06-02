@@ -449,6 +449,25 @@
       padding: 10px 16px;
       color: var(--text);
     }
+    /* ── TOC ── */
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+    .toc a {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1px solid #0077cc33;
+      background: #0077cc08;
+      transition: background .15s, border-color .15s;
+    }
+    .toc a:hover { background: #0077cc18; border-color: #0077cc66; }
 
     hr { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
 
@@ -769,28 +788,14 @@
   <div class="hero-inner">
     <div class="hero-left">
       <div class="prerelease-badge">Pre-Release — API subject to change</div>
-      <h1>
-        <span class="accent">Pro</span><span class="dim">Controls</span> <span class="dim">for p5.js</span>
-      </h1>
-      <div style="font-size:15px;color:#6688aa;margin-top:-14px;margin-bottom:6px;letter-spacing:.04em;">by David Stein</div>
+      <h1>Menus</h1>
       <p class="hero-desc">
-        An open source library of hardware-inspired UI controls for p5.js sketches — faders, rotary knobs, XY pads, step-sequencer grids, VU meters, LED displays, ADSR envelopes, menus, dialogs, and more. Built by David Stein and hosted at <a href="https://procontrols.org" style="color:#66bbff;text-decoration:none;border-bottom:1px solid #66bbff44;">procontrols.org</a>. Drop in one script tag, set a style, and your controls wire themselves up — no event handlers, no layout math, no boilerplate. Eight built-in themes (black, stainless, white, brushed, red, blue, yellow, dimpled) plus touch support out of the box.
+        Part of the <a href="help.html" style="color:#66bbff;text-decoration:none;border-bottom:1px solid #66bbff44;">ProControls for p5.js documentation</a>.
       </p>
-      <div class="hero-chips">
-        <span class="chip">ProControls.js</span>
-        <span class="chip">p5.js 1.9+</span>
-        <span class="chip">MIT License</span>
-        <a href="demo.html" class="chip chip-demo" target="_blank">↗ Live Demo</a>
-      </div>
-    </div>
-
-    <div class="hero-callout">
-      <div class="hero-callout-eyebrow">Show us what you made</div>
-      <p>Built something cool with ProControls for p5.js? Send us a link and we'll highlight your project here.</p>
-      <a href="mailto:davidstein@nyu.edu" class="hero-callout-email">davidstein@nyu.edu</a>
     </div>
   </div>
 </div>
+
 <script>
 (function () {
   var cards = [
@@ -807,91 +812,131 @@
       body: 'How is ProControls working for you? Tell us what\'s working, what\'s not, and what you\'d like to see next.',
     }
   ];
-  var c = cards[Math.floor(Math.random() * cards.length)];
-  var el = document.querySelector('.hero-callout');
-  if (el) {
-    el.innerHTML =
-      '<div class="hero-callout-eyebrow">' + c.eyebrow + '</div>' +
-      '<p>' + c.body + '</p>' +
-      '<a href="mailto:davidstein@nyu.edu" class="hero-callout-email">davidstein@nyu.edu</a>';
-  }
-}());
+});
 </script>
 
 
 <!-- ── Content ── -->
 <div class="page">
-  <h2>Documentation Sections</h2>
-  <p class="desc">Choose a section below to dive into the details of each control type.</p>
-  
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 32px;">
-    
-    <!-- Sliders & Dials -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Sliders & Dials</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Vertical and horizontal faders, multi-touch sliders, range sliders, and rotary dials.</p>
-      <a href="slidersHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
+  <!-- Getting Started — moved to gettingStarted.html -->
+  <section id="getting-started">
+    <div class="note" style="margin:0 0 0">
+      <strong>New here?</strong> See the <a href="gettingStarted.html">Getting Started</a> page for
+      HTML setup, script tags, a minimal sketch, and the common options table.
     </div>
-    
-    <!-- Pads -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Pads</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">XY pads, grid pads, and a fully interactive piano keyboard with MIDI support.</p>
-      <a href="buttonsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Buttons -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Buttons</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Icon buttons with customizable symbols and toggle states.</p>
-      <a href="buttonsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Selectors -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Selectors</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Switches, dropdowns, tag selectors, and slider-based selectors for picking from lists.</p>
-      <a href="selectorsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Panels -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Panels</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Container panels, beveled frames, message dialogs, and input dialogs.</p>
-      <a href="panelsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Menus -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Menus</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Context menus and popup menus with keyboard navigation and callbacks.</p>
-      <a href="menusHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Displays -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Displays</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">VU meters, LED displays, ADSR envelopes, graphs, heatmaps, and data views.</p>
-      <a href="displaysHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Themes & Styles -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Themes & Styles</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Eight built-in themes and guide to customizing colors and appearance.</p>
-      <a href="themesHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Events -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Events</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">How ProControls hooks into p5.js events and touch input handling.</p>
-      <a href="eventsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-  </div>
-</div>
+  </section>
 
+  <hr>
+  <!-- TOC -->
+  <div class="toc">
+    <a href="#menu">Menu</a>
+    <a href="#popupMenu">PopupMenu</a>
+  </div>
+
+
+
+  <section id="menu">
+    <h2>Menu <span class="tag ext">Input</span></h2>
+    <p class="desc">A menu bar that runs either along the top (<code>orientation: 'horizontal'</code>) or down the left side (<code>orientation: 'vertical'</code>). Items are defined as an array of strings; replace any string with an array to create a submenu — the first element of the array becomes the top-level label and the remaining elements are the submenu entries. Clicking a leaf item fires <code>onChange</code>; clicking a submenu parent toggles it open or closed.</p>
+
+    <div class="sig">new Menu(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>items</td><td>Array</td><td>[]</td><td>Menu definition. Each entry is a <code>string</code> (leaf item) or a <code>string[]</code> (submenu) where <code>array[0]</code> is the top-level label and <code>array[1…n]</code> are the submenu entries.</td></tr>
+        <tr><td>orientation</td><td>string</td><td>'top'</td><td>Where the bar sits and which way submenus open: <code>'top'</code> — bar across the top, submenus open downward. <code>'bottom'</code> — bar across the bottom, submenus open upward. <code>'left'</code> — bar down the left side, submenus open rightward. <code>'right'</code> — bar down the right side, submenus open leftward. <code>'popup'</code> — floating vertical menu positioned at <code>x, y</code>; submenus and their arrow indicators automatically flip left or right depending on which half of the canvas the menu sits in.</td></tr>
+        <tr><td>x, y</td><td>number</td><td>0, 0</td><td>Canvas position of the top-left corner of the menu bar.</td></tr>
+        <tr><td>width</td><td>number</td><td>auto</td><td>Bar width. Horizontal: defaults to the total of all item widths. Vertical: defaults to the widest item label.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({label, path}[, control])</code> — called when a leaf item is selected. <code>label</code> is the selected item's text; <code>path</code> is an array from root to selection, e.g. <code>['Edit', 'Undo']</code>.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Suppresses all interaction and draws a disabled overlay.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+</tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.items</code></td><td>Read/write. Reassign to change the menu structure. Set <code>_layoutDirty = true</code> after changing to force a layout rebuild.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example — top</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const menu = new Menu({
+  x: 0, y: 0,
+  width: 400,
+  items: [
+    'File',
+    ['Edit', 'Undo', 'Redo', 'Cut', 'Copy', 'Paste'],
+    'View',
+    ['Help', 'About', 'Docs'],
+  ],
+  onChange: ({label, path}) => console.log(path),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=menu_top" width="400" height="120" scrolling="no" frameborder="0" loading="lazy" title="Menu top live example"></iframe>
+    </div>
+
+    <h3>Example — left</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const menu = new Menu({
+  x: 0, y: 0,
+  orientation: 'left',
+  items: [
+    'File',
+    ['Edit', 'Undo', 'Redo', 'Cut', 'Copy', 'Paste'],
+    'View',
+    ['Help', 'About', 'Docs'],
+  ],
+  onChange: ({label, path}) => console.log(path),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=menu_left" width="200" height="240" scrolling="no" frameborder="0" loading="lazy" title="Menu left live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <section id="popupMenu">
+    <h2>PopupMenu <span class="tag ext">Input</span></h2>
+    <p class="desc">A convenience wrapper around <a href="#menu">Menu</a> pre-configured with <code>orientation: 'popup'</code>. Positions a floating vertical menu at the given <code>x, y</code> coordinate. Submenus and their arrow indicators automatically flip left or right depending on which half of the canvas the menu sits in. Accepts all the same options as Menu.</p>
+
+    <div class="sig">new PopupMenu(opts)</div>
+
+    <div class="note"><strong>Inherits all <a href="#menu">Menu</a> options.</strong> <code>orientation</code> is fixed to <code>'popup'</code>.</div>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const menu = new PopupMenu({
+  x: 20, y: 20,
+  items: [
+    'File',
+    ['Edit', 'Undo', 'Redo', 'Cut', 'Copy', 'Paste'],
+    'View',
+    ['Help', 'About', 'Docs'],
+  ],
+  onChange: ({label, path}) => console.log(path),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=popupMenu" width="300" height="200" scrolling="no" frameborder="0" loading="lazy" title="PopupMenu live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- Displays: VUMeter, VUDial, LEDMeter, ADSRDisplay -->
+
+
+</div>
 
 <script>
 (function () {

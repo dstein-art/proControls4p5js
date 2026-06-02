@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8RE9R8QLJW"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-8RE9R8QLJW');
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProControls — Documentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #ffffff;
+      --surface:   #f4f4f6;
+      --surface2:  #ebebee;
+      --border:    #e0e0e6;
+      --accent:    #0077cc;
+      --accent2:   #cc5500;
+      --text:      #1a1a22;
+      --muted:     #666680;
+      --code-bg:   #1a1a22;
+      --code-text: #d4d4d8;
+      --nav-bg:    #ffffffee;
+      --nav-h:     52px;
+      --max-w:     1100px;
+      --radius:    6px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.7 'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      gap: 4px;
+      overflow-x: clip;
+      overflow-y: visible;
+      white-space: nowrap;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+      flex-shrink: 0;
+    }
+
+    nav a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    nav .demo-link {
+      color: var(--accent2);
+      border-color: transparent;
+      margin-left: 6px;
+    }
+    nav .demo-link:hover {
+      color: var(--accent2);
+      border-color: #cc550044;
+      background: #cc55000a;
+    }
+
+    nav .sep { color: var(--border); margin: 0 2px; user-select: none; }
+
+    /* ── Nav submenu ── */
+    .nav-group { position: relative; display: flex; align-items: center; }
+    .nav-submenu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 4px;
+      padding-top: 10px;
+      min-width: 130px;
+      z-index: 200;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(0,0,0,.1);
+      flex-direction: column;
+      gap: 2px;
+    }
+    .nav-group:hover .nav-submenu { display: flex; }
+    .nav-submenu a {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: calc(var(--radius) - 1px);
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+    }
+    .nav-submenu a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #0f1923 0%, #1a2840 50%, #0f2030 100%);
+      padding: 80px 32px 72px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* subtle grid overlay */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    /* glow blob */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -60px; left: 40%;
+      width: 500px; height: 400px;
+      background: radial-gradient(ellipse, #0077cc28 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 48px;
+    }
+
+    .hero-left { flex: 1 1 0; min-width: 0; }
+
+    .hero-callout {
+      flex: 0 0 280px;
+      background: #ffffff08;
+      border: 1px solid #ffffff18;
+      border-radius: 12px;
+      padding: 24px 22px;
+      backdrop-filter: blur(6px);
+    }
+
+    .hero-callout-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: #00aaff;
+      margin-bottom: 10px;
+    }
+
+    .hero-callout p {
+      font-size: 14px;
+      line-height: 1.65;
+      color: #8aaccc;
+      margin-bottom: 16px;
+    }
+
+    .hero-callout-email {
+      display: inline-block;
+      font-size: 12px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      color: #66bbff;
+      background: #0077cc22;
+      border: 1px solid #0077cc55;
+      border-radius: 20px;
+      padding: 5px 14px;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .hero-callout-email:hover { background: #0077cc44; }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: #0099ee;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      letter-spacing: -.02em;
+    }
+
+    .hero h1 .accent { color: #00aaff; }
+    .hero h1 .dim    { color: #6699bb; font-weight: 400; }
+
+    .hero-desc {
+      font-size: 17px;
+      line-height: 1.6;
+      color: #8aaccc;
+      margin-bottom: 32px;
+    }
+
+    .hero-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chip {
+      font-size: 12px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid #ffffff22;
+      color: #aaccee;
+      background: #ffffff0a;
+    }
+
+    .chip-demo {
+      background: #0077cc22;
+      border-color: #0077cc66;
+      color: #66bbff;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .chip-demo:hover { background: #0077cc44; }
+
+    /* ── Page layout ── */
+    .page { max-width: var(--max-w); margin: 0 auto; padding: 56px 32px 100px; }
+
+    /* ── Sections ── */
+    section { margin-bottom: 72px; scroll-margin-top: calc(var(--nav-h) + 20px); }
+    h2[id] { scroll-margin-top: calc(var(--nav-h) + 20px); }
+    section h2 + h2 { margin-top: 40px; }
+
+    section h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    section h2 .tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc12;
+      border: 1px solid #0077cc33;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    section h2 .tag.ext {
+      color: var(--accent2);
+      background: #cc550012;
+      border-color: #cc550033;
+    }
+
+    .desc { color: var(--muted); margin-bottom: 20px; line-height: 1.65; }
+
+    section h3 {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #9999b0;
+      margin: 32px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Option tables ── */
+    .opts {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .opts thead th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 14px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .opts tbody tr:nth-child(even) td { background: #f9f9fc; }
+    .opts tbody tr:hover td { background: #f0f0f8; }
+
+    .opts td {
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+    .opts tbody tr:last-child td { border-bottom: none; }
+
+    .opts td:first-child  { font-family: monospace; color: var(--accent); white-space: nowrap; font-size: 13px; }
+    .opts td:nth-child(2) { font-family: monospace; color: #8888aa; white-space: nowrap; font-size: 13px; }
+    .opts td:nth-child(3) { font-family: monospace; color: var(--accent2); white-space: nowrap; font-size: 13px; }
+    .opts td:last-child   { color: var(--muted); white-space: normal; }
+
+    /* ── Code blocks ── */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid #2a2a38;
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      font: 13px/1.65 'Fira Code', 'Cascadia Code', monospace;
+      overflow-x: auto;
+      margin: 10px 0 0;
+      color: var(--code-text);
+    }
+
+    code {
+      font: 13px/1 'Fira Code', 'Cascadia Code', monospace;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent);
+    }
+
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: inherit;
+    }
+
+    .kw  { color: #c792ea; }
+    .fn  { color: #82aaff; }
+    .str { color: #c3e88d; }
+    .num { color: #f78c6c; }
+    .cmt { color: #546e7a; font-style: italic; }
+    .prop{ color: #89ddff; }
+
+    /* ── Callouts ── */
+    .note {
+      background: #0077cc0a;
+      border-left: 3px solid var(--accent);
+      padding: 11px 16px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 14px;
+      color: #446688;
+      margin: 16px 0 0;
+    }
+    .note strong { color: var(--accent); }
+
+    .warn {
+      background: #cc55000a;
+      border-left: 3px solid var(--accent2);
+      padding: 11px 16px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 14px;
+      color: #885533;
+      margin: 16px 0 0;
+    }
+    .warn strong { color: var(--accent2); }
+
+    /* ── Theme swatches ── */
+    .swatches { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+
+    .swatch {
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      font-size: 13px;
+      min-width: 130px;
+      background: var(--bg);
+    }
+
+    .swatch .name { font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--text); }
+
+    .swatch .bg-chip {
+      width: 100%;
+      height: 22px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(0,0,0,.12);
+    }
+
+    .swatch .accent-chip {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+
+    .swatch .label { color: var(--muted); font-size: 12px; }
+
+    /* ── Signature ── */
+    .sig {
+      font: 13px/1.6 'Fira Code', 'Cascadia Code', monospace;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 16px;
+      color: var(--text);
+    }
+    /* ── TOC ── */
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+    .toc a {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1px solid #0077cc33;
+      background: #0077cc08;
+      transition: background .15s, border-color .15s;
+    }
+    .toc a:hover { background: #0077cc18; border-color: #0077cc66; }
+
+    hr { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+
+    /* ── Live examples ── */
+    .example-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin: 10px 0 0;
+    }
+
+    .live-editor {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .live-hint {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc0d;
+      border: 1px solid #0077cc33;
+      border-bottom: none;
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: 4px 10px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    .live-code {
+      background: var(--code-bg);
+      border: 1px solid #2a2a38;
+      border-radius: 0 0 var(--radius) var(--radius);
+      padding: 18px 20px;
+      font: 13px/1.65 'Fira Code', 'Cascadia Code', monospace;
+      color: var(--code-text);
+      resize: none;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: pre;
+      field-sizing: content;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .live-code:focus {
+      border-color: #0077cc88;
+    }
+
+    .example-frame {
+      flex-shrink: 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: block;
+      box-shadow: 0 2px 10px rgba(0,0,0,.18);
+    }
+    .themes-frames {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    @media (max-width: 768px) {
+      nav {
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 0 16px;
+        -webkit-overflow-scrolling: touch;
+      }
+      nav a {
+        font-size: 12px;
+        padding: 5px 8px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .example-row { flex-direction: column; }
+      .example-frame { align-self: center; }
+      .hero-inner { flex-direction: column; align-items: flex-start; }
+      .hero-callout { flex: 0 0 auto; width: 100%; }
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 32px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    footer a:hover { text-decoration: underline; }
+
+    .footer-promo { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+
+    /* ── Pre-release badge ── */
+    .prerelease-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #ff990018;
+      border: 1px solid #ff990055;
+      color: #ffbb44;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 4px;
+      margin-bottom: 22px;
+    }
+    .prerelease-badge::before {
+      content: '';
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #ffaa33;
+      box-shadow: 0 0 6px #ffaa33aa;
+    }
+    /* ── Mobile Menu ── */
+    .nav-hamburger {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 5px 8px;
+      line-height: 1;
+      align-items: center;
+    }
+    .nav-hamburger:hover { color: var(--accent); }
+
+    /* ── Mobile Responsive ── */
+    /* ── Mobile Responsive ── */
+    @media (max-width: 900px) {
+      nav {
+        padding: 0 16px;
+        gap: 4px;
+      }
+
+      nav > * {
+        display: none;
+      }
+
+      nav > a:first-child {
+        display: flex;
+      }
+
+      nav > .nav-hamburger {
+        display: flex;
+        margin-right: auto;
+      }
+
+      nav > a:nth-of-type(2) {
+        display: block;
+      }
+      }
+
+      nav.mobile-menu-open {
+        flex-direction: column;
+        align-items: stretch;
+        height: auto;
+        padding: 12px 0;
+        gap: 0;
+      }
+
+      nav.mobile-menu-open > * {
+        display: none;
+      }
+
+      nav.mobile-menu-open > .nav-hamburger {
+        display: flex;
+        padding: 12px 16px;
+      }
+
+      nav.mobile-menu-open > a {
+        display: block;
+        padding: 12px 16px;
+        font-size: 15px;
+      }
+
+      nav.mobile-menu-open > .nav-group {
+        display: block;
+      }
+
+      nav.mobile-menu-open > .nav-group > a:first-child {
+        display: block;
+        padding: 12px 16px;
+        font-size: 15px;
+        color: var(--muted);
+        text-decoration: none;
+        transition: color .15s, background .15s;
+      }
+
+      nav.mobile-menu-open > .nav-group > a:first-child:hover {
+        color: var(--accent);
+        background: #0077cc0a;
+      }
+
+      nav.mobile-menu-open .nav-submenu {
+        display: none !important;
+      }
+    }
+
+  </style>
+
+</head>
+<body>
+
+<!-- ── Nav ── -->
+<nav>
+  <a href="../index.html" title="Home" style="padding:5px 8px;font-size:18px;line-height:1;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:20px;">home</span></a>
+  <button class="nav-hamburger" onclick="document.querySelector('nav').classList.toggle('mobile-menu-open')" title="Menu"><span class="material-symbols-outlined">menu</span></button>
+  <span class="sep">·</span>
+    <a href="gettingStarted.html">Getting Started</a>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="slidersHelp.html#slider">Sliders &amp; Dials</a>
+    <div class="nav-submenu">
+      <a href="slidersHelp.html#slider">AnalogSlider</a>
+      <a href="slidersHelp.html#multislider">MultiSlider</a>
+      <a href="slidersHelp.html#rangeslider">RangeSlider</a>
+      <a href="slidersHelp.html#dial">Dial</a>
+      <a href="slidersHelp.html#multidial">MultiDial</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="slidersTutorial.html">Sliders &amp; Dials Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="buttonsHelp.html">Buttons &amp; Pads</a>
+    <div class="nav-submenu">
+      <a href="buttonsHelp.html#iconButton">IconButton</a>
+      <a href="buttonsHelp.html#xypad">XYPad</a>
+      <a href="buttonsHelp.html#gridpad">GridPad</a>
+      <a href="buttonsHelp.html#piano">PianoPad</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="buttonsTutorial.html">Buttons &amp; Pads Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="selectorsHelp.html#selectors">Selectors</a>
+    <div class="nav-submenu">
+      <a href="selectorsHelp.html#switch">Switch</a>
+      <a href="selectorsHelp.html#selector">Selector</a>
+      <a href="selectorsHelp.html#tagSelector">TagSelector</a>
+      <a href="selectorsHelp.html#sliderSelector">SliderSelector</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="selectorsTutorial.html">Selectors Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="panelsHelp.html#panel">Panel</a>
+    <div class="nav-submenu">
+      <a href="panelsHelp.html#panel">Panel</a>
+      <a href="panelsHelp.html#bevel">Bevel</a>
+      <a href="panelsHelp.html#messageDialog">MessageDialog</a>
+      <a href="panelsHelp.html#inputDialog">InputDialog</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="panelsTutorial.html">Panels Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="menusHelp.html#menu">Menus</a>
+    <div class="nav-submenu">
+      <a href="menusHelp.html#menu">Menu</a>
+      <a href="menusHelp.html#popupMenu">PopupMenu</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="menusTutorial.html">Menus Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="displaysHelp.html#displays">Displays</a>
+    <div class="nav-submenu">
+      <a href="displaysHelp.html#vumeter">VUMeter</a>
+      <a href="displaysHelp.html#vudial">VUDial</a>
+      <a href="displaysHelp.html#ledmeter">LEDMeter</a>
+      <a href="displaysHelp.html#adsr">ADSRDisplay</a>
+      <a href="displaysHelp.html#markup">Markup</a>
+      <a href="displaysHelp.html#consolePanel">ConsolePanel</a>
+      <a href="displaysHelp.html#timeGraphPanel">TimeGraphPanel</a>
+      <a href="displaysHelp.html#listView">ListView</a>
+      <a href="displaysHelp.html#gridView">GridView</a>
+      <a href="displaysHelp.html#heatMapView">HeatMapView</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="displaysTutorial.html">Displays Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <a href="themesHelp.html#themes">Themes &amp; Styles</a>
+  <span class="sep">·</span>
+  <a href="eventsHelp.html#touch">Events</a>
+  <span class="sep">·</span>
+  <a href="license.html">License</a>
+  <a href="demo.html" class="demo-link" target="_blank">↗ Live Demo</a>
+</nav>
+
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="prerelease-badge">Pre-Release — API subject to change</div>
+      <h1>Displays</h1>
+      <p class="hero-desc">
+        Part of the <a href="help.html" style="color:#66bbff;text-decoration:none;border-bottom:1px solid #66bbff44;">ProControls for p5.js documentation</a>.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var cards = [
+    {
+      eyebrow: 'Show us what you made',
+      body: 'Built something cool with ProControls for p5.js? Send us a link and we\'ll highlight your project here.',
+    },
+    {
+      eyebrow: 'Have an idea?',
+      body: 'Thinking of a control that doesn\'t exist yet? Send us your suggestion — if we like it, we\'ll build it.',
+    },
+    {
+      eyebrow: 'We want your feedback',
+      body: 'How is ProControls working for you? Tell us what\'s working, what\'s not, and what you\'d like to see next.',
+    }
+  ];
+});
+</script>
+
+
+<!-- ── Content ── -->
+<div class="page">
+  <!-- Getting Started — moved to gettingStarted.html -->
+  <section id="getting-started">
+    <div class="note" style="margin:0 0 0">
+      <strong>New here?</strong> See the <a href="gettingStarted.html">Getting Started</a> page for
+      HTML setup, script tags, a minimal sketch, and the common options table.
+    </div>
+  </section>
+
+  <hr>
+  <!-- TOC -->
+  <div class="toc">
+    <a href="#displays">Displays</a>
+    <a href="#vumeter">VUMeter</a>
+    <a href="#vudial">VUDial</a>
+    <a href="#ledmeter">LEDMeter</a>
+    <a href="#adsr">ADSRDisplay</a>
+    <a href="#markup">Markup</a>
+    <a href="#consolePanel">ConsolePanel</a>
+    <a href="#timeGraphPanel">TimeGraphPanel</a>
+    <a href="#listView">ListView</a>
+    <a href="#gridView">GridView</a>
+    <a href="#heatMapView">HeatMapView</a>
+  </div>
+
+
+
+  <section id="displays">
+    <h2>Displays</h2>
+    <p class="desc">Read-only meters and animated displays driven by assigning <code>.value</code> each frame, plus interactive data views (<a href="#listView">ListView</a>, <a href="#gridView">GridView</a>, <a href="#heatMapView">HeatMapView</a>) for browsing and selecting structured data.</p>
+
+    <h2 id="vumeter">VUMeter <span class="tag ext">Display</span></h2>
+    <p class="desc">Extends <strong>AnalogSlider</strong>. Overlays a segmented LED column (green → yellow → red) with peak hold on top of the fader track. Drive it each frame by assigning <code>.value</code> from audio analysis.</p>
+
+    <div class="sig">new VUMeter(opts)</div>
+
+    <div class="note"><strong>Inherits all AnalogSlider options.</strong> Defaults overridden: <code>readout: 'db'</code>, <code>showScale: false</code>, <code>min: 0</code>, <code>max: 1</code>.</div>
+
+    <h3>Additional options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>segCount</td><td>number</td><td>20</td><td>Number of LED segments.</td></tr>
+        <tr><td>meterWidth</td><td>number</td><td>8</td><td>Pixel width of the LED column.</td></tr>
+        <tr><td>colorLow</td><td>string</td><td>'#00cc44'</td><td>Segment color for the lower 60%.</td></tr>
+        <tr><td>colorMid</td><td>string</td><td>'#cccc00'</td><td>Segment color for 60–85%.</td></tr>
+        <tr><td>colorHigh</td><td>string</td><td>'#cc2200'</td><td>Segment color for the top 15%.</td></tr>
+        <tr><td>showFader</td><td>boolean</td><td>true</td><td><code>false</code> = hide the fader cap entirely for a pure display meter.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const vu = new VUMeter({
+  x: 23, y: 35,
+  width: 44, height: 180,
+  label: 'L',
+  showFader: false,
+  segCount: 24, meterWidth: 12,
+});
+// .value is driven automatically in this preview</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=vumeter" width="90" height="265" scrolling="no" frameborder="0" loading="lazy" title="VUMeter live example"></iframe>
+    </div>
+
+    <hr>
+
+    <h2 id="vudial">VUDial <span class="tag ext">Display</span></h2>
+    <p class="desc">Extends <strong>Dial</strong>. Replaces the filled arc with a ring of segmented LEDs with peak hold. Use <code>showKnob: false</code> for a pure meter ring, or <code>true</code> to show both the set position and the live level.</p>
+
+    <div class="sig">new VUDial(opts)</div>
+
+    <div class="note"><strong>Inherits all Dial options.</strong> Defaults overridden: <code>readout: 'db'</code>, <code>showScale: false</code>, <code>min: 0</code>, <code>max: 1</code>.</div>
+
+    <h3>Additional options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>segCount</td><td>number</td><td>24</td><td>Number of LED arc segments.</td></tr>
+        <tr><td>colorLow</td><td>string</td><td>'#00cc44'</td><td>Color for the lower 60%.</td></tr>
+        <tr><td>colorMid</td><td>string</td><td>'#cccc00'</td><td>Color for 60–85%.</td></tr>
+        <tr><td>colorHigh</td><td>string</td><td>'#cc2200'</td><td>Color for the top 15%.</td></tr>
+        <tr><td>showKnob</td><td>boolean</td><td>true</td><td><code>false</code> = pure LED ring with no knob body.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const vuDial = new VUDial({
+  x: 43, y: 35,
+  size: 80,
+  label: 'VU',
+  showKnob: false,
+  segCount: 30,
+});
+// .value is driven automatically in this preview</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=vudial" width="165" height="165" scrolling="no" frameborder="0" loading="lazy" title="VUDial live example"></iframe>
+    </div>
+
+    <hr>
+
+    <h2 id="ledmeter">LEDMeter <span class="tag ext">Display</span></h2>
+    <p class="desc">A 7-segment numeric display. Segments are drawn as beveled hexagons with a canvas glow. Values are right-aligned; if the number is too wide for the digit slots, all segments show <code>-----</code>. Assign <code>.value</code> each frame.</p>
+
+    <div class="sig">new LEDMeter(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>digits</td><td>number</td><td>5</td><td>Number of digit positions (including sign).</td></tr>
+        <tr><td>readout</td><td>string</td><td>'raw'</td><td><code>'raw'</code>, <code>'percent'</code>, or <code>'db'</code>. dB clamps at −99 at min.</td></tr>
+        <tr><td>decimals</td><td>number</td><td>2</td><td>Decimal places. The dot is drawn in the gap between digits — no extra slot needed.</td></tr>
+        <tr><td>digitW</td><td>number</td><td>14</td><td>Width of each digit character in pixels.</td></tr>
+        <tr><td>digitH</td><td>number</td><td>26</td><td>Height of each digit. Segment thickness scales with this.</td></tr>
+        <tr><td>digitGap</td><td>number</td><td>4</td><td>Gap between digits. Decimal point is centered here.</td></tr>
+        <tr><td>ledColor</td><td>string</td><td>null</td><td>LED color. <code>null</code> uses <code>theme.capIndicator</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const display = new LEDMeter({
+  x: 20, y: 25,
+  min: 0, max: 1,
+  readout: 'db', decimals: 1, digits: 5,
+  label: 'dB',
+  ledColor: '#00ff88',
+});
+// .value is driven automatically in this preview</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=ledmeter" width="200" height="110" scrolling="no" frameborder="0" loading="lazy" title="LEDMeter live example"></iframe>
+    </div>
+    <div class="note"><strong>Panel width</strong> = <code>padding×2 + digits×digitW + (digits−1)×digitGap</code>. With defaults a 5-digit meter is <strong>106 px</strong> wide.</div>
+
+    <hr>
+
+    <h2 id="adsr">ADSRDisplay <span class="tag ext">Display</span></h2>
+    <p class="desc">A display-only ADSR envelope graph inside a beveled panel. The envelope shape updates live whenever any property changes — pair it with dials or sliders to visualise synth parameters in real time.</p>
+
+    <div class="sig">new ADSRDisplay(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>0</td><td>Top-left position of the panel.</td></tr>
+        <tr><td>width</td><td>number</td><td>220</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>120</td><td>Panel height in pixels.</td></tr>
+        <tr><td>attack</td><td>number</td><td>0.1</td><td>Attack time — any consistent unit (seconds, ms, etc.). Relative to decay and release.</td></tr>
+        <tr><td>decay</td><td>number</td><td>0.2</td><td>Decay time.</td></tr>
+        <tr><td>sustain</td><td>number</td><td>0.7</td><td>Sustain amplitude level, 0–1.</td></tr>
+        <tr><td>release</td><td>number</td><td>0.3</td><td>Release time.</td></tr>
+        <tr><td>envelopeColor</td><td>string</td><td>null</td><td>Line and fill tint. <code>null</code> uses <code>theme.capIndicator</code>.</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Label drawn below the panel.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Visual layout</h3>
+    <p class="desc">Attack, Decay, and Release are displayed proportionally across 70% of the plot width. The sustain hold occupies the remaining 30% as a fixed visual segment. <strong>A</strong>, <strong>D</strong>, <strong>S</strong>, <strong>R</strong> labels appear below each segment; dashed dividers mark the phase boundaries.</p>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const env = new ADSRDisplay({
+  x: 20, y: 22,
+  width: 220, height: 120,
+  attack: 0.1, decay: 0.2,
+  sustain: 0.7, release: 0.4,
+  label: 'ENV',
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=adsr" width="260" height="160" scrolling="no" frameborder="0" loading="lazy" title="ADSRDisplay live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- Markup -->
+  <section id="markup">
+    <h2 id="markup">Markup <span class="tag ext">Display</span></h2>
+    <p class="desc">A scrollable text panel that renders a subset of Wiki Markup syntax — headings, bold, italic, bullet and numbered lists, indented blocks, horizontal rules, and links. Set <code>text</code> at any time to update the content; the panel re-parses and scrolls to the top automatically.</p>
+
+    <div class="sig">new Markup(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>0</td><td>Top-left position of the panel.</td></tr>
+        <tr><td>width</td><td>number</td><td>280</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>200</td><td>Panel height (visible viewport) in pixels.</td></tr>
+        <tr><td>text</td><td>string</td><td>''</td><td>Wiki Markup source. Can be set at any time.</td></tr>
+        <tr><td>fontSize</td><td>number</td><td>12</td><td>Base font size in pixels. Headings scale relative to this.</td></tr>
+        <tr><td>padding</td><td>number</td><td>10</td><td>Inner padding on all sides.</td></tr>
+        <tr><td>lineSpacing</td><td>number</td><td>1.5</td><td>Line-height multiplier applied to <code>fontSize</code>.</td></tr>
+        <tr><td>onClick</td><td>function</td><td>null</td><td><code>onClick(url[, control])</code> — called on any click. <code>url</code> is the link's URL string when a link is clicked, or <code>null</code> when clicking non-link text.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>text</td><td>string (get/set)</td><td>Current markup source. Setting resets scroll to top.</td></tr>
+        <tr><td>scrollY</td><td>number (get/set)</td><td>Current vertical scroll offset in pixels. Clamped to valid range automatically.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Wiki Markup syntax</h3>
+    <table class="opts">
+      <thead><tr><th>Syntax</th><th>Renders as</th></tr></thead>
+      <tbody>
+        <tr><td><code>= Heading 1 =</code></td><td>Large heading with underline rule</td></tr>
+        <tr><td><code>== Heading 2 ==</code></td><td>Medium heading</td></tr>
+        <tr><td><code>=== Heading 3 ===</code></td><td>Small heading</td></tr>
+        <tr><td><code>'''bold'''</code></td><td><strong>Bold</strong> text</td></tr>
+        <tr><td><code>''italic''</code></td><td><em>Italic</em> text</td></tr>
+        <tr><td><code>'''''bold italic'''''</code></td><td><strong><em>Bold italic</em></strong> text</td></tr>
+        <tr><td><code>[[label]]</code> or <code>[[url|label]]</code></td><td>Link text (rendered in accent color)</td></tr>
+        <tr><td><code>* item</code></td><td>Bullet list item</td></tr>
+        <tr><td><code>** item</code></td><td>Sub-bullet list item</td></tr>
+        <tr><td><code># item</code></td><td>Numbered list item</td></tr>
+        <tr><td><code>## item</code></td><td>Sub-numbered list item</td></tr>
+        <tr><td><code>: text</code></td><td>Indented block with left bar</td></tr>
+        <tr><td><code>----</code></td><td>Horizontal rule</td></tr>
+        <tr><td><em>(blank line)</em></td><td>Paragraph gap</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Scrolling</h3>
+    <p class="desc">When content is taller than the panel, a thin scrollbar appears on the right edge. Scroll with the mouse wheel while hovering the panel. Set <code>scrollY</code> programmatically to jump to any position.</p>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const doc = new Markup({
+  x: 20, y: 15,
+  width: 240, height: 190,
+  fontSize: 11,
+  text: `= ProControls =
+A hardware-inspired UI library for [[https://p5js.org|p5.js]].
+
+== Features ==
+* '''Real-time''' audio controls
+* '''8 built-in''' themes
+** black, stainless, white, brushed
+** red, blue, yellow, dimpled
+
+== Usage ==
+# Add the script tag
+# Call ''new AnalogSlider()''
+# Wire up '''onChange'''
+
+----
+: '''''Scroll for more'''''
+This panel supports '''bold''', ''italic'', and '''''bold italic''''' text inline with normal paragraphs. Long lines wrap automatically within the panel width.\`,
+  onClick: (href) => {
+    if (href) window.open(href, '_blank');
+  },
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=markup&s=black" width="280" height="220" scrolling="no" frameborder="0" loading="lazy" title="Markup live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ConsolePanel -->
+  <section id="consolePanel">
+    <h2>ConsolePanel <span class="tag ext">Display</span></h2>
+    <p class="desc">A floating, scrollable log panel that intercepts <code>console.log</code>, <code>console.warn</code>, <code>console.error</code>, and <code>console.info</code> calls as well as uncaught runtime errors and unhandled promise rejections. Messages are color-coded by type, timestamped, and always auto-scroll so the most recently added line is visible at the bottom. Consecutive identical messages (same type and text) are collapsed into a single entry showing the repeat count and the most recent timestamp — e.g. <code>[12:04:31 ×5] redraw tick</code>. A <strong>CLR</strong> button clears the log; a <strong>−/+</strong> toggle minimizes the panel to just its title bar. The panel is movable, resizable, and minimizable by default.</p>
+
+    <div class="sig">new ConsolePanel(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>20, 20</td><td>Canvas position of the panel's top-left corner.</td></tr>
+        <tr><td>width</td><td>number</td><td>400</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>200</td><td>Panel height in pixels.</td></tr>
+        <tr><td>label</td><td>string</td><td>'Console'</td><td>Text shown in the title bar.</td></tr>
+        <tr><td>movable</td><td>boolean</td><td>true</td><td>When <code>false</code> the panel cannot be repositioned by dragging.</td></tr>
+        <tr><td>resizable</td><td>boolean</td><td>true</td><td>A resize grip appears in the bottom-right corner; drag it to resize the panel at runtime.</td></tr>
+        <tr><td>minimizable</td><td>boolean</td><td>true</td><td>A <strong>−/+</strong> toggle button appears in the title bar; clicking it collapses the panel to just the title bar.</td></tr>
+        <tr><td>minimized</td><td>boolean</td><td>false</td><td>Initial minimized state.</td></tr>
+        <tr><td>maxMessages</td><td>number</td><td>100</td><td>Maximum number of messages retained. Oldest messages are dropped when the buffer is full.</td></tr>
+        <tr><td>timestamps</td><td>boolean</td><td>true</td><td>Prefix each message with a <code>[HH:MM:SS]</code> timestamp. Set to <code>false</code> to suppress.</td></tr>
+        <tr><td>intercept</td><td>string[]</td><td><code>['log','warn','error','info']</code></td><td>The <code>console</code> methods to intercept. Pass a subset to limit capture, e.g. <code>['error','warn']</code>.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties &amp; methods</h3>
+    <table class="opts">
+      <thead><tr><th>Name</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.clear()</code></td><td>Clears all messages and resets scroll. Same as clicking the CLR button.</td></tr>
+        <tr><td><code>.messages</code></td><td>Read-only getter. Returns a shallow copy of the message array. Each entry is <code>{ type, text, time, count }</code>; <code>count</code> is ≥ 1 when consecutive identical messages have been collapsed.</td></tr>
+        <tr><td><code>.remove()</code></td><td>Removes the panel and restores all intercepted <code>console</code> methods to their originals.</td></tr>
+        <tr><td><code>.minimized</code></td><td>Get/set. When <code>true</code> the panel collapses to just the title bar.</td></tr>
+        <tr><td><code>.label</code></td><td>Read/write. Text shown in the title bar.</td></tr>
+        <tr><td><code>.resizable</code></td><td>Read/write. Enables or disables the resize grip at runtime.</td></tr>
+        <tr><td><code>.minimizable</code></td><td>Read/write. Shows or hides the minimize toggle button.</td></tr>
+        <tr><td><code>.movable</code></td><td>Read/write. Enables or disables title-bar dragging at runtime.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Global helpers</h3>
+    <p class="desc" style="margin-bottom:10px;">For quick use, two standalone functions manage a single shared ConsolePanel without you needing to hold a reference to it. The panel is created the first time <code>openConsolePanel()</code> is called and reused on every subsequent call — the log history is preserved across open/close cycles.</p>
+    <table class="opts">
+      <thead><tr><th>Function</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>openConsolePanel(opts?)</code></td>
+          <td>Creates the global ConsolePanel on the first call, passing any <a href="#consolePanel">ConsolePanel options</a> you like (<code>label</code>, <code>width</code>, <code>resizable</code>, etc.). On every subsequent call it simply makes the panel visible again — <code>opts</code> is ignored after the panel already exists. Returns the ConsolePanel instance.</td>
+        </tr>
+        <tr>
+          <td><code>closeConsolePanel()</code></td>
+          <td>Hides the panel (<code>visible = false</code>). The object and all its log data are preserved — calling <code>openConsolePanel()</code> again brings it back exactly as it was.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="example-row" style="margin-top:12px;">
+      <div class="live-editor" style="flex:1;">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">// Open (or show) the shared panel
+openConsolePanel();
+
+console.log('Panel created once');
+console.warn('Reused on every open call');
+
+// Later — hide without losing data:
+// closeConsolePanel();
+// openConsolePanel(); // brings it back</textarea>
+      </div>
+    </div>
+
+    <h3>Message colors</h3>
+    <table class="opts">
+      <thead><tr><th>Source</th><th>Color</th></tr></thead>
+      <tbody>
+        <tr><td><code>console.log</code></td><td>Theme label color (default text)</td></tr>
+        <tr><td><code>console.info</code></td><td>Theme accent / indicator color</td></tr>
+        <tr><td><code>console.warn</code></td><td>Amber <code>#cc8800</code></td></tr>
+        <tr><td><code>console.error</code> / uncaught errors</td><td>Red <code>#dd3333</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3>Interaction</h3>
+    <table class="opts">
+      <thead><tr><th>Gesture</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td>Drag title bar</td><td>Repositions the panel (when <code>movable</code> is <code>true</code>).</td></tr>
+        <tr><td>Click −/+ button</td><td>Minimizes or restores the panel (when <code>minimizable</code> is <code>true</code>).</td></tr>
+        <tr><td>Scroll wheel</td><td>Scrolls the message log. The next incoming message will always snap back to the bottom.</td></tr>
+        <tr><td>Drag scrollbar</td><td>Scrolls by dragging the thin scrollbar on the right edge (visible when content overflows).</td></tr>
+        <tr><td>Click CLR button</td><td>Clears all messages.</td></tr>
+        <tr><td>Drag resize grip</td><td>Resizes the panel from the bottom-right corner (when <code>resizable</code> is <code>true</code>).</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note"><strong>Console passthrough:</strong> intercepted methods still call the original browser console functions, so DevTools output is unaffected. Call <code>.remove()</code> to fully restore the originals.</div>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">openConsolePanel();
+
+// Any console.log / warn / error appears in the panel:
+console.log('Sketch started');
+console.warn('Low memory');
+console.error('Something went wrong');
+// Repeated identical calls are collapsed:
+for (let i = 0; i &lt; 5; i++) console.log('redraw tick');</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=consolePanel" width="400" height="220" scrolling="no" frameborder="0" loading="lazy" title="ConsolePanel live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- TimeGraphPanel -->
+  <section id="timeGraphPanel">
+    <h2>TimeGraphPanel <span class="tag ext">Display</span></h2>
+    <p class="desc">A scrolling time-series line graph panel. Push data points each frame to plot them against time — the oldest point scrolls off the left edge as new ones arrive on the right. Pass a plain number to plot a single variable, or an object (<code>{key: value, …}</code>) to plot multiple named variables simultaneously, each drawn in its own color with a legend. Y-axis range is auto-scaled to the data with 8% padding, or fixed by setting <code>min</code> and <code>max</code>. The panel is movable, resizable, and minimizable by default.</p>
+
+    <div class="sig">new TimeGraphPanel(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>20, 20</td><td>Canvas position of the panel's top-left corner.</td></tr>
+        <tr><td>width</td><td>number</td><td>360</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>200</td><td>Panel height in pixels.</td></tr>
+        <tr><td>label</td><td>string</td><td>'Time Graph'</td><td>Text shown in the title bar.</td></tr>
+        <tr><td>maxSamples</td><td>number</td><td>200</td><td>Maximum number of data points retained. Oldest points are discarded when the buffer is full.</td></tr>
+        <tr><td>autoAdjustY</td><td>boolean</td><td>true</td><td>Automatically fit the Y axis to the min/max of the data currently in the buffer. Set to <code>false</code> to use fixed <code>min</code>/<code>max</code> bounds instead.</td></tr>
+        <tr><td>min</td><td>number</td><td>0</td><td>Fixed Y-axis minimum. Only used when <code>autoAdjustY</code> is <code>false</code>.</td></tr>
+        <tr><td>max</td><td>number</td><td>1</td><td>Fixed Y-axis maximum. Only used when <code>autoAdjustY</code> is <code>false</code>.</td></tr>
+        <tr><td>lineWidth</td><td>number</td><td>1.5</td><td>Stroke weight for data lines in pixels.</td></tr>
+        <tr><td>grid</td><td>boolean</td><td>true</td><td>Show horizontal grid lines at 25%, 50%, and 75% of the Y range.</td></tr>
+        <tr><td>legend</td><td>boolean</td><td>true</td><td>Show a color legend in the top-right corner of the plot (only visible when graphing multiple variables).</td></tr>
+        <tr><td>movable</td><td>boolean</td><td>true</td><td>Allow repositioning by dragging the title bar.</td></tr>
+        <tr><td>resizable</td><td>boolean</td><td>true</td><td>Show a resize grip in the bottom-right corner.</td></tr>
+        <tr><td>minimizable</td><td>boolean</td><td>true</td><td>Show a −/+ toggle button to collapse the panel to just the title bar.</td></tr>
+        <tr><td>minimized</td><td>boolean</td><td>false</td><td>Initial minimized state.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties &amp; methods</h3>
+    <table class="opts">
+      <thead><tr><th>Name</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.push(value)</code></td><td>Add a data point. Pass a <code>number</code> for single-variable mode, or a plain object (<code>{key: value, …}</code>) for multi-variable mode. Switching between modes resets the data buffer.</td></tr>
+        <tr><td><code>.clear()</code></td><td>Remove all data points and reset variable tracking.</td></tr>
+        <tr><td><code>.autoAdjustY</code></td><td>Get or set whether the Y axis auto-fits to the data range (<code>true</code>) or uses fixed bounds (<code>false</code>).</td></tr>
+        <tr><td><code>.data</code></td><td>Read-only getter. Returns a shallow copy of the current data array.</td></tr>
+        <tr><td><code>.minimized</code></td><td>Get/set. Collapses the panel to just the title bar when <code>true</code>.</td></tr>
+        <tr><td><code>.visible</code></td><td>Get/set. Hides the panel and suppresses events when <code>false</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example — single variable</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const g = new TimeGraphPanel({
+  x: 20, y: 18,
+  width: 280, height: 160,
+  label: 'Amplitude',
+  min: -1, max: 1,
+});
+
+// Call g.push() inside draw() to feed live data:
+// g.push(sin(frameCount * 0.05));</textarea>
+      <iframe class="example-frame" src="example.html?c=timeGraphPanel&s=black" width="380" height="220" scrolling="no" frameborder="0" loading="lazy" title="TimeGraphPanel live example"></iframe>
+    </div>
+
+    <h3>Example — multiple variables</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const g = new TimeGraphPanel({
+  x: 20, y: 18,
+  width: 280, height: 160,
+  label: 'Sensors',
+});
+
+// Pass an object to plot named variables together:
+// g.push({ rpm: 3400, temp: 85, load: 0.72 });</textarea>
+    </div>
+  </section>
+
+  <section id="listView">
+    <h2 id="listView">ListView <span class="tag ext">Display</span></h2>
+    <p class="desc">Scrollable list of strings with row selection. Click to select rows; use the mouse wheel or scrollbar to navigate long lists.</p>
+
+    <div class="sig">new ListView(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>0, 0</td><td>Canvas position of the panel's top-left corner.</td></tr>
+        <tr><td>width</td><td>number</td><td>280</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>200</td><td>Panel height in pixels.</td></tr>
+        <tr><td>fontSize</td><td>number</td><td>12</td><td>Text size in pixels. Row height is computed as <code>fontSize × 1.6</code>.</td></tr>
+        <tr><td>padding</td><td>number</td><td>8</td><td>Padding from the panel edges in pixels.</td></tr>
+        <tr><td>items</td><td>array</td><td>[]</td><td>Array of strings to display. Trigger re-render by reassigning (e.g., <code>lv.items = newList</code>).</td></tr>
+        <tr><td>onSelect</td><td>function</td><td>null</td><td><code>onSelect({item, index}[, control])</code> — called when a row is clicked.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({item, index}[, control])</code> — called on mouse/touch release after a row click.</td></tr>
+</tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.items</code></td><td>Get/set the array of strings. Resets scroll and selection when assigned.</td></tr>
+        <tr><td><code>.selectedIdx</code></td><td>Get/set the index of the selected row (−1 = none). Clamped to valid range and scrolls into view.</td></tr>
+        <tr><td><code>.scrollY</code></td><td>Get/set the vertical scroll offset in pixels. Automatically clamped to the valid range.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Interaction</h3>
+    <table class="opts">
+      <thead><tr><th>Gesture</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Click</strong></td><td>Select the row under the mouse. Fires <code>onSelect</code> callback.</td></tr>
+        <tr><td><strong>Hover</strong></td><td>Highlight the row under the mouse with a subtle tint.</td></tr>
+        <tr><td><strong>Mouse wheel</strong></td><td>Scroll vertically. Scrollbar appears when content overflows the panel height.</td></tr>
+        <tr><td><strong>Scrollbar drag</strong></td><td>Drag the scrollbar thumb to navigate quickly.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const lv = new ListView({
+  x: 20, y: 15,
+  width: 240, height: 160,
+  items: ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta'],
+  onSelect: ({item, index}) => console.log('selected:', index, item),
+});</textarea>
+      <iframe class="example-frame" src="example.html?c=listView&s=black" width="300" height="220" scrolling="no" frameborder="0" loading="lazy" title="ListView live example"></iframe>
+    </div>
+  </section>
+
+  <section id="gridView">
+    <h2 id="gridView">GridView <span class="tag ext">Display</span></h2>
+    <p class="desc">Scrollable table with column headers and auto-sized columns. Row selection on click; vertical scroll with the mouse wheel; horizontal scroll via the bottom scrollbar when content is wider than the panel.</p>
+
+    <div class="sig">new GridView(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>0, 0</td><td>Canvas position of the panel's top-left corner.</td></tr>
+        <tr><td>width</td><td>number</td><td>400</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>220</td><td>Panel height in pixels.</td></tr>
+        <tr><td>fontSize</td><td>number</td><td>12</td><td>Text size in pixels. Header height is <code>fontSize × 1.8</code>; row height is <code>fontSize × 1.6</code>.</td></tr>
+        <tr><td>padding</td><td>number</td><td>8</td><td>Padding from the panel edges and between cells in pixels.</td></tr>
+        <tr><td>items</td><td>array</td><td>[]</td><td>Array of objects. All items must have the same keys. Column names and widths are derived from the first object. Assign to trigger re-render.</td></tr>
+        <tr><td>onSelect</td><td>function</td><td>null</td><td><code>onSelect({item, index}[, control])</code> — called when a row is clicked. <code>item</code> is the row object.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({item, index}[, control])</code> — called on mouse/touch release after a row click.</td></tr>
+</tbody>
+    </table>
+
+    <h3>Features</h3>
+    <ul>
+      <li><strong>Auto-sized columns:</strong> Each column width is computed from the header text and all cell values, with padding applied.</li>
+      <li><strong>Static header:</strong> The header row stays pinned at the top and does not scroll vertically with the data.</li>
+      <li><strong>Horizontal scrolling:</strong> When the total width of all columns exceeds the panel width, a horizontal scrollbar appears at the bottom.</li>
+      <li><strong>Row selection:</strong> Click a row to select it (highlighted with a tinted background). The <code>onSelect</code> callback fires with the item and index.</li>
+    </ul>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.items</code></td><td>Get/set the array of objects. Resets scroll and selection when assigned. Column widths are recomputed on first draw.</td></tr>
+        <tr><td><code>.selectedIdx</code></td><td>Get/set the index of the selected row (−1 = none). Clamped to valid range and scrolls into view.</td></tr>
+        <tr><td><code>.scrollY</code></td><td>Get/set the vertical scroll offset in pixels. Automatically clamped to the valid range.</td></tr>
+        <tr><td><code>.scrollX</code></td><td>Get/set the horizontal scroll offset in pixels. Automatically clamped to the valid range.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Interaction</h3>
+    <table class="opts">
+      <thead><tr><th>Gesture</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Click</strong></td><td>Select the row under the mouse. Fires <code>onSelect</code> callback.</td></tr>
+        <tr><td><strong>Hover</strong></td><td>Highlight the row under the mouse with a subtle tint.</td></tr>
+        <tr><td><strong>Mouse wheel</strong></td><td>Scroll vertically (main data rows). The header stays fixed.</td></tr>
+        <tr><td><strong>Vertical scrollbar</strong></td><td>Drag to scroll rows up/down. Appears on the right when data overflows vertically.</td></tr>
+        <tr><td><strong>Horizontal scrollbar</strong></td><td>Drag to scroll columns left/right. Appears at the bottom when data overflows horizontally. The header scrolls in sync.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const gv = new GridView({
+  x: 10, y: 10,
+  width: 380, height: 200,
+  items: [
+    { name: 'Alpha',   type: 'sine',   freq: 440 },
+    { name: 'Beta',    type: 'square', freq: 220 },
+    { name: 'Gamma',   type: 'saw',    freq: 880 },
+    { name: 'Delta',   type: 'noise',  freq: 110 },
+  ],
+  onSelect: ({item, index}) => console.log('selected row', index, item.name),
+});</textarea>
+      <iframe class="example-frame" src="example.html?c=gridView&s=black" width="420" height="240" scrolling="no" frameborder="0" loading="lazy" title="GridView live example"></iframe>
+    </div>
+  </section>
+
+  <section id="heatMapView">
+    <h2 id="heatMapView">HeatMapView <span class="tag ext">Display</span></h2>
+    <p class="desc">Multidimensional heatmap grid with drill-down navigation. Visualize hierarchical data by grouping and summing a numeric field across dimension levels. Click cells to explore deeper levels; use breadcrumbs or right-click to navigate back. Color intensity reflects the relative magnitude of values at each level.</p>
+
+    <div class="sig">new HeatMapView(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>0, 0</td><td>Canvas position of the panel's top-left corner.</td></tr>
+        <tr><td>width</td><td>number</td><td>400</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>280</td><td>Panel height in pixels.</td></tr>
+        <tr><td>fontSize</td><td>number</td><td>12</td><td>Text size in pixels. Breadcrumb height is <code>fontSize × 1.8</code>.</td></tr>
+        <tr><td>padding</td><td>number</td><td>8</td><td>Padding from the panel edges in pixels.</td></tr>
+        <tr><td>fields</td><td>array</td><td>[]</td><td>Array of field names defining the drill-down hierarchy. E.g., <code>['product', 'brand', 'trim']</code>.</td></tr>
+        <tr><td>valueField</td><td>string</td><td>null</td><td>Name of the numeric field to sum and visualize. E.g., <code>'quantity'</code> or <code>'revenue'</code>.</td></tr>
+        <tr><td>items</td><td>array</td><td>[]</td><td>Array of objects with keys matching fields and valueField. Trigger re-render by reassigning (e.g., <code>hm.items = newData</code>).</td></tr>
+        <tr><td>onSelect</td><td>function</td><td>null</td><td><code>onSelect({path, value, items}[, control])</code> — called when clicking a leaf-level cell. <code>path</code> is an array of values drilled to, <code>value</code> is the sum, <code>items</code> are matching raw rows.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.items</code></td><td>Get/set the array of data objects. Resets drill path and all state when assigned.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Interaction</h3>
+    <table class="opts">
+      <thead><tr><th>Gesture</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Click cell</strong></td><td>If not at the deepest level, drill down to show sub-groups. If at deepest level, select the cell and fire <code>onSelect</code> callback.</td></tr>
+        <tr><td><strong>Right-click</strong></td><td>Pop back one drill level. Disabled at root level.</td></tr>
+        <tr><td><strong>Click breadcrumb</strong></td><td>Jump directly to any drill depth (e.g., click "cars" in "All › cars › ford" to jump back to the product level).</td></tr>
+        <tr><td><strong>Hover</strong></td><td>Cell borders highlight with <code>theme.hoverGlow</code>. Selected cells show <code>theme.capIndicator</code> border.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const sampleData = [
+  {product:'cars', brand:'ford', trim:'Taurus', quantity:1423},
+  {product:'cars', brand:'ford', trim:'Mustang', quantity:2850},
+  {product:'cars', brand:'honda', trim:'Civic', quantity:2100},
+  {product:'trucks', brand:'chevy', trim:'Silverado', quantity:1800},
+  {product:'trucks', brand:'ford', trim:'F-250', quantity:2100},
+];
+
+const hm = new HeatMapView({
+  x: 20, y: 15,
+  width: 360, height: 260,
+  fields: ['product', 'brand', 'trim'],
+  valueField: 'quantity',
+  items: sampleData,
+  onSelect: ({path, value, items}) => console.log('Leaf:', path.join(' > '), 'Total:', value),
+});</textarea>
+      <iframe class="example-frame" src="example.html?c=heatMapView&s=black" width="420" height="300" scrolling="no" frameborder="0" loading="lazy" title="HeatMapView live example"></iframe>
+    </div>
+
+    <h3>Dow Jones Market Cap Example</h3>
+    <p>Explore market data organized by industry sector and company:</p>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const dowJonesData = [
+  { industry: 'Technology', company: 'NVIDIA', quantity: 5472364760000 },
+  { industry: 'Technology', company: 'Apple', quantity: 4510682158630 },
+  { industry: 'Technology', company: 'Microsoft', quantity: 3428571400000 },
+  { industry: 'Consumer Discretionary', company: 'Amazon', quantity: 2840941240000 },
+  { industry: 'Consumer Staples', company: 'Walmart', quantity: 916685400000 },
+  { industry: 'Financials', company: 'JPMorgan Chase', quantity: 820814808000 },
+  { industry: 'Financials', company: 'Visa', quantity: 661678500000 },
+  { industry: 'Healthcare', company: 'Johnson & Johnson', quantity: 546526652000 },
+  { industry: 'Technology', company: 'Cisco', quantity: 483136060000 },
+  { industry: 'Industrials', company: 'Caterpillar', quantity: 403084688000 },
+  { industry: 'Energy', company: 'Chevron', quantity: 369039797000 },
+  { industry: 'Healthcare', company: 'UnitedHealth Group', quantity: 345672600000 },
+  { industry: 'Consumer Staples', company: 'Coca-Cola', quantity: 339252960000 },
+  { industry: 'Consumer Staples', company: 'Procter & Gamble', quantity: 326655864634 },
+  { industry: 'Financials', company: 'Goldman Sachs', quantity: 322962640000 },
+  { industry: 'Consumer Discretionary', company: 'Home Depot', quantity: 309447240000 },
+  { industry: 'Technology', company: 'IBM', quantity: 305081833284 },
+  { industry: 'Healthcare', company: 'Merck', quantity: 284449677876 },
+  { industry: 'Financials', company: 'American Express', quantity: 215088440000 },
+  { industry: 'Communication Services', company: 'Verizon', quantity: 200943300000 },
+  { industry: 'Consumer Discretionary', company: "McDonald's", quantity: 197004485000 },
+  { industry: 'Technology', company: 'Salesforce', quantity: 182561600000 },
+  { industry: 'Communication Services', company: 'Walt Disney', quantity: 182250200000 },
+  { industry: 'Healthcare', company: 'Amgen', quantity: 179046720000 },
+  { industry: 'Industrials', company: 'Boeing', quantity: 176816212843 },
+  { industry: 'Industrials', company: 'Honeywell', quantity: 149884308768 },
+  { industry: 'Industrials', company: '3M', quantity: 79857063000 },
+  { industry: 'Materials', company: 'Sherwin-Williams', quantity: 73154766000 },
+  { industry: 'Consumer Discretionary', company: 'Nike', quantity: 68049888000 },
+  { industry: 'Financials', company: 'Travelers', quantity: 63102312000 }
+];
+
+const hm = new HeatMapView({
+  x: 20, y: 15,
+  width: 360, height: 260,
+  fields: ['industry', 'company'],
+  valueField: 'quantity',
+  items: dowJonesData,
+  label: 'Market Cap by Sector',
+  onSelect: ({path, value, items}) => console.log(path.join(' > '), '$' + (value / 1e12).toFixed(1) + 'T'),
+});</textarea>
+      <iframe class="example-frame" src="example.html?c=heatMapView_dow&s=black" width="420" height="300" scrolling="no" frameborder="0" loading="lazy" title="HeatMapView Dow Jones example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- Themes -->
+
+
+</div>
+
+<script>
+(function () {
+  // Wire each editable textarea to its sibling iframe
+  document.querySelectorAll('.example-row').forEach(function (row) {
+    var ta = row.querySelector('textarea.live-code');
+    var fr = row.querySelector('iframe.example-frame');
+    if (!ta || !fr) return;
+
+    // Auto-size textarea to content on load
+    function resize() {
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    }
+    resize();
+
+    // Debounced postMessage to the iframe
+    var timer;
+    ta.addEventListener('input', function () {
+      resize();
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        if (fr.contentWindow) {
+          fr.contentWindow.postMessage({ type: 'run', code: ta.value }, '*');
+        }
+      }, 700);
+    });
+  });
+}());
+</script>
+
+<footer>
+  <span>© 2026 David Stein</span>
+  <span class="footer-promo">
+    Another David Stein Production:
+    <a href="https://instructor.cc" target="_blank">instructor.cc</a> ·
+    <a href="https://procontrols.org" target="_blank">procontrols.org</a> ·
+    <a href="https://supermod3l.com" target="_blank">supermod3l.com</a> ·
+    <a href="https://indienewyork.com" target="_blank">indienewyork.com</a> ·
+    <a href="https://indieboston.com" target="_blank">indieboston.com</a>
+  </span>
+</footer>
+
+</body>
+</html>
+
+
+</body>
+</html>

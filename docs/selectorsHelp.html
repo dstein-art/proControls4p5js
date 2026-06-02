@@ -449,6 +449,25 @@
       padding: 10px 16px;
       color: var(--text);
     }
+    /* ── TOC ── */
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+    .toc a {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1px solid #0077cc33;
+      background: #0077cc08;
+      transition: background .15s, border-color .15s;
+    }
+    .toc a:hover { background: #0077cc18; border-color: #0077cc66; }
 
     hr { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
 
@@ -769,28 +788,14 @@
   <div class="hero-inner">
     <div class="hero-left">
       <div class="prerelease-badge">Pre-Release — API subject to change</div>
-      <h1>
-        <span class="accent">Pro</span><span class="dim">Controls</span> <span class="dim">for p5.js</span>
-      </h1>
-      <div style="font-size:15px;color:#6688aa;margin-top:-14px;margin-bottom:6px;letter-spacing:.04em;">by David Stein</div>
+      <h1>Selectors</h1>
       <p class="hero-desc">
-        An open source library of hardware-inspired UI controls for p5.js sketches — faders, rotary knobs, XY pads, step-sequencer grids, VU meters, LED displays, ADSR envelopes, menus, dialogs, and more. Built by David Stein and hosted at <a href="https://procontrols.org" style="color:#66bbff;text-decoration:none;border-bottom:1px solid #66bbff44;">procontrols.org</a>. Drop in one script tag, set a style, and your controls wire themselves up — no event handlers, no layout math, no boilerplate. Eight built-in themes (black, stainless, white, brushed, red, blue, yellow, dimpled) plus touch support out of the box.
+        Part of the <a href="help.html" style="color:#66bbff;text-decoration:none;border-bottom:1px solid #66bbff44;">ProControls for p5.js documentation</a>.
       </p>
-      <div class="hero-chips">
-        <span class="chip">ProControls.js</span>
-        <span class="chip">p5.js 1.9+</span>
-        <span class="chip">MIT License</span>
-        <a href="demo.html" class="chip chip-demo" target="_blank">↗ Live Demo</a>
-      </div>
-    </div>
-
-    <div class="hero-callout">
-      <div class="hero-callout-eyebrow">Show us what you made</div>
-      <p>Built something cool with ProControls for p5.js? Send us a link and we'll highlight your project here.</p>
-      <a href="mailto:davidstein@nyu.edu" class="hero-callout-email">davidstein@nyu.edu</a>
     </div>
   </div>
 </div>
+
 <script>
 (function () {
   var cards = [
@@ -807,91 +812,274 @@
       body: 'How is ProControls working for you? Tell us what\'s working, what\'s not, and what you\'d like to see next.',
     }
   ];
-  var c = cards[Math.floor(Math.random() * cards.length)];
-  var el = document.querySelector('.hero-callout');
-  if (el) {
-    el.innerHTML =
-      '<div class="hero-callout-eyebrow">' + c.eyebrow + '</div>' +
-      '<p>' + c.body + '</p>' +
-      '<a href="mailto:davidstein@nyu.edu" class="hero-callout-email">davidstein@nyu.edu</a>';
-  }
-}());
+});
 </script>
 
 
 <!-- ── Content ── -->
 <div class="page">
-  <h2>Documentation Sections</h2>
-  <p class="desc">Choose a section below to dive into the details of each control type.</p>
-  
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 32px;">
-    
-    <!-- Sliders & Dials -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Sliders & Dials</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Vertical and horizontal faders, multi-touch sliders, range sliders, and rotary dials.</p>
-      <a href="slidersHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
+  <!-- Getting Started — moved to gettingStarted.html -->
+  <section id="getting-started">
+    <div class="note" style="margin:0 0 0">
+      <strong>New here?</strong> See the <a href="gettingStarted.html">Getting Started</a> page for
+      HTML setup, script tags, a minimal sketch, and the common options table.
     </div>
-    
-    <!-- Pads -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Pads</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">XY pads, grid pads, and a fully interactive piano keyboard with MIDI support.</p>
-      <a href="buttonsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Buttons -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Buttons</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Icon buttons with customizable symbols and toggle states.</p>
-      <a href="buttonsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Selectors -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Selectors</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Switches, dropdowns, tag selectors, and slider-based selectors for picking from lists.</p>
-      <a href="selectorsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Panels -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Panels</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Container panels, beveled frames, message dialogs, and input dialogs.</p>
-      <a href="panelsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Menus -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Menus</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Context menus and popup menus with keyboard navigation and callbacks.</p>
-      <a href="menusHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Displays -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Displays</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">VU meters, LED displays, ADSR envelopes, graphs, heatmaps, and data views.</p>
-      <a href="displaysHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Themes & Styles -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Themes & Styles</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Eight built-in themes and guide to customizing colors and appearance.</p>
-      <a href="themesHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Events -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Events</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">How ProControls hooks into p5.js events and touch input handling.</p>
-      <a href="eventsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-  </div>
-</div>
+  </section>
 
+  <hr>
+  <!-- TOC -->
+  <div class="toc">
+    <a href="#selectors">Selectors</a>
+    <a href="#switch">Switch</a>
+    <a href="#selector">Selector</a>
+    <a href="#tagSelector">TagSelector</a>
+    <a href="#sliderSelector">SliderSelector</a>
+  </div>
+
+
+
+  <section id="selectors">
+    <h2>Selectors <span class="tag ext">Input</span></h2>
+
+    <h2 id="switch">Switch <span class="tag">Input</span></h2>
+    <p class="desc">An illuminated discrete selector. Two states renders as a rocker toggle — click to flip. Three or more states renders as a vertical button stack — click any slot to select it. The active slot glows with the style's accent color. Double-click any slot or the label to reset to the initial state.</p>
+
+    <div class="sig">new Switch(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>states</td><td>string[]</td><td>['OFF','ON']</td><td>Array of state labels. 2 entries = rocker. 3+ entries = selector stack.</td></tr>
+        <tr><td>state</td><td>number</td><td>0</td><td>Index of the initially active state.</td></tr>
+        <tr><td>springDefault</td><td>number</td><td>state</td><td>State index to restore on double-click reset. Defaults to <code>state</code>. Useful when the control is rebuilt dynamically and you want reset to always target a fixed index.</td></tr>
+        <tr><td>width</td><td>number</td><td>48</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>auto</td><td>Defaults to <code>70</code> for 2-state; <code>states.length × 26 + 20</code> for N-state.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({index, label}[, control])</code> — called on every click.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({index, label}[, control])</code> — called on mouse/touch release.</td></tr>
+</tbody>
+    </table>
+
+    <h3>Reading state</h3>
+    <pre><code>sw.state            <span class="cmt">// active index (readable/writable)</span>
+sw.states[sw.state]  <span class="cmt">// active label string</span></code></pre>
+
+    <h3>Two-state rocker</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const pwr = new Switch({
+  x: 36, y: 22,
+  width: 48,
+  states: ['OFF', 'ON'],
+  label: 'POWER',
+  state: 1,
+  onChange: ({index, label}) => console.log(label),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=switch2" width="120" height="130" scrolling="no" frameborder="0" loading="lazy" title="Switch 2-state live example"></iframe>
+    </div>
+
+    <h3>N-state selector</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const sel = new Switch({
+  x: 39, y: 18,
+  width: 52,
+  states: ['BLACK', 'STEEL', 'WHITE', 'BRUSH'],
+  state: 0,
+  label: 'STYLE',
+  onChange: ({index, label}) => console.log(label),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=switchn" width="130" height="175" scrolling="no" frameborder="0" loading="lazy" title="Switch N-state live example"></iframe>
+    </div>
+
+    <hr>
+
+    <h2 id="selector">Selector <span class="tag ext">Input</span></h2>
+    <p class="desc">A multi-style option selector. Set <code>style</code> to choose the visual style. Scroll wheel and touch work for all styles. Double-click the selection display or the label to reset to the initial option (double-clicking the arrow buttons or gear wheel advances state as normal).</p>
+
+    <div class="sig">new Selector(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>options</td><td>string[]</td><td>['A','B','C']</td><td>Array of option labels.</td></tr>
+        <tr><td>state</td><td>number</td><td>0</td><td>Initial selected index into <code>options</code>.</td></tr>
+        <tr><td>style</td><td>string</td><td>'rotary'</td><td>Visual style — <code>'rotary'</code> or <code>'arrow'</code>. See style descriptions below.</td></tr>
+        <tr><td>width</td><td>number</td><td>140</td><td>Total panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>40</td><td>Panel height in pixels.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({index, label}[, control])</code> — called whenever the selection changes.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({index, label}[, control])</code> — called on mouse/touch release.</td></tr>
+        <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, the selection snaps back to its initial state after <code>springDuration</code> seconds.</td></tr>
+        <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds before snapping back when <code>springBack</code> is enabled.</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Caption drawn below the panel.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+</tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.state</code></td><td>Current selected index (read/write).</td></tr>
+        <tr><td><code>.options</code></td><td>Array of option labels (read/write).</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Style — rotary (default)</h3>
+    <p class="desc">A mechanical drum-style selector inspired by vintage rotary counters. A display window shows the selected option; the drum's serrated edge is exposed on the right — horizontal ridges scroll as the drum rotates, giving a tactile feel. Adjacent options are visible while scrolling. Drag up/down, scroll wheel, or touch.</p>
+    <div class="note"><strong>Teeth column sizing:</strong> width is <code>max(14, round(height × 0.28))</code> px. The display window occupies the remaining panel width to the left.</div>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const waveform = new Selector({
+  x: 40, y: 22,
+  options: ['SINE', 'SQUARE', 'SAW', 'TRI', 'NOISE'],
+  state: 0,
+  label: 'WAVE',
+  onChange: ({index, label}) => console.log(label),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=selector" width="220" height="100" scrolling="no" frameborder="0" loading="lazy" title="Selector rotary live example"></iframe>
+    </div>
+
+    <h3>Style — arrow</h3>
+    <p class="desc">A compact left/right arrow selector. Pressing either arrow button steps to the adjacent option; the new selection slides into the display window from the direction of travel. Scroll wheel also works.</p>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const waveform = new Selector({
+  x: 20, y: 22,
+  width: 180,
+  style: 'arrow',
+  options: ['SINE', 'SQUARE', 'SAW', 'TRI', 'NOISE'],
+  state: 0,
+  label: 'WAVE',
+  onChange: ({index, label}) => console.log(label),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=selector_arrow" width="220" height="100" scrolling="no" frameborder="0" loading="lazy" title="Selector arrow live example"></iframe>
+    </div>
+
+    <hr>
+
+    <h2 id="tagSelector">TagSelector <span class="tag ext">Input</span></h2>
+    <p class="desc">A multi-select chip panel. Each string in <code>words</code> is displayed as a rounded pill inside a box. Click any pill to toggle its selection; multiple pills can be selected simultaneously. Double-click the label to reset to the initial selection.</p>
+
+    <div class="sig">new TagSelector(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>words</td><td>string[]</td><td>[]</td><td>Array of strings to display as selectable chips. Each string may contain spaces (multi-word phrases are treated as one chip).</td></tr>
+        <tr><td>selected</td><td>string[]</td><td>[]</td><td>Initially selected words. Must be members of <code>words</code>.</td></tr>
+        <tr><td>width</td><td>number</td><td>200</td><td>Panel width in pixels. Chips wrap to new rows when they exceed this width.</td></tr>
+        <tr><td>height</td><td>number</td><td>auto</td><td>Panel height. Omit to auto-size to fit all chips. Provide a fixed value to enable vertical scrolling when chips overflow — a thin scrollbar appears automatically and mouse-wheel or drag scrolls the content.</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Caption shown at the bottom of the panel. Double-click it to reset selection.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({selected, added, removed}[, control])</code> — called on each toggle. Exactly one of <code>added</code> / <code>removed</code> is non-null per click; both are null on a label double-click reset.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({selected, added: null, removed: null}[, control])</code> — called on mouse/touch release.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+</tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.selected</code></td><td>Getter — returns current selection as <code>string[]</code>. Setter accepts a <code>string[]</code> to programmatically set selection.</td></tr>
+        <tr><td><code>.words</code></td><td>Array of all chip strings (read/write). Reassigning marks layout dirty so chips reflow on next draw.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const tags = new TagSelector({
+  x: 20, y: 22,
+  width: 220,
+  words: ['REVERB', 'DELAY', 'CHORUS', 'FLANGER', 'PHASER',
+          'DISTORT', 'COMPRESS', 'EQ', 'GATE', 'LIMITER'],
+  label: 'FX',
+  onChange: ({selected, added, removed}) => console.log(selected, added, removed),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=tagSelector" width="260" height="130" scrolling="no" frameborder="0" loading="lazy" title="TagSelector live example"></iframe>
+    </div>
+    <hr>
+
+    <h2 id="sliderSelector">SliderSelector <span class="tag ext">Input</span></h2>
+    <p class="desc">A vertical fader that snaps to discrete string options. It looks and behaves like an <a href="#slider">AnalogSlider</a> — same panel, track, and brushed-metal cap — but instead of a continuous numeric range the slider clicks into one of the provided option strings. Tick marks at each position are drawn to the right of the track, and the active option's tick and label are highlighted in the accent colour. Scroll-wheel steps through options when hovering. Double-click the cap to reset to the initial state.</p>
+
+    <div class="sig">new SliderSelector(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>options</td><td>string[]</td><td>[]</td><td>The ordered list of selectable strings. Index 0 appears at the top of the track, the last index at the bottom.</td></tr>
+        <tr><td>state</td><td>number</td><td>0</td><td>Initial selected index.</td></tr>
+        <tr><td>style</td><td>string</td><td>'knob'</td><td><code>'knob'</code> — brushed-metal rectangular fader cap. <code>'button'</code> — circular cap with a radial gradient, matching the AnalogSlider button style.</td></tr>
+        <tr><td>x, y</td><td>number</td><td>20, 20</td><td>Canvas position.</td></tr>
+        <tr><td>width</td><td>number</td><td>auto</td><td>Panel width. Defaults to a size that fits the longest option label with padding.</td></tr>
+        <tr><td>height</td><td>number</td><td>auto</td><td>Panel height. Defaults to enough vertical space for all options at 22 px spacing (min 80 px).</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Caption rendered at the top of the panel.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({index, label}[, control])</code> — called whenever the selection changes during drag or scroll.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({index, label}[, control])</code> — called on mouse release.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+</tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.state</code></td><td>Current selected index (read/write).</td></tr>
+        <tr><td><code>.value</code></td><td>Getter — returns <code>options[state]</code> as a string. Setter accepts a string and updates <code>state</code> to its index (no-op if not found).</td></tr>
+        <tr><td><code>.options</code></td><td>The options array (read/write). Reassign to change the available choices; update <code>.state</code> if needed.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Interaction</h3>
+    <table class="opts">
+      <thead><tr><th>Gesture</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td>Drag cap</td><td>Moves the cap; snaps to the nearest option tick as you drag.</td></tr>
+        <tr><td>Double-click cap</td><td>Reset to the initial <code>state</code>. Fires <code>onChange</code> and <code>onRelease</code> if the state changes.</td></tr>
+        <tr><td>Scroll wheel</td><td>Steps one option up or down when hovering over the control.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const mode = new SliderSelector({
+  x: 20, y: 14,
+  options: ['REVERB', 'DELAY', 'CHORUS', 'FLANGER', 'PHASER'],
+  state: 1,
+  label: 'FX MODE',
+  onChange: ({index, label}) => console.log(index, label),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=sliderSelector" width="260" height="160" scrolling="no" frameborder="0" loading="lazy" title="SliderSelector live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- Panel -->
+
+
+</div>
 
 <script>
 (function () {

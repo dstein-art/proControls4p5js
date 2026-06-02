@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8RE9R8QLJW"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-8RE9R8QLJW');
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProControls — Documentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #ffffff;
+      --surface:   #f4f4f6;
+      --surface2:  #ebebee;
+      --border:    #e0e0e6;
+      --accent:    #0077cc;
+      --accent2:   #cc5500;
+      --text:      #1a1a22;
+      --muted:     #666680;
+      --code-bg:   #1a1a22;
+      --code-text: #d4d4d8;
+      --nav-bg:    #ffffffee;
+      --nav-h:     52px;
+      --max-w:     1100px;
+      --radius:    6px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.7 'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      gap: 4px;
+      overflow-x: clip;
+      overflow-y: visible;
+      white-space: nowrap;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+      flex-shrink: 0;
+    }
+
+    nav a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    nav .demo-link {
+      color: var(--accent2);
+      border-color: transparent;
+      margin-left: 6px;
+    }
+    nav .demo-link:hover {
+      color: var(--accent2);
+      border-color: #cc550044;
+      background: #cc55000a;
+    }
+
+    nav .sep { color: var(--border); margin: 0 2px; user-select: none; }
+
+    /* ── Nav submenu ── */
+    .nav-group { position: relative; display: flex; align-items: center; }
+    .nav-submenu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 4px;
+      padding-top: 10px;
+      min-width: 130px;
+      z-index: 200;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(0,0,0,.1);
+      flex-direction: column;
+      gap: 2px;
+    }
+    .nav-group:hover .nav-submenu { display: flex; }
+    .nav-submenu a {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: calc(var(--radius) - 1px);
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+    }
+    .nav-submenu a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #0f1923 0%, #1a2840 50%, #0f2030 100%);
+      padding: 80px 32px 72px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* subtle grid overlay */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    /* glow blob */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -60px; left: 40%;
+      width: 500px; height: 400px;
+      background: radial-gradient(ellipse, #0077cc28 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 48px;
+    }
+
+    .hero-left { flex: 1 1 0; min-width: 0; }
+
+    .hero-callout {
+      flex: 0 0 280px;
+      background: #ffffff08;
+      border: 1px solid #ffffff18;
+      border-radius: 12px;
+      padding: 24px 22px;
+      backdrop-filter: blur(6px);
+    }
+
+    .hero-callout-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: #00aaff;
+      margin-bottom: 10px;
+    }
+
+    .hero-callout p {
+      font-size: 14px;
+      line-height: 1.65;
+      color: #8aaccc;
+      margin-bottom: 16px;
+    }
+
+    .hero-callout-email {
+      display: inline-block;
+      font-size: 12px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      color: #66bbff;
+      background: #0077cc22;
+      border: 1px solid #0077cc55;
+      border-radius: 20px;
+      padding: 5px 14px;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .hero-callout-email:hover { background: #0077cc44; }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: #0099ee;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      letter-spacing: -.02em;
+    }
+
+    .hero h1 .accent { color: #00aaff; }
+    .hero h1 .dim    { color: #6699bb; font-weight: 400; }
+
+    .hero-desc {
+      font-size: 17px;
+      line-height: 1.6;
+      color: #8aaccc;
+      margin-bottom: 32px;
+    }
+
+    .hero-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chip {
+      font-size: 12px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid #ffffff22;
+      color: #aaccee;
+      background: #ffffff0a;
+    }
+
+    .chip-demo {
+      background: #0077cc22;
+      border-color: #0077cc66;
+      color: #66bbff;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .chip-demo:hover { background: #0077cc44; }
+
+    /* ── Page layout ── */
+    .page { max-width: var(--max-w); margin: 0 auto; padding: 56px 32px 100px; }
+
+    /* ── Sections ── */
+    section { margin-bottom: 72px; scroll-margin-top: calc(var(--nav-h) + 20px); }
+    h2[id] { scroll-margin-top: calc(var(--nav-h) + 20px); }
+    section h2 + h2 { margin-top: 40px; }
+
+    section h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    section h2 .tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc12;
+      border: 1px solid #0077cc33;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    section h2 .tag.ext {
+      color: var(--accent2);
+      background: #cc550012;
+      border-color: #cc550033;
+    }
+
+    .desc { color: var(--muted); margin-bottom: 20px; line-height: 1.65; }
+
+    section h3 {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #9999b0;
+      margin: 32px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Option tables ── */
+    .opts {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .opts thead th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 14px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .opts tbody tr:nth-child(even) td { background: #f9f9fc; }
+    .opts tbody tr:hover td { background: #f0f0f8; }
+
+    .opts td {
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+    .opts tbody tr:last-child td { border-bottom: none; }
+
+    .opts td:first-child  { font-family: monospace; color: var(--accent); white-space: nowrap; font-size: 13px; }
+    .opts td:nth-child(2) { font-family: monospace; color: #8888aa; white-space: nowrap; font-size: 13px; }
+    .opts td:nth-child(3) { font-family: monospace; color: var(--accent2); white-space: nowrap; font-size: 13px; }
+    .opts td:last-child   { color: var(--muted); white-space: normal; }
+
+    /* ── Code blocks ── */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid #2a2a38;
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      font: 13px/1.65 'Fira Code', 'Cascadia Code', monospace;
+      overflow-x: auto;
+      margin: 10px 0 0;
+      color: var(--code-text);
+    }
+
+    code {
+      font: 13px/1 'Fira Code', 'Cascadia Code', monospace;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent);
+    }
+
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: inherit;
+    }
+
+    .kw  { color: #c792ea; }
+    .fn  { color: #82aaff; }
+    .str { color: #c3e88d; }
+    .num { color: #f78c6c; }
+    .cmt { color: #546e7a; font-style: italic; }
+    .prop{ color: #89ddff; }
+
+    /* ── Callouts ── */
+    .note {
+      background: #0077cc0a;
+      border-left: 3px solid var(--accent);
+      padding: 11px 16px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 14px;
+      color: #446688;
+      margin: 16px 0 0;
+    }
+    .note strong { color: var(--accent); }
+
+    .warn {
+      background: #cc55000a;
+      border-left: 3px solid var(--accent2);
+      padding: 11px 16px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 14px;
+      color: #885533;
+      margin: 16px 0 0;
+    }
+    .warn strong { color: var(--accent2); }
+
+    /* ── Theme swatches ── */
+    .swatches { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+
+    .swatch {
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      font-size: 13px;
+      min-width: 130px;
+      background: var(--bg);
+    }
+
+    .swatch .name { font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--text); }
+
+    .swatch .bg-chip {
+      width: 100%;
+      height: 22px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(0,0,0,.12);
+    }
+
+    .swatch .accent-chip {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+
+    .swatch .label { color: var(--muted); font-size: 12px; }
+
+    /* ── Signature ── */
+    .sig {
+      font: 13px/1.6 'Fira Code', 'Cascadia Code', monospace;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 16px;
+      color: var(--text);
+    }
+
+    /* ── TOC ── */
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+    .toc a {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1px solid #0077cc33;
+      background: #0077cc08;
+      transition: background .15s, border-color .15s;
+    }
+    .toc a:hover { background: #0077cc18; border-color: #0077cc66; }
+
+    hr { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+
+    /* ── Live examples ── */
+    .example-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin: 10px 0 0;
+    }
+
+    .live-editor {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .live-hint {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc0d;
+      border: 1px solid #0077cc33;
+      border-bottom: none;
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: 4px 10px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    .live-code {
+      background: var(--code-bg);
+      border: 1px solid #2a2a38;
+      border-radius: 0 0 var(--radius) var(--radius);
+      padding: 18px 20px;
+      font: 13px/1.65 'Fira Code', 'Cascadia Code', monospace;
+      color: var(--code-text);
+      resize: none;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: pre;
+      field-sizing: content;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .live-code:focus {
+      border-color: #0077cc88;
+    }
+
+    .example-frame {
+      flex-shrink: 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: block;
+      box-shadow: 0 2px 10px rgba(0,0,0,.18);
+    }
+    .themes-frames {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    @media (max-width: 768px) {
+      nav {
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 0 16px;
+        -webkit-overflow-scrolling: touch;
+      }
+      nav a {
+        font-size: 12px;
+        padding: 5px 8px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .example-row { flex-direction: column; }
+      .example-frame { align-self: center; }
+      .hero-inner { flex-direction: column; align-items: flex-start; }
+      .hero-callout { flex: 0 0 auto; width: 100%; }
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 32px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    footer a:hover { text-decoration: underline; }
+
+    .footer-promo { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+
+    /* ── Pre-release badge ── */
+    .prerelease-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #ff990018;
+      border: 1px solid #ff990055;
+      color: #ffbb44;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 4px;
+      margin-bottom: 22px;
+    }
+    .prerelease-badge::before {
+      content: '';
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #ffaa33;
+      box-shadow: 0 0 6px #ffaa33aa;
+    }
+    /* ── Mobile Menu ── */
+    .nav-hamburger {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 5px 8px;
+      line-height: 1;
+      align-items: center;
+    }
+    .nav-hamburger:hover { color: var(--accent); }
+
+    /* ── Mobile Responsive ── */
+    /* ── Mobile Responsive ── */
+    @media (max-width: 900px) {
+      nav {
+        padding: 0 16px;
+        gap: 4px;
+      }
+
+      nav > * {
+        display: none;
+      }
+
+      nav > a:first-child {
+        display: flex;
+      }
+
+      nav > .nav-hamburger {
+        display: flex;
+        margin-right: auto;
+      }
+
+      nav > a:nth-of-type(2) {
+        display: block;
+      }
+      }
+
+      nav.mobile-menu-open {
+        flex-direction: column;
+        align-items: stretch;
+        height: auto;
+        padding: 12px 0;
+        gap: 0;
+      }
+
+      nav.mobile-menu-open > * {
+        display: none;
+      }
+
+      nav.mobile-menu-open > .nav-hamburger {
+        display: flex;
+        padding: 12px 16px;
+      }
+
+      nav.mobile-menu-open > a {
+        display: block;
+        padding: 12px 16px;
+        font-size: 15px;
+      }
+
+      nav.mobile-menu-open > .nav-group {
+        display: block;
+      }
+
+      nav.mobile-menu-open > .nav-group > a:first-child {
+        display: block;
+        padding: 12px 16px;
+        font-size: 15px;
+        color: var(--muted);
+        text-decoration: none;
+        transition: color .15s, background .15s;
+      }
+
+      nav.mobile-menu-open > .nav-group > a:first-child:hover {
+        color: var(--accent);
+        background: #0077cc0a;
+      }
+
+      nav.mobile-menu-open .nav-submenu {
+        display: none !important;
+      }
+    }
+
+  </style>
+
+</head>
+<body>
+
+<!-- ── Nav ── -->
+<nav>
+  <a href="../index.html" title="Home" style="padding:5px 8px;font-size:18px;line-height:1;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:20px;">home</span></a>
+  <button class="nav-hamburger" onclick="document.querySelector('nav').classList.toggle('mobile-menu-open')" title="Menu"><span class="material-symbols-outlined">menu</span></button>
+  <span class="sep">·</span>
+    <a href="gettingStarted.html">Getting Started</a>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="slidersHelp.html#slider">Sliders &amp; Dials</a>
+    <div class="nav-submenu">
+      <a href="slidersHelp.html#slider">AnalogSlider</a>
+      <a href="slidersHelp.html#multislider">MultiSlider</a>
+      <a href="slidersHelp.html#rangeslider">RangeSlider</a>
+      <a href="slidersHelp.html#dial">Dial</a>
+      <a href="slidersHelp.html#multidial">MultiDial</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="slidersTutorial.html">Sliders &amp; Dials Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="buttonsHelp.html">Buttons &amp; Pads</a>
+    <div class="nav-submenu">
+      <a href="buttonsHelp.html#iconButton">IconButton</a>
+      <a href="buttonsHelp.html#xypad">XYPad</a>
+      <a href="buttonsHelp.html#gridpad">GridPad</a>
+      <a href="buttonsHelp.html#piano">PianoPad</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="buttonsTutorial.html">Buttons &amp; Pads Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="selectorsHelp.html#selectors">Selectors</a>
+    <div class="nav-submenu">
+      <a href="selectorsHelp.html#switch">Switch</a>
+      <a href="selectorsHelp.html#selector">Selector</a>
+      <a href="selectorsHelp.html#tagSelector">TagSelector</a>
+      <a href="selectorsHelp.html#sliderSelector">SliderSelector</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="selectorsTutorial.html">Selectors Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="panelsHelp.html#panel">Panel</a>
+    <div class="nav-submenu">
+      <a href="panelsHelp.html#panel">Panel</a>
+      <a href="panelsHelp.html#bevel">Bevel</a>
+      <a href="panelsHelp.html#messageDialog">MessageDialog</a>
+      <a href="panelsHelp.html#inputDialog">InputDialog</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="panelsTutorial.html">Panels Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="menusHelp.html#menu">Menus</a>
+    <div class="nav-submenu">
+      <a href="menusHelp.html#menu">Menu</a>
+      <a href="menusHelp.html#popupMenu">PopupMenu</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="menusTutorial.html">Menus Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="displaysHelp.html#displays">Displays</a>
+    <div class="nav-submenu">
+      <a href="displaysHelp.html#vumeter">VUMeter</a>
+      <a href="displaysHelp.html#vudial">VUDial</a>
+      <a href="displaysHelp.html#ledmeter">LEDMeter</a>
+      <a href="displaysHelp.html#adsr">ADSRDisplay</a>
+      <a href="displaysHelp.html#markup">Markup</a>
+      <a href="displaysHelp.html#consolePanel">ConsolePanel</a>
+      <a href="displaysHelp.html#timeGraphPanel">TimeGraphPanel</a>
+      <a href="displaysHelp.html#listView">ListView</a>
+      <a href="displaysHelp.html#gridView">GridView</a>
+      <a href="displaysHelp.html#heatMapView">HeatMapView</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="displaysTutorial.html">Displays Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <a href="themesHelp.html#themes">Themes &amp; Styles</a>
+  <span class="sep">·</span>
+  <a href="eventsHelp.html#touch">Events</a>
+  <span class="sep">·</span>
+  <a href="license.html">License</a>
+  <a href="demo.html" class="demo-link" target="_blank">↗ Live Demo</a>
+</nav>
+
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="prerelease-badge">Pre-Release — API subject to change</div>
+      <h1>Sliders & Dials</h1>
+      <p class="hero-desc">
+        Part of the <a href="help.html" style="color:#66bbff;text-decoration:none;border-bottom:1px solid #66bbff44;">ProControls for p5.js documentation</a>.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var cards = [
+    {
+      eyebrow: 'Show us what you made',
+      body: 'Built something cool with ProControls for p5.js? Send us a link and we\'ll highlight your project here.',
+    },
+    {
+      eyebrow: 'Have an idea?',
+      body: 'Thinking of a control that doesn\'t exist yet? Send us your suggestion — if we like it, we\'ll build it.',
+    },
+    {
+      eyebrow: 'We want your feedback',
+      body: 'How is ProControls working for you? Tell us what\'s working, what\'s not, and what you\'d like to see next.',
+    }
+  ];
+});
+</script>
+
+
+<!-- ── Content ── -->
+<div class="page">
+  <!-- Getting Started — moved to gettingStarted.html -->
+  <section id="getting-started">
+    <div class="note" style="margin:0 0 0">
+      <strong>New here?</strong> See the <a href="gettingStarted.html">Getting Started</a> page for
+      HTML setup, script tags, a minimal sketch, and the common options table.
+    </div>
+  </section>
+
+  <hr>
+  <!-- TOC -->
+  <div class="toc">
+    <a href="#slider">AnalogSlider</a>
+    <a href="#multislider">MultiSlider</a>
+    <a href="#rangeslider">RangeSlider</a>
+    <a href="#dial">Dial</a>
+    <a href="#multidial">MultiDial</a>
+  </div>
+
+
+
+  <section id="slider">
+    <h2>AnalogSlider <span class="tag">Input</span></h2>
+    <p class="desc">A vertical fader with a draggable cap, optional scale ticks, and a live readout. Drag the cap or scroll the mouse wheel to change value. Double-click the cap to reset to the initial value.</p>
+
+    <div class="sig" style="margin-top:14px">new AnalogSlider(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>horizontal</td><td>boolean</td><td>false</td><td>When <code>true</code>, the fader runs left-to-right instead of bottom-to-top. Default <code>width</code> becomes 180 and default <code>height</code> becomes 44. <code>showScale</code> defaults to <code>false</code> in horizontal mode.</td></tr>
+        <tr><td>width</td><td>number</td><td>auto / 180</td><td>Panel width. Vertical: auto-sized to fit tick labels when <code>showScale</code> is true. Horizontal: defaults to 180.</td></tr>
+        <tr><td>height</td><td>number</td><td>180 / 44</td><td>Panel height. Vertical default 180, horizontal default 44.</td></tr>
+        <tr><td>readout</td><td>string</td><td>'raw'</td><td><code>'raw'</code> — numeric value · <code>'percent'</code> — 0–100% · <code>'db'</code> — dB relative to max (shows <code>-∞</code> at min).</td></tr>
+        <tr><td>decimals</td><td>number</td><td>2</td><td>Decimal places for the <code>'raw'</code> readout.</td></tr>
+        <tr><td>showScale</td><td>boolean</td><td>true / false</td><td>Draw tick marks and numeric labels along the track. Defaults <code>true</code> vertical, <code>false</code> horizontal.</td></tr>
+        <tr><td>style</td><td>string</td><td>'knob'</td><td>Visual style — <code>'knob'</code> (default), <code>'wheel'</code> (cylinder with scrolling ribs), <code>'button'</code> (minimal circular cap). Works for both vertical and horizontal orientations. See slider styles below.</td></tr>
+        <tr><td>showFader</td><td>boolean</td><td>true</td><td>Show or hide the draggable cap. <code>false</code> = display-only meter.</td></tr>
+        <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, the fader animates back to its initial value after mouse/touch release.</td></tr>
+        <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete.</td></tr>
+        <tr><td>springDefault</td><td>number</td><td>value</td><td>Value to restore on double-click reset (and spring-back target). Defaults to the initial <code>value</code>. Override when the control is rebuilt dynamically to pin the reset point.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange(value[, control])</code> — called every time the value changes during interaction.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease(value[, control])</code> — called on mouse/touch release.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const vol = new AnalogSlider({
+  x: 28, y: 35,
+  width: 44, height: 180,
+  min: 0, max: 1, value: 0.8,
+  label: 'VOLUME',
+  readout: 'db',
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=slider" width="100" height="265" scrolling="no" frameborder="0" loading="lazy" title="AnalogSlider live example"></iframe>
+    </div>
+
+    <div class="note"><strong>Log scale:</strong> Set <code>scale: 'log'</code> with a small positive <code>min</code> (e.g. <code>0.001</code>) for a perceptually even frequency fader.</div>
+
+    <h3>Slider styles</h3>
+    <p class="desc">Set <code>style</code> on any vertical <code>AnalogSlider</code> to change its visual. Interaction is identical across all styles.</p>
+    <div class="themes-frames">
+      <div style="text-align:center">
+        <iframe class="example-frame" src="example.html?c=slider&lbl=KNOB" width="100" height="265" scrolling="no" frameborder="0" loading="lazy" title="knob slider"></iframe>
+        <div style="font-size:11px;color:#888;margin-top:4px">knob (default)</div>
+      </div>
+      <div style="text-align:center">
+        <iframe class="example-frame" src="example.html?c=slider_wheel" width="100" height="265" scrolling="no" frameborder="0" loading="lazy" title="wheel slider"></iframe>
+        <div style="font-size:11px;color:#888;margin-top:4px">wheel</div>
+      </div>
+      <div style="text-align:center">
+        <iframe class="example-frame" src="example.html?c=slider_button" width="100" height="265" scrolling="no" frameborder="0" loading="lazy" title="button slider"></iframe>
+        <div style="font-size:11px;color:#888;margin-top:4px">button</div>
+      </div>
+    </div>
+    <p class="desc"><strong>wheel</strong> — a cylinder visible through a slot. Ribs scroll with the value position; center notches mark the midpoint. Vertical: horizontal ribs, width defaults to 50px. Horizontal: vertical ribs, full slot is draggable. Scale defaults to off.</p>
+    <p class="desc"><strong>button</strong> — a minimal thin-groove track with a spherical circular cap. Works in both orientations. Width defaults to 40px and scale defaults to off.</p>
+
+    <hr>
+
+    <h2 id="multislider">MultiSlider <span class="tag ext">Input</span></h2>
+    <p class="desc">Several <code>AnalogSlider</code> faders arranged side-by-side in a single unit — useful for equalizers, mixer channel strips, or any bank of related faders. A single <code>onChange</code>/<code>onRelease</code> fires whenever any child slider changes, receiving a <code>name → value</code> object covering all sliders at once.</p>
+
+    <div class="sig">new MultiSlider(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>sliders</td><td>object</td><td>{}</td><td>Each key is a slider name/label. The value is either a number (initial value) or an object with per-slider overrides (<code>value</code>, <code>min</code>, <code>max</code>, <code>readout</code>, …).</td></tr>
+        <tr><td>x</td><td>number</td><td>20</td><td>Left edge of the first slider.</td></tr>
+        <tr><td>y</td><td>number</td><td>20</td><td>Top edge of all sliders.</td></tr>
+        <tr><td>height</td><td>number</td><td>180</td><td>Slider height in pixels (shared by all children unless overridden per-slider).</td></tr>
+        <tr><td>min</td><td>number</td><td>0</td><td>Shared minimum (overridable per-slider).</td></tr>
+        <tr><td>max</td><td>number</td><td>1</td><td>Shared maximum (overridable per-slider).</td></tr>
+        <tr><td>readout</td><td>string</td><td>'raw'</td><td>Shared readout format — <code>'raw'</code>, <code>'db'</code>, or <code>'pct'</code> (overridable per-slider).</td></tr>
+        <tr><td>decimals</td><td>number</td><td>2</td><td>Shared decimal places (overridable per-slider).</td></tr>
+        <tr><td>scale</td><td>string</td><td>'linear'</td><td>Shared scale — <code>'linear'</code> or <code>'log'</code> (overridable per-slider).</td></tr>
+        <tr><td>horizontal</td><td>boolean</td><td>false</td><td>When <code>true</code>, each child is a horizontal slider and the group stacks them vertically. Default <code>width</code> becomes 180 and default <code>height</code> becomes 44 per slider.</td></tr>
+        <tr><td>gap</td><td>number</td><td>4</td><td>Pixel gap between adjacent sliders.</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Group label (not drawn — available for identification).</td></tr>
+        <tr><td>name</td><td>string</td><td>auto</td><td>Identifier for this group. Each child slider also has its own <code>name</code> (defaults to its key with spaces/punctuation removed), which becomes the field key in <code>.values</code> and <code>.slider(name)</code>. Override a child's name via its per-slider object: <code>sliders: { freq: { name: 'f', … } }</code>.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({ name: value, … }[, control])</code> — called when any slider changes. Keys are each child slider's <code>.name</code> (label with spaces/punctuation removed by default).</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({ name: value, … }[, control])</code> — called on mouse/touch release.</td></tr>
+        <tr><td>style</td><td>string</td><td>'knob'</td><td>Shared slider style — <code>'knob'</code>, <code>'wheel'</code>, or <code>'button'</code>. Can be overridden per-slider.</td></tr>
+        <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, all sliders animate back to their initial values after release. Can be overridden per-slider.</td></tr>
+        <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete. Can be overridden per-slider.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Shared theme override applied to all children. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties &amp; methods</h3>
+    <table class="opts">
+      <thead><tr><th>Property / method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.values</code></td><td>Getter — returns <code>{ name: value, … }</code> for all sliders. Keys are each child's <code>.name</code> property (label with spaces/punctuation removed by default; override via <code>name</code> in the per-slider opts). Setter accepts the same format to update any subset.</td></tr>
+        <tr><td><code>.slider(name)</code></td><td>Returns the child <code>AnalogSlider</code> whose <code>.name</code> matches, for direct access (e.g. <code>.value</code>, <code>.disabled</code>).</td></tr>
+        <tr><td><code>.disabled</code></td><td>Getter/setter — propagates to all child sliders.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Per-slider overrides</h3>
+    <p class="desc">Pass an object instead of a plain number for any slider to override shared options for that specific channel.</p>
+    <pre><code><span class="kw">const</span> eq = <span class="kw">new</span> <span class="fn">MultiSlider</span>({
+  x: <span class="num">20</span>, y: <span class="num">40</span>, height: <span class="num">180</span>,
+  min: <span class="num">-12</span>, max: <span class="num">12</span>, readout: <span class="str">'raw'</span>, decimals: <span class="num">1</span>,
+  sliders: {
+    <span class="str">'60Hz'</span>:  <span class="num">0</span>,           <span class="cmt">// plain number → uses shared min/max</span>
+    <span class="str">'250Hz'</span>: <span class="num">0</span>,
+    <span class="str">'2kHz'</span>:  { value: <span class="num">3</span>, theme: { capIndicator: <span class="str">'#ff6600'</span> } }, <span class="cmt">// object → per-slider overrides</span>
+    <span class="str">'8kHz'</span>:  <span class="num">0</span>,
+  },
+  <span class="fn">onChange</span>:  v => console.<span class="fn">log</span>(<span class="str">'eq changed'</span>, v),
+  <span class="fn">onRelease</span>: v => console.<span class="fn">log</span>(<span class="str">'eq released'</span>, v),
+});</code></pre>
+
+    <h3>Example — vertical (default)</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const eq = new MultiSlider({
+  x: 20, y: 35,
+  height: 180,
+  min: -12, max: 12,
+  readout: 'raw', decimals: 1,
+  label: 'EQ',
+  sliders: {
+    '60Hz':  0,
+    '250Hz': 0,
+    '2kHz':  0,
+    '8kHz':  0,
+  },
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=multislider" width="350" height="265" scrolling="no" frameborder="0" loading="lazy" title="MultiSlider vertical live example"></iframe>
+    </div>
+
+    <h3>Example — horizontal with a spring-back override on one slider</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const eq = new MultiSlider({
+  x: 20, y: 22,
+  width: 180, height: 44,
+  horizontal: true,
+  min: -12, max: 12,
+  readout: 'raw', decimals: 1,
+  label: 'EQ',
+  sliders: {
+    '60Hz':  0,
+    '250Hz': 0,
+    // 2kHz springs back to 0 after 0.8s — others stay put
+    '2kHz':  { value: 0, springBack: true, springDuration: 0.8 },
+    '8kHz':  0,
+  },
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=multislider_h_spring" width="220" height="230" scrolling="no" frameborder="0" loading="lazy" title="MultiSlider horizontal spring live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- RangeSlider -->
+  <section id="rangeslider">
+    <h2 id="rangeslider">RangeSlider <span class="tag ext">Input</span></h2>
+    <p class="desc">A fader with two draggable caps that define a low/high range. Drag either cap independently; caps constrain each other so they never cross. The region between the caps is filled with the accent colour. Scroll-wheel adjusts the cap nearest the cursor. Double-click a cap to reset it to its initial value.</p>
+
+    <div class="sig">new RangeSlider(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>20, 20</td><td>Top-left position.</td></tr>
+        <tr><td>width</td><td>number</td><td>50 (v) / 180 (h)</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>180 (v) / 44 (h)</td><td>Panel height in pixels.</td></tr>
+        <tr><td>min</td><td>number</td><td>0</td><td>Minimum value.</td></tr>
+        <tr><td>max</td><td>number</td><td>1</td><td>Maximum value.</td></tr>
+        <tr><td>valueLow</td><td>number</td><td>min</td><td>Initial lower handle value.</td></tr>
+        <tr><td>valueHigh</td><td>number</td><td>max</td><td>Initial upper handle value.</td></tr>
+        <tr><td>horizontal</td><td>boolean</td><td>false</td><td>When <code>true</code>, renders as a horizontal slider. Width/height defaults swap accordingly.</td></tr>
+        <tr><td>readout</td><td>string</td><td>'raw'</td><td>Value format — <code>'raw'</code>, <code>'percent'</code>, or <code>'db'</code>.</td></tr>
+        <tr><td>decimals</td><td>number</td><td>2</td><td>Decimal places for <code>'raw'</code> readout.</td></tr>
+        <tr><td>showScale</td><td>boolean</td><td>true (v) / false (h)</td><td>Draw tick marks and value labels alongside the track.</td></tr>
+        <tr><td>showFader</td><td>boolean</td><td>true</td><td>Draw the cap handles. Set to <code>false</code> to show only the range fill (display-only mode).</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Caption drawn at the top of the panel.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({lo, hi}[, control])</code> — called whenever either handle moves.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({lo, hi}[, control])</code> — called on mouse/touch release.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+</tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.valueLow</code></td><td>Current lower value (read/write). Setting it programmatically will not fire <code>onChange</code>.</td></tr>
+        <tr><td><code>.valueHigh</code></td><td>Current upper value (read/write).</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example — vertical</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const range = new RangeSlider({
+  x: 28, y: 35,
+  width: 54, height: 195,
+  min: 0, max: 1,
+  valueLow: 0.2, valueHigh: 0.8,
+  label: 'RANGE',
+  readout: 'raw', decimals: 2,
+  onChange: ({lo, hi}) => console.log(lo, hi),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=rangeslider" width="110" height="265" scrolling="no" frameborder="0" loading="lazy" title="RangeSlider vertical live example"></iframe>
+    </div>
+
+    <h3>Example — horizontal</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const range = new RangeSlider({
+  x: 20, y: 18,
+  width: 220, height: 44,
+  min: 0, max: 1,
+  valueLow: 0.2, valueHigh: 0.8,
+  horizontal: true,
+  label: 'RANGE',
+  readout: 'raw', decimals: 2,
+  onChange: ({lo, hi}) => console.log(lo, hi),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=rangeslider_h" width="260" height="80" scrolling="no" frameborder="0" loading="lazy" title="RangeSlider horizontal live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- Dial -->
+  <section id="dial">
+    <h2>Dial <span class="tag">Input</span></h2>
+    <p class="desc">A rotary knob with a 270° arc sweep. Drag up/down or scroll the mouse wheel to turn it. A tooltip shows the live value while dragging. Double-click to reset to the initial value.</p>
+
+    <div class="sig">new Dial(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>size</td><td>number</td><td>70</td><td>Square panel size in pixels. Knob, arc, and scale all scale proportionally.</td></tr>
+        <tr><td>readout</td><td>string</td><td>'raw'</td><td>Same as AnalogSlider: <code>'raw'</code>, <code>'percent'</code>, <code>'db'</code>.</td></tr>
+        <tr><td>decimals</td><td>number</td><td>2</td><td>Decimal places for the <code>'raw'</code> readout.</td></tr>
+        <tr><td>showScale</td><td>boolean</td><td>false</td><td>Draw tick marks and labels around the arc. Increase <code>size</code> if labels clip.</td></tr>
+        <tr><td>showKnob</td><td>boolean</td><td>true</td><td>Show or hide the knob body. <code>false</code> = arc-only display (used by VUDial).</td></tr>
+        <tr><td>style</td><td>string</td><td>'classic'</td><td>Knob visual style — <code>'classic'</code> · <code>'rubber'</code> · <code>'grooved'</code> · <code>'pointer'</code>. See dial styles below.</td></tr>
+        <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, the knob animates back to its initial value after mouse/touch release.</td></tr>
+        <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange(value[, control])</code> — called every time the value changes.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease(value[, control])</code> — called on mouse/touch release.</td></tr>
+</tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const freq = new Dial({
+  x: 45, y: 35,
+  size: 80,
+  min: 20, max: 20000, value: 440,
+  scale: 'log',
+  label: 'FREQ',
+  readout: 'raw',
+  decimals: 0,
+  showScale: true,
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=dial" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="Dial live example"></iframe>
+    </div>
+
+    <h3>Dial styles</h3>
+    <p class="desc">Set <code>style</code> to choose a knob visual. All styles share the same interaction and arc track — only the knob body rendering changes.</p>
+    <div class="themes-frames">
+      <div style="text-align:center">
+        <iframe class="example-frame" src="example.html?c=dial&lbl=CLASSIC" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="classic dial"></iframe>
+        <div style="font-size:11px;color:#888;margin-top:4px">classic (default)</div>
+      </div>
+      <div style="text-align:center">
+        <iframe class="example-frame" src="example.html?c=dialrubber" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="rubber dial"></iframe>
+        <div style="font-size:11px;color:#888;margin-top:4px">rubber</div>
+      </div>
+      <div style="text-align:center">
+        <iframe class="example-frame" src="example.html?c=dialgrooved" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="grooved dial"></iframe>
+        <div style="font-size:11px;color:#888;margin-top:4px">grooved</div>
+      </div>
+      <div style="text-align:center">
+        <iframe class="example-frame" src="example.html?c=dialpointer" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="pointer dial"></iframe>
+        <div style="font-size:11px;color:#888;margin-top:4px">pointer</div>
+      </div>
+    </div>
+
+    <hr>
+
+    <h2 id="multidial">MultiDial <span class="tag ext">Input</span></h2>
+    <p class="desc">Several <code>Dial</code> knobs arranged side-by-side in a single unit. A single <code>onChange</code>/<code>onRelease</code> fires whenever any dial changes, receiving a <code>name → value</code> object. A raised bevel panel frames the group. All dials share options by default; individual dials can override with per-dial objects.</p>
+
+    <div class="sig">new MultiDial(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>dials</td><td>object</td><td>{}</td><td>Each key is a dial name/label. Value is a number (initial value) or an object with per-dial overrides (<code>value</code>, <code>min</code>, <code>max</code>, <code>style</code>, …).</td></tr>
+        <tr><td>x</td><td>number</td><td>20</td><td>Left edge of the first dial.</td></tr>
+        <tr><td>y</td><td>number</td><td>20</td><td>Top edge of all dials.</td></tr>
+        <tr><td>size</td><td>number</td><td>70</td><td>Shared dial panel size in pixels (overridable per-dial).</td></tr>
+        <tr><td>min</td><td>number</td><td>0</td><td>Shared minimum (overridable per-dial).</td></tr>
+        <tr><td>max</td><td>number</td><td>1</td><td>Shared maximum (overridable per-dial).</td></tr>
+        <tr><td>readout</td><td>string</td><td>'raw'</td><td>Shared readout format (overridable per-dial).</td></tr>
+        <tr><td>decimals</td><td>number</td><td>2</td><td>Shared decimal places (overridable per-dial).</td></tr>
+        <tr><td>horizontal</td><td>boolean</td><td>true</td><td>When <code>true</code> (default), dials are arranged in a horizontal row. When <code>false</code>, dials are stacked in a vertical column.</td></tr>
+        <tr><td>style</td><td>string</td><td>'classic'</td><td>Shared knob style — <code>'classic'</code>, <code>'rubber'</code>, <code>'grooved'</code>, <code>'pointer'</code> (overridable per-dial).</td></tr>
+        <tr><td>gap</td><td>number</td><td>4</td><td>Pixel gap between adjacent dials.</td></tr>
+        <tr><td>name</td><td>string</td><td>auto</td><td>Identifier for this group. Each child dial also has its own <code>name</code> (defaults to its key with spaces/punctuation removed), which becomes the field key in <code>.values</code> and <code>.dial(name)</code>. Override a child's name via its per-dial object: <code>dials: { freq: { name: 'f', … } }</code>.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({ name: value, … }[, control])</code> — called when any dial changes. Keys are each child dial's <code>.name</code> property (label with spaces/punctuation removed by default).</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({ name: value, … }[, control])</code> — called on mouse/touch release.</td></tr>
+        <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, all dials animate back to their initial values after release. Can be overridden per-dial.</td></tr>
+        <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete. Can be overridden per-dial.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Shared theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties &amp; methods</h3>
+    <table class="opts">
+      <thead><tr><th>Property / method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.values</code></td><td>Getter — returns <code>{ name: value, … }</code> for all dials. Keys are each child's <code>.name</code> property (label with spaces/punctuation removed by default; override via <code>name</code> in the per-dial opts). Setter accepts same format.</td></tr>
+        <tr><td><code>.dial(name)</code></td><td>Returns the child <code>Dial</code> whose <code>.name</code> matches, for direct access.</td></tr>
+        <tr><td><code>.disabled</code></td><td>Getter/setter — propagates to all child dials.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example — horizontal row (default)</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const tone = new MultiDial({
+  x: 20, y: 20,
+  size: 70,
+  min: 0, max: 100,
+  readout: 'raw', decimals: 0,
+  label: 'TONE',
+  dials: {
+    'BASS':   50,
+    'MID':    50,
+    'TREBLE': 50,
+  },
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=multidial" width="280" height="150" scrolling="no" frameborder="0" loading="lazy" title="MultiDial horizontal live example"></iframe>
+    </div>
+
+    <h3>Example — vertical column with an individual dial override</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const tone = new MultiDial({
+  x: 20, y: 20,
+  size: 70,
+  horizontal: false,
+  min: 0, max: 100,
+  readout: 'raw', decimals: 0,
+  label: 'TONE',
+  dials: {
+    'BASS':   50,
+    'MID':    50,
+    // TREBLE overrides range, decimals, and style
+    'TREBLE': { value: 8000, min: 20, max: 20000,
+                decimals: 0, style: 'pointer' },
+  },
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=multidial_v" width="150" height="340" scrolling="no" frameborder="0" loading="lazy" title="MultiDial vertical live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- Pads: XYPad, GridPad, Piano -->
+
+
+</div>
+
+<script>
+(function () {
+  // Wire each editable textarea to its sibling iframe
+  document.querySelectorAll('.example-row').forEach(function (row) {
+    var ta = row.querySelector('textarea.live-code');
+    var fr = row.querySelector('iframe.example-frame');
+    if (!ta || !fr) return;
+
+    // Auto-size textarea to content on load
+    function resize() {
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    }
+    resize();
+
+    // Debounced postMessage to the iframe
+    var timer;
+    ta.addEventListener('input', function () {
+      resize();
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        if (fr.contentWindow) {
+          fr.contentWindow.postMessage({ type: 'run', code: ta.value }, '*');
+        }
+      }, 700);
+    });
+  });
+}());
+</script>
+
+<footer>
+  <span>© 2026 David Stein</span>
+  <span class="footer-promo">
+    Another David Stein Production:
+    <a href="https://instructor.cc" target="_blank">instructor.cc</a> ·
+    <a href="https://procontrols.org" target="_blank">procontrols.org</a> ·
+    <a href="https://supermod3l.com" target="_blank">supermod3l.com</a> ·
+    <a href="https://indienewyork.com" target="_blank">indienewyork.com</a> ·
+    <a href="https://indieboston.com" target="_blank">indieboston.com</a>
+  </span>
+</footer>
+
+</body>
+</html>
+
+
+</body>
+</html>

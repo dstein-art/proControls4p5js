@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-02 — commit d09536a
+// Last updated: 2026-06-02 — commit 341e3c0
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -9434,12 +9434,12 @@ class HeatMapView extends ProControl {
   }
 }
 
-// PianoKeyboard - interactive piano keyboard with note selection
+// PianoPad - interactive piano keyboard with note selection
 const _PIANO_NOTE_MAP = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
 const _PIANO_NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const _WHITE_SEMITONES = new Set([0, 2, 4, 5, 7, 9, 11]);
 
-class PianoKeyboard extends ProControl {
+class PianoPad extends ProControl {
   constructor(opts = {}) {
     super(Object.assign({ min: 0, max: 1, value: 0, x: 0, y: 0 }, opts));
     this.width = opts.width ?? 500;
@@ -9757,4 +9757,4 @@ class PianoKeyboard extends ProControl {
 window.ListView = ListView;
 window.GridView = GridView;
 window.HeatMapView = HeatMapView;
-window.PianoKeyboard = PianoKeyboard;
+window.PianoPad = PianoPad;

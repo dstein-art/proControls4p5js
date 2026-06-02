@@ -395,6 +395,90 @@
     footer a:hover { text-decoration: underline; }
 
     .footer-promo { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+
+    /* ── Mobile Menu ── */
+    .nav-hamburger {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 5px 8px;
+      line-height: 1;
+      align-items: center;
+    }
+    .nav-hamburger:hover { color: var(--accent); }
+
+    /* ── Mobile Responsive ── */
+    @media (max-width: 900px) {
+      nav {
+        padding: 0 16px;
+        gap: 4px;
+      }
+
+      nav > * {
+        display: none;
+      }
+
+      nav > a:first-child {
+        display: flex;
+      }
+
+      nav > .nav-hamburger {
+        display: flex;
+        margin-right: auto;
+      }
+
+      nav > a:nth-of-type(2) {
+        display: block;
+      }
+
+      nav.mobile-menu-open {
+        flex-direction: column;
+        align-items: stretch;
+        height: auto;
+        padding: 12px 0;
+        gap: 0;
+      }
+
+      nav.mobile-menu-open > * {
+        display: none;
+      }
+
+      nav.mobile-menu-open > .nav-hamburger {
+        display: flex;
+        padding: 12px 16px;
+      }
+
+      nav.mobile-menu-open > a {
+        display: block;
+        padding: 12px 16px;
+        font-size: 15px;
+      }
+
+      nav.mobile-menu-open > .nav-group {
+        display: block;
+      }
+
+      nav.mobile-menu-open > .nav-group > a:first-child {
+        display: block;
+        padding: 12px 16px;
+        font-size: 15px;
+        color: var(--muted);
+        text-decoration: none;
+        transition: color .15s, background .15s;
+      }
+
+      nav.mobile-menu-open > .nav-group > a:first-child:hover {
+        color: var(--accent);
+        background: #0077cc0a;
+      }
+
+      nav.mobile-menu-open .nav-submenu {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -402,97 +486,90 @@
 <!-- ── Nav ── -->
 <nav>
   <a href="index.html" title="Home" style="padding:5px 8px;font-size:18px;line-height:1;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:20px;">home</span></a>
+  <button class="nav-hamburger" onclick="document.querySelector('nav').classList.toggle('mobile-menu-open')" title="Menu"><span class="material-symbols-outlined">menu</span></button>
   <span class="sep">·</span>
-  <a href="docs/gettingStarted.html">Getting Started</a>
+    <a href="docs/gettingStarted.html">Getting Started</a>
   <span class="sep">·</span>
   <div class="nav-group">
-    <a href="docs/help.html#slider">Sliders &amp; Dials</a>
+    <a href="docs/slidersHelp.html#slider">Sliders &amp; Dials</a>
     <div class="nav-submenu">
-      <a href="docs/help.html#slider">AnalogSlider</a>
-      <a href="docs/help.html#multislider">MultiSlider</a>
-      <a href="docs/help.html#rangeslider">RangeSlider</a>
-      <a href="docs/help.html#dial">Dial</a>
-      <a href="docs/help.html#multidial">MultiDial</a>
+      <a href="docs/slidersHelp.html#slider">AnalogSlider</a>
+      <a href="docs/slidersHelp.html#multislider">MultiSlider</a>
+      <a href="docs/slidersHelp.html#rangeslider">RangeSlider</a>
+      <a href="docs/slidersHelp.html#dial">Dial</a>
+      <a href="docs/slidersHelp.html#multidial">MultiDial</a>
       <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
       <a href="docs/slidersTutorial.html">Sliders &amp; Dials Tutorial</a>
     </div>
   </div>
   <span class="sep">·</span>
   <div class="nav-group">
-    <a href="docs/help.html#pads">Pads</a>
+    <a href="docs/buttonsHelp.html">Buttons &amp; Pads</a>
     <div class="nav-submenu">
-      <a href="docs/help.html#xypad">XYPad</a>
-      <a href="docs/help.html#gridpad">GridPad</a>
-      <a href="docs/help.html#piano">Piano</a>
+      <a href="docs/buttonsHelp.html#iconButton">IconButton</a>
+      <a href="docs/buttonsHelp.html#xypad">XYPad</a>
+      <a href="docs/buttonsHelp.html#gridpad">GridPad</a>
+      <a href="docs/buttonsHelp.html#piano">PianoPad</a>
       <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
-      <a href="docs/padsTutorial.html">Pads Tutorial</a>
+      <a href="docs/buttonsTutorial.html">Buttons &amp; Pads Tutorial</a>
     </div>
   </div>
   <span class="sep">·</span>
   <div class="nav-group">
-    <a href="docs/help.html#buttons">Buttons</a>
+    <a href="docs/selectorsHelp.html#selectors">Selectors</a>
     <div class="nav-submenu">
-      <a href="docs/help.html#iconButton">IconButton</a>
-      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
-      <a href="docs/buttonsTutorial.html">Buttons Tutorial</a>
-    </div>
-  </div>
-  <span class="sep">·</span>
-  <div class="nav-group">
-    <a href="docs/help.html#selectors">Selectors</a>
-    <div class="nav-submenu">
-      <a href="docs/help.html#switch">Switch</a>
-      <a href="docs/help.html#selector">Selector</a>
-      <a href="docs/help.html#tagSelector">TagSelector</a>
-      <a href="docs/help.html#sliderSelector">SliderSelector</a>
+      <a href="docs/selectorsHelp.html#switch">Switch</a>
+      <a href="docs/selectorsHelp.html#selector">Selector</a>
+      <a href="docs/selectorsHelp.html#tagSelector">TagSelector</a>
+      <a href="docs/selectorsHelp.html#sliderSelector">SliderSelector</a>
       <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
       <a href="docs/selectorsTutorial.html">Selectors Tutorial</a>
     </div>
   </div>
   <span class="sep">·</span>
   <div class="nav-group">
-    <a href="docs/help.html#panel">Panel</a>
+    <a href="docs/panelsHelp.html#panel">Panel</a>
     <div class="nav-submenu">
-      <a href="docs/help.html#panel">Panel</a>
-      <a href="docs/help.html#bevel">Bevel</a>
-      <a href="docs/help.html#messageDialog">MessageDialog</a>
-      <a href="docs/help.html#inputDialog">InputDialog</a>
+      <a href="docs/panelsHelp.html#panel">Panel</a>
+      <a href="docs/panelsHelp.html#bevel">Bevel</a>
+      <a href="docs/panelsHelp.html#messageDialog">MessageDialog</a>
+      <a href="docs/panelsHelp.html#inputDialog">InputDialog</a>
       <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
       <a href="docs/panelsTutorial.html">Panels Tutorial</a>
     </div>
   </div>
   <span class="sep">·</span>
   <div class="nav-group">
-    <a href="docs/help.html#menu">Menus</a>
+    <a href="docs/menusHelp.html#menu">Menus</a>
     <div class="nav-submenu">
-      <a href="docs/help.html#menu">Menu</a>
-      <a href="docs/help.html#popupMenu">PopupMenu</a>
+      <a href="docs/menusHelp.html#menu">Menu</a>
+      <a href="docs/menusHelp.html#popupMenu">PopupMenu</a>
       <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
       <a href="docs/menusTutorial.html">Menus Tutorial</a>
     </div>
   </div>
   <span class="sep">·</span>
   <div class="nav-group">
-    <a href="docs/help.html#displays">Displays</a>
+    <a href="docs/displaysHelp.html#displays">Displays</a>
     <div class="nav-submenu">
-      <a href="docs/help.html#vumeter">VUMeter</a>
-      <a href="docs/help.html#vudial">VUDial</a>
-      <a href="docs/help.html#ledmeter">LEDMeter</a>
-      <a href="docs/help.html#adsr">ADSRDisplay</a>
-      <a href="docs/help.html#markup">Markup</a>
-      <a href="docs/help.html#consolePanel">ConsolePanel</a>
-      <a href="docs/help.html#timeGraphPanel">TimeGraphPanel</a>
-      <a href="docs/help.html#listView">ListView</a>
-      <a href="docs/help.html#gridView">GridView</a>
-      <a href="docs/help.html#heatMapView">HeatMapView</a>
+      <a href="docs/displaysHelp.html#vumeter">VUMeter</a>
+      <a href="docs/displaysHelp.html#vudial">VUDial</a>
+      <a href="docs/displaysHelp.html#ledmeter">LEDMeter</a>
+      <a href="docs/displaysHelp.html#adsr">ADSRDisplay</a>
+      <a href="docs/displaysHelp.html#markup">Markup</a>
+      <a href="docs/displaysHelp.html#consolePanel">ConsolePanel</a>
+      <a href="docs/displaysHelp.html#timeGraphPanel">TimeGraphPanel</a>
+      <a href="docs/displaysHelp.html#listView">ListView</a>
+      <a href="docs/displaysHelp.html#gridView">GridView</a>
+      <a href="docs/displaysHelp.html#heatMapView">HeatMapView</a>
       <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
       <a href="docs/displaysTutorial.html">Displays Tutorial</a>
     </div>
   </div>
   <span class="sep">·</span>
-  <a href="docs/help.html#themes">Themes &amp; Styles</a>
+  <a href="docs/themesHelp.html#themes">Themes &amp; Styles</a>
   <span class="sep">·</span>
-  <a href="docs/help.html#touch">Events</a>
+  <a href="docs/eventsHelp.html#touch">Events</a>
   <span class="sep">·</span>
   <a href="docs/license.html">License</a>
   <a href="docs/demo.html" class="demo-link" target="_blank">↗ Live Demo</a>
@@ -566,7 +643,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=slider&s=stainless" width="100" height="265" scrolling="no" frameborder="0" loading="lazy" title="AnalogSlider example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#slider">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/slidersHelp.html#slider">Docs →</a></div>
     </div>
 
     <!-- MultiSlider -->
@@ -578,7 +655,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=multislider_styles&s=black" width="220" height="215" scrolling="no" frameborder="0" loading="lazy" title="MultiSlider example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#multislider">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/slidersHelp.html#multislider">Docs →</a></div>
     </div>
 
     <!-- RangeSlider -->
@@ -590,7 +667,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=rangeslider&s=brushed" width="110" height="265" scrolling="no" frameborder="0" loading="lazy" title="RangeSlider example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#rangeslider">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/slidersHelp.html#rangeslider">Docs →</a></div>
     </div>
 
     <!-- Dial -->
@@ -602,7 +679,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=dial&s=white" width="170" height="170" scrolling="no" frameborder="0" loading="lazy" title="Dial example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#dial">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/slidersHelp.html#dial">Docs →</a></div>
     </div>
 
     <!-- MultiDial -->
@@ -614,7 +691,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=multidial&s=blue" width="280" height="150" scrolling="no" frameborder="0" loading="lazy" title="MultiDial example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#dial">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/slidersHelp.html#dial">Docs →</a></div>
     </div>
 
     <!-- XYPad -->
@@ -626,7 +703,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=xypad&s=red" width="260" height="260" scrolling="no" frameborder="0" loading="lazy" title="XYPad example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#xypad">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/buttonsHelp.html#xypad">Docs →</a></div>
     </div>
 
     <!-- GridPad -->
@@ -638,7 +715,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=gridpad_toggle&s=stainless" width="160" height="155" scrolling="no" frameborder="0" loading="lazy" title="GridPad example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#gridpad">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/buttonsHelp.html#gridpad">Docs →</a></div>
     </div>
 
     <!-- Piano -->
@@ -650,7 +727,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=piano_basic&s=stainless" width="300" height="140" scrolling="no" frameborder="0" loading="lazy" title="Piano example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#piano">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/buttonsHelp.html#piano">Docs →</a></div>
     </div>
 
     <!-- Switch -->
@@ -662,7 +739,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=switchn&s=brushed" width="130" height="175" scrolling="no" frameborder="0" loading="lazy" title="Switch example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#switch">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/selectorsHelp.html#switch">Docs →</a></div>
     </div>
 
     <!-- IconButton -->
@@ -674,7 +751,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=iconButton&s=black" width="220" height="180" scrolling="no" frameborder="0" loading="lazy" title="IconButton example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#iconButton">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/buttonsHelp.html#iconButton">Docs →</a></div>
     </div>
 
     <!-- Selector -->
@@ -686,7 +763,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=selector&s=white" width="220" height="100" scrolling="no" frameborder="0" loading="lazy" title="Selector example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#selector">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/selectorsHelp.html#selector">Docs →</a></div>
     </div>
 
     <!-- TagSelector -->
@@ -698,7 +775,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=tagSelector&s=blue" width="260" height="160" scrolling="no" frameborder="0" loading="lazy" title="TagSelector example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#tagSelector">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/selectorsHelp.html#tagSelector">Docs →</a></div>
     </div>
 
     <!-- SliderSelector -->
@@ -710,7 +787,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=sliderSelector&s=yellow" width="260" height="160" scrolling="no" frameborder="0" loading="lazy" title="SliderSelector example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#sliderSelector">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/slidersHelp.html#sliderSelector">Docs →</a></div>
     </div>
 
     <!-- Menu -->
@@ -722,7 +799,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=menu_left&s=stainless" width="200" height="240" scrolling="no" frameborder="0" loading="lazy" title="Menu example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#menu">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/menusHelp.html#menu">Docs →</a></div>
     </div>
 
   </div>
@@ -742,7 +819,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=panel&s=black" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="Panel example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#panel">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/panelsHelp.html#panel">Docs →</a></div>
     </div>
 
     <!-- MessageDialog -->
@@ -754,7 +831,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=messageDialog&s=stainless" width="290" height="175" scrolling="no" frameborder="0" loading="lazy" title="MessageDialog example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#messageDialog">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/panelsHelp.html#messageDialog">Docs →</a></div>
     </div>
 
     <!-- InputDialog -->
@@ -766,7 +843,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=inputDialog&s=white" width="290" height="195" scrolling="no" frameborder="0" loading="lazy" title="InputDialog example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#inputDialog">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/panelsHelp.html#inputDialog">Docs →</a></div>
     </div>
 
   </div>
@@ -786,7 +863,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=vumeter&s=black" width="90" height="265" scrolling="no" frameborder="0" loading="lazy" title="VUMeter example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#vumeter">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/displaysHelp.html#vumeter">Docs →</a></div>
     </div>
 
     <!-- VUDial -->
@@ -798,7 +875,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=vudial&s=blue" width="165" height="165" scrolling="no" frameborder="0" loading="lazy" title="VUDial example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#vudial">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/displaysHelp.html#vudial">Docs →</a></div>
     </div>
 
     <!-- LEDMeter -->
@@ -810,7 +887,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=ledmeter&s=brushed" width="200" height="110" scrolling="no" frameborder="0" loading="lazy" title="LEDMeter example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#ledmeter">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/displaysHelp.html#ledmeter">Docs →</a></div>
     </div>
 
     <!-- ADSRDisplay -->
@@ -822,7 +899,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=adsr&s=stainless" width="260" height="160" scrolling="no" frameborder="0" loading="lazy" title="ADSRDisplay example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#adsr">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/displaysHelp.html#adsr">Docs →</a></div>
     </div>
 
     <!-- Markup -->
@@ -834,7 +911,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=markup&s=black" width="280" height="220" scrolling="no" frameborder="0" loading="lazy" title="Markup example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#markup">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/displaysHelp.html#markup">Docs →</a></div>
     </div>
 
     <!-- ConsolePanel -->
@@ -846,7 +923,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=consolePanel&s=black" width="360" height="200" scrolling="no" frameborder="0" loading="lazy" title="ConsolePanel example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#consolePanel">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/displaysHelp.html#consolePanel">Docs →</a></div>
     </div>
 
     <!-- TimeGraphPanel -->
@@ -858,7 +935,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=timeGraphPanel&s=black" width="360" height="200" scrolling="no" frameborder="0" loading="lazy" title="TimeGraphPanel example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#timeGraphPanel">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/displaysHelp.html#timeGraphPanel">Docs →</a></div>
     </div>
 
     <!-- ListView -->
@@ -870,7 +947,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=listView&s=black" width="300" height="220" scrolling="no" frameborder="0" loading="lazy" title="ListView example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#listView">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/displaysHelp.html#listView">Docs →</a></div>
     </div>
 
     <!-- GridView -->
@@ -882,7 +959,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=gridView&s=black" width="420" height="220" scrolling="no" frameborder="0" loading="lazy" title="GridView example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#gridView">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/displaysHelp.html#gridView">Docs →</a></div>
     </div>
 
     <!-- HeatMapView -->
@@ -894,7 +971,7 @@
       <div class="col-card-preview">
         <iframe src="docs/example.html?c=heatMapView&s=black" width="320" height="220" scrolling="no" frameborder="0" loading="lazy" title="HeatMapView example"></iframe>
       </div>
-      <div class="col-card-footer"><a href="docs/help.html#heatMapView">Docs →</a></div>
+      <div class="col-card-footer"><a href="docs/displaysHelp.html#heatMapView">Docs →</a></div>
     </div>
 
   </div>

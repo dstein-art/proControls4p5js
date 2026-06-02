@@ -59,12 +59,12 @@ function setup() {
     }
   });
 
-  // PianoKeyboard test
-  let piano = new PianoKeyboard({
+  // PianoPad test
+  let piano = new PianoPad({
     x: 20, y: 400,
     width: 600, height: 140,
     firstNote: 'C3',
-    noteCount: 25,
+    noteCount: 20,
     highlightedNotes: ['C3', 'E3', 'G3'],
     label: 'Piano Keyboard (C major chord highlighted)',
     onChange: (d) => {

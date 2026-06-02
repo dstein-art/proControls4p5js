@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8RE9R8QLJW"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-8RE9R8QLJW');
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProControls — Documentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #ffffff;
+      --surface:   #f4f4f6;
+      --surface2:  #ebebee;
+      --border:    #e0e0e6;
+      --accent:    #0077cc;
+      --accent2:   #cc5500;
+      --text:      #1a1a22;
+      --muted:     #666680;
+      --code-bg:   #1a1a22;
+      --code-text: #d4d4d8;
+      --nav-bg:    #ffffffee;
+      --nav-h:     52px;
+      --max-w:     1100px;
+      --radius:    6px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.7 'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      gap: 4px;
+      overflow-x: clip;
+      overflow-y: visible;
+      white-space: nowrap;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+      flex-shrink: 0;
+    }
+
+    nav a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    nav .demo-link {
+      color: var(--accent2);
+      border-color: transparent;
+      margin-left: 6px;
+    }
+    nav .demo-link:hover {
+      color: var(--accent2);
+      border-color: #cc550044;
+      background: #cc55000a;
+    }
+
+    nav .sep { color: var(--border); margin: 0 2px; user-select: none; }
+
+    /* ── Nav submenu ── */
+    .nav-group { position: relative; display: flex; align-items: center; }
+    .nav-submenu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 4px;
+      padding-top: 10px;
+      min-width: 130px;
+      z-index: 200;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(0,0,0,.1);
+      flex-direction: column;
+      gap: 2px;
+    }
+    .nav-group:hover .nav-submenu { display: flex; }
+    .nav-submenu a {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: calc(var(--radius) - 1px);
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+    }
+    .nav-submenu a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #0f1923 0%, #1a2840 50%, #0f2030 100%);
+      padding: 80px 32px 72px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* subtle grid overlay */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    /* glow blob */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -60px; left: 40%;
+      width: 500px; height: 400px;
+      background: radial-gradient(ellipse, #0077cc28 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 48px;
+    }
+
+    .hero-left { flex: 1 1 0; min-width: 0; }
+
+    .hero-callout {
+      flex: 0 0 280px;
+      background: #ffffff08;
+      border: 1px solid #ffffff18;
+      border-radius: 12px;
+      padding: 24px 22px;
+      backdrop-filter: blur(6px);
+    }
+
+    .hero-callout-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: #00aaff;
+      margin-bottom: 10px;
+    }
+
+    .hero-callout p {
+      font-size: 14px;
+      line-height: 1.65;
+      color: #8aaccc;
+      margin-bottom: 16px;
+    }
+
+    .hero-callout-email {
+      display: inline-block;
+      font-size: 12px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      color: #66bbff;
+      background: #0077cc22;
+      border: 1px solid #0077cc55;
+      border-radius: 20px;
+      padding: 5px 14px;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .hero-callout-email:hover { background: #0077cc44; }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: #0099ee;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      letter-spacing: -.02em;
+    }
+
+    .hero h1 .accent { color: #00aaff; }
+    .hero h1 .dim    { color: #6699bb; font-weight: 400; }
+
+    .hero-desc {
+      font-size: 17px;
+      line-height: 1.6;
+      color: #8aaccc;
+      margin-bottom: 32px;
+    }
+
+    .hero-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chip {
+      font-size: 12px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid #ffffff22;
+      color: #aaccee;
+      background: #ffffff0a;
+    }
+
+    .chip-demo {
+      background: #0077cc22;
+      border-color: #0077cc66;
+      color: #66bbff;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .chip-demo:hover { background: #0077cc44; }
+
+    /* ── Page layout ── */
+    .page { max-width: var(--max-w); margin: 0 auto; padding: 56px 32px 100px; }
+
+    /* ── Sections ── */
+    section { margin-bottom: 72px; scroll-margin-top: calc(var(--nav-h) + 20px); }
+    h2[id] { scroll-margin-top: calc(var(--nav-h) + 20px); }
+    section h2 + h2 { margin-top: 40px; }
+
+    section h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    section h2 .tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc12;
+      border: 1px solid #0077cc33;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    section h2 .tag.ext {
+      color: var(--accent2);
+      background: #cc550012;
+      border-color: #cc550033;
+    }
+
+    .desc { color: var(--muted); margin-bottom: 20px; line-height: 1.65; }
+
+    section h3 {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #9999b0;
+      margin: 32px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Option tables ── */
+    .opts {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .opts thead th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 14px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .opts tbody tr:nth-child(even) td { background: #f9f9fc; }
+    .opts tbody tr:hover td { background: #f0f0f8; }
+
+    .opts td {
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+    .opts tbody tr:last-child td { border-bottom: none; }
+
+    .opts td:first-child  { font-family: monospace; color: var(--accent); white-space: nowrap; font-size: 13px; }
+    .opts td:nth-child(2) { font-family: monospace; color: #8888aa; white-space: nowrap; font-size: 13px; }
+    .opts td:nth-child(3) { font-family: monospace; color: var(--accent2); white-space: nowrap; font-size: 13px; }
+    .opts td:last-child   { color: var(--muted); white-space: normal; }
+
+    /* ── Code blocks ── */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid #2a2a38;
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      font: 13px/1.65 'Fira Code', 'Cascadia Code', monospace;
+      overflow-x: auto;
+      margin: 10px 0 0;
+      color: var(--code-text);
+    }
+
+    code {
+      font: 13px/1 'Fira Code', 'Cascadia Code', monospace;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent);
+    }
+
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: inherit;
+    }
+
+    .kw  { color: #c792ea; }
+    .fn  { color: #82aaff; }
+    .str { color: #c3e88d; }
+    .num { color: #f78c6c; }
+    .cmt { color: #546e7a; font-style: italic; }
+    .prop{ color: #89ddff; }
+
+    /* ── Callouts ── */
+    .note {
+      background: #0077cc0a;
+      border-left: 3px solid var(--accent);
+      padding: 11px 16px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 14px;
+      color: #446688;
+      margin: 16px 0 0;
+    }
+    .note strong { color: var(--accent); }
+
+    .warn {
+      background: #cc55000a;
+      border-left: 3px solid var(--accent2);
+      padding: 11px 16px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 14px;
+      color: #885533;
+      margin: 16px 0 0;
+    }
+    .warn strong { color: var(--accent2); }
+
+    /* ── Theme swatches ── */
+    .swatches { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+
+    .swatch {
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      font-size: 13px;
+      min-width: 130px;
+      background: var(--bg);
+    }
+
+    .swatch .name { font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--text); }
+
+    .swatch .bg-chip {
+      width: 100%;
+      height: 22px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(0,0,0,.12);
+    }
+
+    .swatch .accent-chip {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+
+    .swatch .label { color: var(--muted); font-size: 12px; }
+
+    /* ── Signature ── */
+    .sig {
+      font: 13px/1.6 'Fira Code', 'Cascadia Code', monospace;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 16px;
+      color: var(--text);
+    }
+    /* ── TOC ── */
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+    .toc a {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1px solid #0077cc33;
+      background: #0077cc08;
+      transition: background .15s, border-color .15s;
+    }
+    .toc a:hover { background: #0077cc18; border-color: #0077cc66; }
+
+    hr { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+
+    /* ── Live examples ── */
+    .example-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin: 10px 0 0;
+    }
+
+    .live-editor {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .live-hint {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc0d;
+      border: 1px solid #0077cc33;
+      border-bottom: none;
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: 4px 10px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    .live-code {
+      background: var(--code-bg);
+      border: 1px solid #2a2a38;
+      border-radius: 0 0 var(--radius) var(--radius);
+      padding: 18px 20px;
+      font: 13px/1.65 'Fira Code', 'Cascadia Code', monospace;
+      color: var(--code-text);
+      resize: none;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: pre;
+      field-sizing: content;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .live-code:focus {
+      border-color: #0077cc88;
+    }
+
+    .example-frame {
+      flex-shrink: 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: block;
+      box-shadow: 0 2px 10px rgba(0,0,0,.18);
+    }
+    .themes-frames {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    @media (max-width: 768px) {
+      nav {
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 0 16px;
+        -webkit-overflow-scrolling: touch;
+      }
+      nav a {
+        font-size: 12px;
+        padding: 5px 8px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .example-row { flex-direction: column; }
+      .example-frame { align-self: center; }
+      .hero-inner { flex-direction: column; align-items: flex-start; }
+      .hero-callout { flex: 0 0 auto; width: 100%; }
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 32px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    footer a:hover { text-decoration: underline; }
+
+    .footer-promo { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+
+    /* ── Pre-release badge ── */
+    .prerelease-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #ff990018;
+      border: 1px solid #ff990055;
+      color: #ffbb44;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 4px;
+      margin-bottom: 22px;
+    }
+    .prerelease-badge::before {
+      content: '';
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #ffaa33;
+      box-shadow: 0 0 6px #ffaa33aa;
+    }
+    /* ── Mobile Menu ── */
+    .nav-hamburger {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 5px 8px;
+      line-height: 1;
+      align-items: center;
+    }
+    .nav-hamburger:hover { color: var(--accent); }
+
+    /* ── Mobile Responsive ── */
+    /* ── Mobile Responsive ── */
+    @media (max-width: 900px) {
+      nav {
+        padding: 0 16px;
+        gap: 4px;
+      }
+
+      nav > * {
+        display: none;
+      }
+
+      nav > a:first-child {
+        display: flex;
+      }
+
+      nav > .nav-hamburger {
+        display: flex;
+        margin-right: auto;
+      }
+
+      nav > a:nth-of-type(2) {
+        display: block;
+      }
+      }
+
+      nav.mobile-menu-open {
+        flex-direction: column;
+        align-items: stretch;
+        height: auto;
+        padding: 12px 0;
+        gap: 0;
+      }
+
+      nav.mobile-menu-open > * {
+        display: none;
+      }
+
+      nav.mobile-menu-open > .nav-hamburger {
+        display: flex;
+        padding: 12px 16px;
+      }
+
+      nav.mobile-menu-open > a {
+        display: block;
+        padding: 12px 16px;
+        font-size: 15px;
+      }
+
+      nav.mobile-menu-open > .nav-group {
+        display: block;
+      }
+
+      nav.mobile-menu-open > .nav-group > a:first-child {
+        display: block;
+        padding: 12px 16px;
+        font-size: 15px;
+        color: var(--muted);
+        text-decoration: none;
+        transition: color .15s, background .15s;
+      }
+
+      nav.mobile-menu-open > .nav-group > a:first-child:hover {
+        color: var(--accent);
+        background: #0077cc0a;
+      }
+
+      nav.mobile-menu-open .nav-submenu {
+        display: none !important;
+      }
+    }
+
+  </style>
+
+</head>
+<body>
+
+<!-- ── Nav ── -->
+<nav>
+  <a href="../index.html" title="Home" style="padding:5px 8px;font-size:18px;line-height:1;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:20px;">home</span></a>
+  <button class="nav-hamburger" onclick="document.querySelector('nav').classList.toggle('mobile-menu-open')" title="Menu"><span class="material-symbols-outlined">menu</span></button>
+  <span class="sep">·</span>
+    <a href="gettingStarted.html">Getting Started</a>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="slidersHelp.html#slider">Sliders &amp; Dials</a>
+    <div class="nav-submenu">
+      <a href="slidersHelp.html#slider">AnalogSlider</a>
+      <a href="slidersHelp.html#multislider">MultiSlider</a>
+      <a href="slidersHelp.html#rangeslider">RangeSlider</a>
+      <a href="slidersHelp.html#dial">Dial</a>
+      <a href="slidersHelp.html#multidial">MultiDial</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="slidersTutorial.html">Sliders &amp; Dials Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="buttonsHelp.html">Buttons &amp; Pads</a>
+    <div class="nav-submenu">
+      <a href="buttonsHelp.html#iconButton">IconButton</a>
+      <a href="buttonsHelp.html#xypad">XYPad</a>
+      <a href="buttonsHelp.html#gridpad">GridPad</a>
+      <a href="buttonsHelp.html#piano">PianoPad</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="buttonsTutorial.html">Buttons &amp; Pads Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="selectorsHelp.html#selectors">Selectors</a>
+    <div class="nav-submenu">
+      <a href="selectorsHelp.html#switch">Switch</a>
+      <a href="selectorsHelp.html#selector">Selector</a>
+      <a href="selectorsHelp.html#tagSelector">TagSelector</a>
+      <a href="selectorsHelp.html#sliderSelector">SliderSelector</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="selectorsTutorial.html">Selectors Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="panelsHelp.html#panel">Panel</a>
+    <div class="nav-submenu">
+      <a href="panelsHelp.html#panel">Panel</a>
+      <a href="panelsHelp.html#bevel">Bevel</a>
+      <a href="panelsHelp.html#messageDialog">MessageDialog</a>
+      <a href="panelsHelp.html#inputDialog">InputDialog</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="panelsTutorial.html">Panels Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="menusHelp.html#menu">Menus</a>
+    <div class="nav-submenu">
+      <a href="menusHelp.html#menu">Menu</a>
+      <a href="menusHelp.html#popupMenu">PopupMenu</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="menusTutorial.html">Menus Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="displaysHelp.html#displays">Displays</a>
+    <div class="nav-submenu">
+      <a href="displaysHelp.html#vumeter">VUMeter</a>
+      <a href="displaysHelp.html#vudial">VUDial</a>
+      <a href="displaysHelp.html#ledmeter">LEDMeter</a>
+      <a href="displaysHelp.html#adsr">ADSRDisplay</a>
+      <a href="displaysHelp.html#markup">Markup</a>
+      <a href="displaysHelp.html#consolePanel">ConsolePanel</a>
+      <a href="displaysHelp.html#timeGraphPanel">TimeGraphPanel</a>
+      <a href="displaysHelp.html#listView">ListView</a>
+      <a href="displaysHelp.html#gridView">GridView</a>
+      <a href="displaysHelp.html#heatMapView">HeatMapView</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="displaysTutorial.html">Displays Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <a href="themesHelp.html#themes">Themes &amp; Styles</a>
+  <span class="sep">·</span>
+  <a href="eventsHelp.html#touch">Events</a>
+  <span class="sep">·</span>
+  <a href="license.html">License</a>
+  <a href="demo.html" class="demo-link" target="_blank">↗ Live Demo</a>
+</nav>
+
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="prerelease-badge">Pre-Release — API subject to change</div>
+      <h1>Panels</h1>
+      <p class="hero-desc">
+        Part of the <a href="help.html" style="color:#66bbff;text-decoration:none;border-bottom:1px solid #66bbff44;">ProControls for p5.js documentation</a>.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var cards = [
+    {
+      eyebrow: 'Show us what you made',
+      body: 'Built something cool with ProControls for p5.js? Send us a link and we\'ll highlight your project here.',
+    },
+    {
+      eyebrow: 'Have an idea?',
+      body: 'Thinking of a control that doesn\'t exist yet? Send us your suggestion — if we like it, we\'ll build it.',
+    },
+    {
+      eyebrow: 'We want your feedback',
+      body: 'How is ProControls working for you? Tell us what\'s working, what\'s not, and what you\'d like to see next.',
+    }
+  ];
+});
+</script>
+
+
+<!-- ── Content ── -->
+<div class="page">
+  <!-- Getting Started — moved to gettingStarted.html -->
+  <section id="getting-started">
+    <div class="note" style="margin:0 0 0">
+      <strong>New here?</strong> See the <a href="gettingStarted.html">Getting Started</a> page for
+      HTML setup, script tags, a minimal sketch, and the common options table.
+    </div>
+  </section>
+
+  <hr>
+  <!-- TOC -->
+  <div class="toc">
+    <a href="#panel">Panel</a>
+    <a href="#bevel">Bevel</a>
+    <a href="#messageDialog">MessageDialog</a>
+    <a href="#inputDialog">InputDialog</a>
+  </div>
+
+
+
+  <section id="panel">
+    <h2>Panel <span class="tag ext">Container</span></h2>
+    <p class="desc">A clipping container that groups ProControls into a positioned, optionally scrollable surface. Controls added with <code>.add()</code> are positioned relative to the panel's top-left corner — a slider at <code>(10, 10)</code> appears 10px from the panel edge, not the canvas edge. When child controls extend beyond the panel bounds, thin scrollbars appear automatically; the scroll wheel pans the view when no child control is hovered.</p>
+
+    <h3>Constructor options</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>x, y</td><td>number</td><td>20, 20</td><td>Panel top-left position on the canvas.</td></tr>
+          <tr><td>width</td><td>number</td><td>300</td><td>Panel width in pixels.</td></tr>
+          <tr><td>height</td><td>number</td><td>200</td><td>Panel height in pixels.</td></tr>
+          <tr><td>visible</td><td>boolean</td><td>true</td><td>Initial visibility. Set <code>panel.visible = false</code> to hide the panel and suppress all child events.</td></tr>
+          <tr><td>label</td><td>string</td><td>''</td><td>Title shown in a bar at the top of the panel. When set, the scrollable content area starts below the bar and a minimize/maximize button appears on the right side of the bar. No title bar is shown when empty.</td></tr>
+          <tr><td>minimized</td><td>boolean</td><td>false</td><td>Initial minimized state. When <code>true</code> the panel starts collapsed to just the title bar.</td></tr>
+          <tr><td>minimizable</td><td>boolean</td><td>true</td><td>When <code>false</code> the <strong>−/+</strong> toggle button is hidden and the panel cannot be collapsed.</td></tr>
+          <tr><td>movable</td><td>boolean</td><td>true</td><td>When <code>false</code> dragging the title bar does not reposition the panel.</td></tr>
+          <tr><td>resizable</td><td>boolean</td><td>false</td><td>When <code>true</code> a resize grip appears in the bottom-right corner; drag it to change the panel's <code>width</code> and <code>height</code> at runtime.</td></tr>
+          <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({ fieldName: value, … }[, panel])</code> — called with a snapshot of all child values whenever any child changes. See <em>onChange / values</em> below.</td></tr>
+          <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({ fieldName: value, … }[, panel])</code> — called with the same snapshot on release.</td></tr>
+          <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Methods &amp; properties</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>.add(control)</code></td><td>Attach a ProControl to the panel. The control is removed from the global registry and managed by the panel from that point on. Returns <code>this</code> for chaining.</td></tr>
+          <tr><td><code>.onChange</code></td><td>Callback fired as <code>onChange(snapshot[, panel])</code> whenever any child changes. Can be set at construction or assigned later.</td></tr>
+          <tr><td><code>.onRelease</code></td><td>Callback fired as <code>onRelease(snapshot[, panel])</code> when the user releases any child control. Can be set at construction or assigned later.</td></tr>
+          <tr><td><code>.values</code></td><td>Read-only getter. Returns a fresh <code>{ fieldName: value, … }</code> snapshot of every child control's current value — same object shape as the <code>onChange</code> and <code>onRelease</code> arguments. Useful for polling the panel state without setting up a callback.</td></tr>
+          <tr><td><code>.visible</code></td><td>Get/set panel visibility. When set to <code>false</code> the panel and all children stop drawing and receiving events.</td></tr>
+          <tr><td><code>.minimized</code></td><td>Get/set minimized state. When <code>true</code> the panel collapses to only the title bar; the small <strong>−/+</strong> button in the title bar also toggles this.</td></tr>
+          <tr><td><code>.minimizable</code></td><td>Read/write. Hides the toggle button and disables collapse when <code>false</code>.</td></tr>
+          <tr><td><code>.movable</code></td><td>Read/write. Prevents title-bar dragging when <code>false</code>.</td></tr>
+          <tr><td><code>.resizable</code></td><td>Read/write. When <code>true</code>, a grip appears in the bottom-right corner allowing the user to drag-resize the panel.</td></tr>
+          <tr><td><code>.scrollX / .scrollY</code></td><td>Current scroll offset in pixels. Read or write to programmatically scroll the panel.</td></tr>
+          <tr><td><code>.clone()</code></td><td>Returns a new Panel with identical options and a deep copy of all child controls. The copy is positioned to the right of the original (or below if it would overflow the canvas). Each cloned child is independent — changing values on the copy does not affect the original.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>onChange / onRelease / values</h3>
+    <p class="desc">When <code>onChange</code> or <code>onRelease</code> are set, the panel listens to every child control and fires the respective callback — with a single snapshot object — on change or release. The same object is always available via <code>panel.values</code>.</p>
+    <p class="desc"><strong>Field names</strong> are derived from each control's <code>label</code> option with spaces and punctuation stripped (e.g. <code>"Low Cut"</code> → <code>LowCut</code>). Controls without a label are named by class and a per-class counter: the first unlabelled <code>AnalogSlider</code> becomes <code>AnalogSlider1</code>, the second <code>AnalogSlider2</code>, and so on. <code>MultiSlider</code> and <code>MultiDial</code> follow the same rule — the slider/dial keys within their own <code>values</code> object also have spaces and punctuation stripped from the label.</p>
+    <p class="desc"><strong>Values</strong> per control type:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Control</th><th>Value in snapshot</th></tr></thead>
+        <tbody>
+          <tr><td>AnalogSlider, Dial</td><td><code>number</code></td></tr>
+          <tr><td>Switch</td><td>Current state label string (e.g. <code>"On"</code>)</td></tr>
+          <tr><td>Selector, SliderSelector</td><td>Selected option string</td></tr>
+          <tr><td>MultiSlider, MultiDial</td><td><code>{ name: value, … }</code> object</td></tr>
+          <tr><td>GridPad</td><td>2-D array of cell values</td></tr>
+          <tr><td>TagSelector</td><td>Array of selected tag strings</td></tr>
+          <tr><td>RangeSlider</td><td><code>{ low, high }</code></td></tr>
+          <tr><td>XYPad</td><td><code>{ x, y }</code></td></tr>
+          <tr><td>IconButton</td><td><code>boolean</code> state</td></tr>
+          <tr><td>Markup, Menu, VUMeter, LEDMeter, ADSRDisplay</td><td><em>omitted</em></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="desc"><strong>Note:</strong> set any per-control <code>onChange</code> callbacks <em>before</em> calling <code>panel.add()</code>. Callbacks assigned after <code>add()</code> will work for the individual control but the panel notification will wrap the value that was set at add-time.</p>
+
+    <h3>Scrolling</h3>
+    <p class="desc">Scrollbars appear automatically when children extend beyond the panel boundaries. The scroll wheel scrolls the panel when the pointer is over the panel but not over a focused child control. If a child control (e.g. a Dial) is hovered, the scroll wheel is forwarded to that child instead. You can also drag the scrollbar thumbs directly.</p>
+
+    <h3>Example — onChange</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const pnl = new Panel({
+  x: 20, y: 18,
+  width: 280, height: 180,
+  label: 'SYNTH',
+  onChange: data => console.log(data),
+});
+pnl.add(new Dial({
+  x: 20, y: 20,
+  size: 70, min: 20, max: 20000, value: 440,
+  label: 'Freq', readout: 'raw', decimals: 0,
+}));
+pnl.add(new AnalogSlider({
+  x: 120, y: 20,
+  width: 44, height: 140,
+  min: 0, max: 1, value: 0.8,
+  label: 'Gain', readout: 'db',
+}));
+pnl.add(new Switch({
+  x: 190, y: 50,
+  width: 52,
+  states: ['OFF', 'ON'], state: 1,
+  label: 'Power',
+}));
+// Read all values at any time:
+// pnl.values  →  { Freq: 440, Gain: 0.8, Power: 'ON' }</textarea>
+      <iframe class="example-frame" src="example.html?c=panel_onchange" width="320" height="220" scrolling="no" frameborder="0" loading="lazy" title="Panel onChange live example"></iframe>
+    </div>
+
+    <h3>Example — grouped controls</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const pnl = new Panel({
+  x: 20, y: 18,
+  width: 280, height: 200,
+  label: 'PANEL',
+});
+pnl.add(new Dial({
+  x: 20, y: 20,
+  size: 70, min: 0, max: 100, value: 65,
+  label: 'FREQ', readout: 'raw', decimals: 0,
+}));
+pnl.add(new AnalogSlider({
+  x: 120, y: 20,
+  width: 44, height: 150,
+  min: 0, max: 1, value: 0.75,
+  label: 'GAIN', readout: 'db',
+}));
+pnl.add(new AnalogSwitch({
+  x: 190, y: 50,
+  width: 52,
+  states: ['OFF', 'ON'],
+  state: 1,
+  label: 'POWER',
+}));</textarea>
+      <iframe class="example-frame" src="example.html?c=panel" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="Panel live example"></iframe>
+    </div>
+
+    <h3>Example — scrollable content</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const pnl = new Panel({
+  x: 20, y: 18,
+  width: 220, height: 160,
+  label: 'SCROLL',
+});
+// 8 dials arranged in two rows — wider than the panel
+for (let i = 0; i &lt; 4; i++) {
+  pnl.add(new Dial({
+    x: 20 + i * 80, y: 20,
+    size: 65, min: 0, max: 100, value: 40 + i * 15,
+    label: ['BASS','MID','TREB','PRES'][i],
+    readout: 'raw', decimals: 0,
+  }));
+  pnl.add(new Dial({
+    x: 20 + i * 80, y: 120,
+    size: 65, min: 0, max: 100, value: 60 - i * 10,
+    label: ['VOL','PAN','SND','RET'][i],
+    readout: 'raw', decimals: 0,
+  }));
+}</textarea>
+      <iframe class="example-frame" src="example.html?c=panel_scroll" width="260" height="200" scrolling="no" frameborder="0" loading="lazy" title="Panel scrollable live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- Bevel -->
+  <section id="bevel">
+    <h2>Bevel <span class="tag ext">Cosmetic</span></h2>
+    <p class="desc">A decorative separator line that draws a bevel edge across the canvas or a parent Panel. Pass <code>x</code> to draw a vertical bevel; pass <code>y</code> to draw a horizontal bevel. Both can be passed together. Values are pixels from the top-left of the container, or a percentage string such as <code>'50%'</code> resolved against the canvas width/height or the parent Panel's content area. Three visual styles are available.</p>
+
+    <div class="sig">new Bevel(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x</td><td>number | string</td><td>—</td><td>Position of a vertical bevel line. Pixels from the left edge, or a percent string (<code>'50%'</code>). Omit to skip the vertical line.</td></tr>
+        <tr><td>y</td><td>number | string</td><td>—</td><td>Position of a horizontal bevel line. Pixels from the top edge, or a percent string (<code>'50%'</code>). Omit to skip the horizontal line.</td></tr>
+        <tr><td>style</td><td>string</td><td>'thin'</td><td><code>'thin'</code> — 2px edge (1px dark shadow + 1px light highlight). <code>'deep'</code> — 4px edge (2px darker shadow + 2px thin bevel), for a heavier inset look. <code>'color'</code> — 2px edge using the current theme's accent color.</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Optional text centered on the bevel line. The background behind the text is filled with the panel color to cut the line, making the label appear to sit <em>on</em> the bevel. On a vertical bevel (<code>x</code>) the text is rotated 90°.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. The <code>'color'</code> style uses <code>theme.capIndicator</code>; labels use <code>theme.scaleText</code> and <code>theme.panel</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Notes</h3>
+    <ul style="font-size:14px;color:var(--muted);line-height:1.8;padding-left:20px;">
+      <li>Bevel has no interaction — it never consumes mouse or touch events.</li>
+      <li>When added to a Panel via <code>panel.add()</code>, percent values resolve against the Panel's content area. On the canvas they resolve against <code>width</code> / <code>height</code>.</li>
+      <li>Bevel does not contribute to Panel scroll size — it will not cause scrollbars to appear.</li>
+    </ul>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">new Bevel({ y: 95, label: 'AUX' });
+new Bevel({ x: 130, label: 'FX' });
+new Dial({ x: 45,  y: 14,  size: 40, label: 'GAIN',   readout: 'raw', decimals: 0 });
+new Dial({ x: 150, y: 14,  size: 40, label: 'PAN',    readout: 'raw', decimals: 0 });
+new Dial({ x: 45,  y: 108, size: 40, label: 'SEND',   readout: 'raw', decimals: 0 });
+new Dial({ x: 150, y: 108, size: 40, label: 'RETURN', readout: 'raw', decimals: 0 });</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=bevel" width="260" height="200" scrolling="no" frameborder="0" loading="lazy" title="Bevel live example"></iframe>
+    </div>
+
+    <h3>Inside a Panel</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const pnl = new Panel({
+  x: 20, y: 10,
+  width: 220, height: 170,
+  label: 'CHANNEL',
+});
+// Horizontal bevel at 50% of the panel height
+pnl.add(new Bevel({ y: '50%' }));
+pnl.add(new Dial({ x: 30, y: 10, size: 65, label: 'GAIN', readout: 'raw', decimals: 0 }));
+pnl.add(new Dial({ x: 125, y: 10, size: 65, label: 'PAN', readout: 'raw', decimals: 0 }));
+pnl.add(new Dial({ x: 30, y: 95, size: 65, label: 'SEND', readout: 'raw', decimals: 0 }));
+pnl.add(new Dial({ x: 125, y: 95, size: 65, label: 'RETURN', readout: 'raw', decimals: 0 }));</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=bevel_panel" width="260" height="200" scrolling="no" frameborder="0" loading="lazy" title="Bevel inside Panel"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- MessageDialog -->
+  <section id="messageDialog">
+    <h2>MessageDialog <span class="tag ext">Container</span></h2>
+    <p class="desc">A self-sizing, movable dialog that displays a formatted text message and optional action buttons. The message string is word-wrapped to fit the dialog width. Buttons are arranged in a single row at the bottom; if multiple buttons are provided the dialog widens automatically to fit them all on one line. Drag the title bar to reposition.</p>
+
+    <div class="sig">new MessageDialog(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>message</td><td>string</td><td>''</td><td>The text to display. Use <code>\n</code> for explicit line breaks. Long lines are wrapped automatically to fit the dialog width.</td></tr>
+        <tr><td>buttons</td><td>string[]</td><td>[]</td><td>Button labels shown in a row at the bottom of the dialog. Omit or pass an empty array for a message-only dialog.</td></tr>
+        <tr><td>x, y</td><td>number</td><td>20, 20</td><td>Canvas position.</td></tr>
+        <tr><td>width</td><td>number</td><td>auto</td><td>Dialog width. Defaults to at least 220 px or wide enough to fit all buttons on one row, whichever is larger.</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Title bar text. When set a styled title bar is shown at the top and the dialog can be repositioned by dragging it.</td></tr>
+        <tr><td>movable</td><td>boolean</td><td>true</td><td>When <code>false</code> the dialog cannot be dragged.</td></tr>
+        <tr><td>onButton</td><td>function</td><td>null</td><td><code>onButton(index, label[, control])</code> — called when a button is clicked.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables interaction and renders a translucent overlay.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.message</code></td><td>Read/write. Reassigning triggers a layout rebuild on the next draw so the dialog resizes to fit the new text.</td></tr>
+        <tr><td><code>.buttons</code></td><td>Read/write. Reassigning the array rebuilds the button row on the next draw.</td></tr>
+        <tr><td><code>.movable</code></td><td>Read/write. Toggle whether the dialog can be dragged at runtime.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const dlg = new MessageDialog({
+  x: 20, y: 20,
+  label: 'Confirm',
+  message: 'Are you sure you want to discard all unsaved changes? This cannot be undone.',
+  buttons: ['Cancel', 'Discard'],
+  onButton: (i, lbl) => console.log(i, lbl),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=messageDialog" width="290" height="175" scrolling="no" frameborder="0" loading="lazy" title="MessageDialog live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- InputDialog -->
+  <section id="inputDialog">
+    <h2>InputDialog <span class="tag ext">Container</span></h2>
+    <p class="desc">Extends <a href="#messageDialog">MessageDialog</a> with a single-line text input field between the message and the buttons. Clicking the input field captures keyboard events for typing, cursor movement, and editing. The cursor blinks and the text scrolls horizontally when the value overflows the field width. Pressing <kbd>Enter</kbd> fires <code>onSubmit</code>; clicking outside the field removes focus.</p>
+
+    <div class="sig">new InputDialog(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>message</td><td>string</td><td>''</td><td>Instructional text above the input. Supports <code>\n</code> and auto word-wraps.</td></tr>
+        <tr><td>inputValue</td><td>string</td><td>''</td><td>Initial text in the input field.</td></tr>
+        <tr><td>inputPlaceholder</td><td>string</td><td>''</td><td>Greyed hint text shown when the field is empty and unfocused.</td></tr>
+        <tr><td>buttons</td><td>string[]</td><td>[]</td><td>Button labels in a row at the bottom.</td></tr>
+        <tr><td>x, y</td><td>number</td><td>20, 20</td><td>Canvas position.</td></tr>
+        <tr><td>width</td><td>number</td><td>auto</td><td>Dialog width. Defaults to at least 220 px or wide enough to fit all buttons.</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Title bar text. When set the dialog can be dragged.</td></tr>
+        <tr><td>movable</td><td>boolean</td><td>true</td><td>When <code>false</code> the dialog cannot be dragged.</td></tr>
+        <tr><td>onButton</td><td>function</td><td>null</td><td><code>onButton(index, label, value[, control])</code> — called when a button is clicked. <code>value</code> is the current input field text.</td></tr>
+        <tr><td>onSubmit</td><td>function</td><td>null</td><td><code>onSubmit(value[, control])</code> — called with the current input text when <kbd>Enter</kbd> is pressed.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables all interaction.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+</tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.inputValue</code></td><td>Read/write. The current text in the field. Reassign to change it programmatically.</td></tr>
+        <tr><td><code>.inputPlaceholder</code></td><td>Read/write. Hint text shown when the field is empty and unfocused.</td></tr>
+        <tr><td><code>.message</code></td><td>Read/write. Reassigning triggers a layout rebuild on the next draw.</td></tr>
+        <tr><td><code>.buttons</code></td><td>Read/write. Reassigning rebuilds the button row on the next draw.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Keyboard interaction</h3>
+    <table class="opts">
+      <thead><tr><th>Key</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td>Printable characters</td><td>Inserted at the cursor position.</td></tr>
+        <tr><td><kbd>Backspace</kbd> / <kbd>Delete</kbd></td><td>Removes the character before / after the cursor.</td></tr>
+        <tr><td><kbd>←</kbd> / <kbd>→</kbd></td><td>Moves the cursor one character.</td></tr>
+        <tr><td><kbd>Home</kbd> / <kbd>End</kbd></td><td>Jumps to the start or end of the text.</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>Fires <code>onSubmit(value[, control])</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const dlg = new InputDialog({
+  x: 20, y: 20,
+  label: 'Rename',
+  message: 'Enter a new name for the channel:',
+  inputPlaceholder: 'Channel name...',
+  buttons: ['Cancel', 'OK'],
+  onSubmit: (v) => console.log('submit', v),
+  onButton: (i, lbl, v) => console.log(i, lbl, v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=inputDialog" width="290" height="195" scrolling="no" frameborder="0" loading="lazy" title="InputDialog live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+
+
+</div>
+
+<script>
+(function () {
+  // Wire each editable textarea to its sibling iframe
+  document.querySelectorAll('.example-row').forEach(function (row) {
+    var ta = row.querySelector('textarea.live-code');
+    var fr = row.querySelector('iframe.example-frame');
+    if (!ta || !fr) return;
+
+    // Auto-size textarea to content on load
+    function resize() {
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    }
+    resize();
+
+    // Debounced postMessage to the iframe
+    var timer;
+    ta.addEventListener('input', function () {
+      resize();
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        if (fr.contentWindow) {
+          fr.contentWindow.postMessage({ type: 'run', code: ta.value }, '*');
+        }
+      }, 700);
+    });
+  });
+}());
+</script>
+
+<footer>
+  <span>© 2026 David Stein</span>
+  <span class="footer-promo">
+    Another David Stein Production:
+    <a href="https://instructor.cc" target="_blank">instructor.cc</a> ·
+    <a href="https://procontrols.org" target="_blank">procontrols.org</a> ·
+    <a href="https://supermod3l.com" target="_blank">supermod3l.com</a> ·
+    <a href="https://indienewyork.com" target="_blank">indienewyork.com</a> ·
+    <a href="https://indieboston.com" target="_blank">indieboston.com</a>
+  </span>
+</footer>
+
+</body>
+</html>
+
+
+</body>
+</html>

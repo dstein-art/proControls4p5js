@@ -449,6 +449,25 @@
       padding: 10px 16px;
       color: var(--text);
     }
+    /* ── TOC ── */
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+    .toc a {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1px solid #0077cc33;
+      background: #0077cc08;
+      transition: background .15s, border-color .15s;
+    }
+    .toc a:hover { background: #0077cc18; border-color: #0077cc66; }
 
     hr { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
 
@@ -769,28 +788,14 @@
   <div class="hero-inner">
     <div class="hero-left">
       <div class="prerelease-badge">Pre-Release — API subject to change</div>
-      <h1>
-        <span class="accent">Pro</span><span class="dim">Controls</span> <span class="dim">for p5.js</span>
-      </h1>
-      <div style="font-size:15px;color:#6688aa;margin-top:-14px;margin-bottom:6px;letter-spacing:.04em;">by David Stein</div>
+      <h1>Buttons</h1>
       <p class="hero-desc">
-        An open source library of hardware-inspired UI controls for p5.js sketches — faders, rotary knobs, XY pads, step-sequencer grids, VU meters, LED displays, ADSR envelopes, menus, dialogs, and more. Built by David Stein and hosted at <a href="https://procontrols.org" style="color:#66bbff;text-decoration:none;border-bottom:1px solid #66bbff44;">procontrols.org</a>. Drop in one script tag, set a style, and your controls wire themselves up — no event handlers, no layout math, no boilerplate. Eight built-in themes (black, stainless, white, brushed, red, blue, yellow, dimpled) plus touch support out of the box.
+        Part of the <a href="help.html" style="color:#66bbff;text-decoration:none;border-bottom:1px solid #66bbff44;">ProControls for p5.js documentation</a>.
       </p>
-      <div class="hero-chips">
-        <span class="chip">ProControls.js</span>
-        <span class="chip">p5.js 1.9+</span>
-        <span class="chip">MIT License</span>
-        <a href="demo.html" class="chip chip-demo" target="_blank">↗ Live Demo</a>
-      </div>
-    </div>
-
-    <div class="hero-callout">
-      <div class="hero-callout-eyebrow">Show us what you made</div>
-      <p>Built something cool with ProControls for p5.js? Send us a link and we'll highlight your project here.</p>
-      <a href="mailto:davidstein@nyu.edu" class="hero-callout-email">davidstein@nyu.edu</a>
     </div>
   </div>
 </div>
+
 <script>
 (function () {
   var cards = [
@@ -807,91 +812,367 @@
       body: 'How is ProControls working for you? Tell us what\'s working, what\'s not, and what you\'d like to see next.',
     }
   ];
-  var c = cards[Math.floor(Math.random() * cards.length)];
-  var el = document.querySelector('.hero-callout');
-  if (el) {
-    el.innerHTML =
-      '<div class="hero-callout-eyebrow">' + c.eyebrow + '</div>' +
-      '<p>' + c.body + '</p>' +
-      '<a href="mailto:davidstein@nyu.edu" class="hero-callout-email">davidstein@nyu.edu</a>';
-  }
-}());
+});
 </script>
 
 
 <!-- ── Content ── -->
 <div class="page">
-  <h2>Documentation Sections</h2>
-  <p class="desc">Choose a section below to dive into the details of each control type.</p>
-  
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 32px;">
-    
-    <!-- Sliders & Dials -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Sliders & Dials</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Vertical and horizontal faders, multi-touch sliders, range sliders, and rotary dials.</p>
-      <a href="slidersHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
+  <!-- Getting Started — moved to gettingStarted.html -->
+  <section id="getting-started">
+    <div class="note" style="margin:0 0 0">
+      <strong>New here?</strong> See the <a href="gettingStarted.html">Getting Started</a> page for
+      HTML setup, script tags, a minimal sketch, and the common options table.
     </div>
-    
-    <!-- Pads -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Pads</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">XY pads, grid pads, and a fully interactive piano keyboard with MIDI support.</p>
-      <a href="buttonsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Buttons -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Buttons</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Icon buttons with customizable symbols and toggle states.</p>
-      <a href="buttonsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Selectors -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Selectors</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Switches, dropdowns, tag selectors, and slider-based selectors for picking from lists.</p>
-      <a href="selectorsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Panels -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Panels</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Container panels, beveled frames, message dialogs, and input dialogs.</p>
-      <a href="panelsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Menus -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Menus</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Context menus and popup menus with keyboard navigation and callbacks.</p>
-      <a href="menusHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Displays -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Displays</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">VU meters, LED displays, ADSR envelopes, graphs, heatmaps, and data views.</p>
-      <a href="displaysHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Themes & Styles -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Themes & Styles</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Eight built-in themes and guide to customizing colors and appearance.</p>
-      <a href="themesHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Events -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Events</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">How ProControls hooks into p5.js events and touch input handling.</p>
-      <a href="eventsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-  </div>
-</div>
+  </section>
 
+  <hr>
+  <!-- TOC -->
+  <div class="toc">
+    <a href="#iconButton">IconButton</a>
+
+    <a href="#xypad">XYPad</a>
+    <a href="#gridpad">GridPad</a>
+    <a href="#piano">Piano</a>
+  </div>
+
+
+
+    <h2 id="iconButton">IconButton <span class="tag ext">Input</span></h2>
+    <p class="desc">A square push button that renders a <a href="https://fonts.google.com/icons" target="_blank">Material Symbols</a> icon at its centre. Pass any icon name from the Material Symbols Outlined set as the <code>icon</code> option — the font is already included via the page's <code>&lt;link&gt;</code> tag. Supports momentary (default) and toggle modes. An optional text label is drawn inside the button below the icon.</p>
+
+    <div class="sig">new IconButton(opts)</div>
+
+    <div class="note"><strong>Material Symbols font required.</strong> Add this to your <code>&lt;head&gt;</code>:<br>
+      <code>&lt;link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&amp;display=block" rel="stylesheet"&gt;</code>
+    </div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>icon</td><td>string</td><td>'star'</td><td>Material Symbols icon name, e.g. <code>'play_arrow'</code>, <code>'volume_up'</code>, <code>'settings'</code>. Full list at <a href="https://fonts.google.com/icons" target="_blank">fonts.google.com/icons</a>.</td></tr>
+        <tr><td>size</td><td>number</td><td>44</td><td>Width and height of the button in pixels. Both dimensions are equal.</td></tr>
+        <tr><td>toggle</td><td>boolean</td><td>false</td><td>When <code>true</code> the button latches on each click, toggling <code>.state</code> between <code>true</code> and <code>false</code>. When <code>false</code> (default) the button fires once per click and does not latch.</td></tr>
+        <tr><td>state</td><td>boolean</td><td>false</td><td>Initial toggle state. Only meaningful when <code>toggle: true</code>.</td></tr>
+        <tr><td>iconSize</td><td>number</td><td>auto</td><td>Icon font size in pixels. Defaults to <code>round(size × 0.58)</code>.</td></tr>
+        <tr><td>x, y</td><td>number</td><td>0, 0</td><td>Canvas position of the top-left corner.</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Text caption drawn inside the button below the icon.</td></tr>
+        <tr><td>onClick</td><td>function</td><td>null</td><td><code>onClick({buttonState, label}[, control])</code> — called on release. <code>buttonState</code> is <code>true</code> on press, <code>false</code> on release; for momentary buttons always <code>false</code>.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Suppresses all interaction and draws a disabled overlay.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties</h3>
+    <table class="opts">
+      <thead><tr><th>Property</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.state</code></td><td>Read/write. Current toggle state (<code>true</code>/<code>false</code>). Setting programmatically does not fire <code>onClick</code>.</td></tr>
+        <tr><td><code>.icon</code></td><td>Read/write. Change the displayed icon at any time.</td></tr>
+        <tr><td><code>.disabled</code></td><td>Read/write. Disables or re-enables the button.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const play = new IconButton({
+  x: 20, y: 20,
+  icon: 'play_arrow',
+  size: 52,
+  label: 'PLAY',
+  onClick: () => console.log('play'),
+});
+const stop = new IconButton({
+  x: 90, y: 20,
+  icon: 'stop',
+  size: 52,
+  label: 'STOP',
+  onClick: () => console.log('stop'),
+});
+const loop = new IconButton({
+  x: 160, y: 20,
+  icon: 'loop',
+  size: 52,
+  toggle: true,
+  label: 'LOOP',
+  onClick: s => console.log('loop', s),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=iconButton" width="220" height="180" scrolling="no" frameborder="0" loading="lazy" title="IconButton live example"></iframe>
+    </div>
+
+    <hr>
+
+    <h2 id="xypad">XYPad <span class="tag">Input</span></h2>
+    <p class="desc">A two-axis drag surface. Click or drag to set X and Y values independently. Fires separate callbacks per axis. Y increases upward to match musical convention. Double-click to reset both axes to their initial values.</p>
+
+    <div class="sig">new XYPad(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>width</td><td>number</td><td>160</td><td>Panel width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>160</td><td>Panel height in pixels.</td></tr>
+        <tr><td>minX / maxX</td><td>number</td><td>0 / 1</td><td>Value range for the horizontal axis.</td></tr>
+        <tr><td>minY / maxY</td><td>number</td><td>0 / 1</td><td>Value range for the vertical axis.</td></tr>
+        <tr><td>valueX / valueY</td><td>number</td><td>center</td><td>Current X and Y position within the pad's range. Read or set at any time to get or move the crosshair programmatically.</td></tr>
+        <tr><td>scaleX</td><td>string</td><td>'linear'</td><td><code>'linear'</code> or <code>'log'</code>. Log requires <code>minX &gt; 0</code>.</td></tr>
+        <tr><td>scaleY</td><td>string</td><td>'linear'</td><td><code>'linear'</code> or <code>'log'</code>. Log requires <code>minY &gt; 0</code>.</td></tr>
+        <tr><td>crosshairColor</td><td>string</td><td>theme accent</td><td>Color of the crosshair dot and lines.</td></tr>
+        <tr><td>onChangeX</td><td>function</td><td>null</td><td><code>onChangeX(x[, control])</code> — called with the new X value when only X changes.</td></tr>
+        <tr><td>onChangeY</td><td>function</td><td>null</td><td><code>onChangeY(y[, control])</code> — called with the new Y value when only Y changes.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({x, y}[, control])</code> — called when either axis changes.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({x, y}[, control])</code> — called on release.</td></tr>
+        <tr><td>springBack</td><td>boolean</td><td>false</td><td>When <code>true</code>, both axes animate back to their initial values after mouse/touch release.</td></tr>
+        <tr><td>springDuration</td><td>number</td><td>1.0</td><td>Seconds for the spring animation to complete.</td></tr>
+</tbody>
+    </table>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const pad = new XYPad({
+  x: 20, y: 22,
+  width: 220, height: 200,
+  minX: -1, maxX: 1,
+  minY: -1, maxY: 1,
+  valueX: 0, valueY: 0,
+  label: 'XY',
+  crosshairColor: '#ff6600',
+  onChange: ({x, y}) => console.log(x, y),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=xypad" width="260" height="260" scrolling="no" frameborder="0" loading="lazy" title="XYPad live example"></iframe>
+    </div>
+
+    <h3>Example — spring back to center</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const pad = new XYPad({
+  x: 20, y: 22,
+  width: 220, height: 200,
+  minX: -1, maxX: 1,
+  minY: -1, maxY: 1,
+  valueX: 0, valueY: 0,
+  label: 'XY  (spring)',
+  crosshairColor: '#ff6600',
+  springBack: true,
+  springDuration: 0.6,
+  onChange: ({x, y}) => console.log(x, y),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=xypad_spring" width="260" height="260" scrolling="no" frameborder="0" loading="lazy" title="XYPad spring-back live example"></iframe>
+    </div>
+
+    <hr>
+
+    <h2 id="gridpad">GridPad <span class="tag ext">Input</span></h2>
+    <p class="desc">A 2-D grid of cells with four modes: <strong>toggle</strong> flips each cell 0 ↔ 1 on click; <strong>percent</strong> raises or lowers each cell's 0–1 value while the mouse is held; <strong>button</strong> treats each cell as a momentary key with press/release callbacks and no stored value; <strong>colorselect</strong> cycles each cell through a list of colours on each click, with each colour mapped to a semantic value. Optional horizontal and vertical grouping draws a bevel separator every N cells. Double-click the label to reset all cells to their initial values.</p>
+
+    <div class="sig">new GridPad(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>0</td><td>Top-left position.</td></tr>
+        <tr><td>rows</td><td>number</td><td>4</td><td>Number of rows.</td></tr>
+        <tr><td>cols</td><td>number</td><td>4</td><td>Number of columns.</td></tr>
+        <tr><td>mode</td><td>string</td><td>'toggle'</td><td><code>'toggle'</code> — click to flip 0/1 · <code>'percent'</code> — hold to raise/lower · <code>'button'</code> — momentary press · <code>'colorselect'</code> — click to cycle through colours.</td></tr>
+        <tr><td>options</td><td>array</td><td>[]</td><td><em>colorselect mode only.</em> Each entry is either a colour string (<code>'red'</code>, <code>'#ff0000'</code>) or an object <code>{ color, value }</code> where <code>value</code> is the semantic value returned by <code>onChange</code>. When <code>value</code> is omitted it defaults to the colour string.</td></tr>
+        <tr><td>cellSize</td><td>number</td><td>20</td><td>Pixel size of each square cell.</td></tr>
+        <tr><td>cellGap</td><td>number</td><td>2</td><td>Gap in pixels between cells.</td></tr>
+        <tr><td>hGroup</td><td>number</td><td>0</td><td>Draw a bevel separator every N columns. 0 disables.</td></tr>
+        <tr><td>vGroup</td><td>number</td><td>0</td><td>Draw a bevel separator every N rows. 0 disables.</td></tr>
+        <tr><td>groupGap</td><td>number</td><td>4</td><td>Extra pixels added at each group boundary.</td></tr>
+        <tr><td>values</td><td>array</td><td>all 0</td><td>Initial 2-D array <code>[[row][col]]</code>. For colorselect, pass indices <em>or</em> semantic values — both are accepted. Ignored in button mode.</td></tr>
+        <tr><td>rate</td><td>number</td><td>0.02</td><td>Percent change per frame while mouse is held (percent mode only).</td></tr>
+        <tr><td>label</td><td>string</td><td>''</td><td>Label drawn below the grid.</td></tr>
+        <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange(values[, control])</code> — called with a 2-D copy of values when any cell changes. In colorselect mode the grid contains the semantic <code>value</code> for each cell.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease(values[, control])</code> — toggle/percent: called with the values array on release. Button mode: called with <code>({r, c}[, control])</code> — row and column of the released cell.</td></tr>
+        <tr><td>onPress(row, col)</td><td>function</td><td>null</td><td>Button mode only — called with the row and column of the pressed cell.</td></tr>
+</tbody>
+    </table>
+
+    <h3>Interaction — toggle mode</h3>
+    <table class="opts">
+      <thead><tr><th>Action</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td>Click cell</td><td>Flip value between 0 and 1.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Interaction — percent mode</h3>
+    <table class="opts">
+      <thead><tr><th>Action</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td>Hold left click</td><td>Raise value toward 1 at <code>rate</code> per frame.</td></tr>
+        <tr><td>Hold right click</td><td>Lower value toward 0 at <code>rate</code> per frame.</td></tr>
+        <tr><td>Double-click at 0</td><td>Snap to 1.</td></tr>
+        <tr><td>Double-click at 1</td><td>Snap to 0.</td></tr>
+        <tr><td>Double-click mid-range</td><td>Snap to whichever boundary is closer.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Interaction — button mode</h3>
+    <table class="opts">
+      <thead><tr><th>Action</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td>Press cell</td><td>Cell highlights; <code>onPress(row, col)</code> fires.</td></tr>
+        <tr><td>Release</td><td>Cell returns to default; <code>onRelease({r, c})</code> fires.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Interaction — colorselect mode</h3>
+    <table class="opts">
+      <thead><tr><th>Action</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td>Left click</td><td>Advance to the next colour in <code>options</code>, wrapping around.</td></tr>
+        <tr><td>Right click</td><td>Step back to the previous colour.</td></tr>
+        <tr><td>Double-click label</td><td>Reset all cells to their initial colour (index 0 by default).</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Public API</h3>
+    <table class="opts">
+      <thead><tr><th>Member</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>values</code> (getter)</td><td>Returns a deep copy of the 2-D values array. In colorselect mode returns semantic values, not indices.</td></tr>
+        <tr><td><code>getValue(r, c)</code></td><td>Returns the value at row <code>r</code>, column <code>c</code>. In colorselect mode returns the semantic value of the current colour.</td></tr>
+        <tr><td><code>setValue(r, c, v)</code></td><td>Sets the value at <code>(r, c)</code>. In toggle mode snapped to 0/1; percent clamped 0–1; colorselect accepts an index integer.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Example — toggle mode (step sequencer)</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const seq = new GridPad({
+  x: 20, y: 22,
+  rows: 4, cols: 4,
+  mode: 'toggle',
+  cellSize: 20,
+  hGroup: 2, vGroup: 2,
+  label: 'PATTERN',
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=gridpad_toggle" width="160" height="155" scrolling="no" frameborder="0" loading="lazy" title="GridPad toggle live example"></iframe>
+    </div>
+
+    <h3>Example — percent mode (velocity matrix)</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const vel = new GridPad({
+  x: 20, y: 22,
+  rows: 4, cols: 4,
+  mode: 'percent',
+  cellSize: 20,
+  hGroup: 2, vGroup: 2,
+  label: 'VELOCITY',
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=gridpad_percent" width="160" height="155" scrolling="no" frameborder="0" loading="lazy" title="GridPad percent live example"></iframe>
+    </div>
+
+    <h3>Example — colorselect mode</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">const seq = new GridPad({
+  x: 20, y: 22,
+  rows: 4, cols: 4,
+  mode: 'colorselect',
+  cellSize: 20,
+  hGroup: 2, vGroup: 2,
+  label: 'COLOR',
+  options: [
+    { color: '#222222', value: 'off'   },
+    { color: '#cc3300', value: 'red'   },
+    { color: '#0055cc', value: 'blue'  },
+    { color: '#22aa44', value: 'green' },
+  ],
+  onChange: v => console.log(v),
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=gridpad_colorselect" width="160" height="155" scrolling="no" frameborder="0" loading="lazy" title="GridPad colorselect live example"></iframe>
+    </div>
+
+  <section id="piano">
+    <h2>Piano <span class="tag ext">Input</span></h2>
+    <p class="desc">An interactive keyboard component that displays chromatic piano keys. Click any key to select a note. Supports highlighting multiple notes for chords or scales. Perfect for music interfaces or note selection.</p>
+
+    <div class="sig">new PianoPad(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>firstNote</td><td>string</td><td>'C4'</td><td>Starting note as a string, e.g., 'C4', 'G#3', 'Eb2'. Uses standard music notation.</td></tr>
+        <tr><td>noteCount</td><td>number</td><td>25</td><td>Number of chromatic notes to display. 25 notes spans two octaves + one note (C4 to C6).</td></tr>
+        <tr><td>highlightedNotes</td><td>string[]</td><td>[]</td><td>Array of note strings to highlight visually (e.g., ['C4', 'E4', 'G4'] for a C major chord).</td></tr>
+        <tr><td>width</td><td>number</td><td>500</td><td>Keyboard width in pixels.</td></tr>
+        <tr><td>height</td><td>number</td><td>120</td><td>Keyboard height in pixels.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({note, midi, octave, state}[, control])</code> — called when a key's state changes. <code>note</code> is the note string (e.g., 'C#4'), <code>midi</code> is the MIDI number (0-127), <code>octave</code> is the octave number, <code>state</code> is 'on' (pressed), 'off' (released), or 'highlight' (hovered).</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({note, midi, octave, state}[, control])</code> — called when the mouse is released from a pressed key. <code>state</code> is always 'off'.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Interaction</h3>
+    <ul>
+      <li><strong>Hover</strong> over keys to see a subtle tint — fires <code>onChange</code> with <code>state: 'highlight'</code></li>
+      <li><strong>Mouse down</strong> on a key to press it — fires <code>onChange</code> with <code>state: 'on'</code></li>
+      <li><strong>Mouse release</strong> — fires <code>onChange</code> with <code>state: 'off'</code> and also <code>onRelease</code></li>
+      <li><strong>Highlighted keys</strong> show in the accent color to indicate chords or scales</li>
+    </ul>
+
+    <h3>Examples</h3>
+
+    <div class="example-row">
+      <div class="example-col">
+        <h4>Basic Piano</h4>
+        <p>Simple keyboard with default settings:</p>
+        <textarea class="live-code" spellcheck="false">const piano = new PianoPad({
+  x: 20, y: 20,
+  width: 340, height: 110,
+  firstNote: 'C4',
+  noteCount: 25,
+  onChange: (d) => console.log(d.note, 'state:', d.state)
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=piano_basic&s=stainless" width="380" height="160" scrolling="no" frameborder="0" loading="lazy" title="Piano basic"></iframe>
+    </div>
+
+    <div class="example-row">
+      <div class="example-col">
+        <h4>Piano with Chord</h4>
+        <p>Highlight notes to show chords or scales:</p>
+        <textarea class="live-code" spellcheck="false">const piano = new PianoPad({
+  x: 20, y: 20,
+  width: 340, height: 110,
+  firstNote: 'C3',
+  noteCount: 25,
+  highlightedNotes: ['C3', 'E3', 'G3'], // C major
+  onChange: (d) => console.log(d.note, d.state),
+  onRelease: (d) => console.log('Released:', d.note)
+});</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=piano_chord&s=stainless" width="380" height="160" scrolling="no" frameborder="0" loading="lazy" title="Piano chord"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+</div>
 
 <script>
 (function () {
@@ -934,10 +1215,6 @@
     <a href="https://indieboston.com" target="_blank">indieboston.com</a>
   </span>
 </footer>
-
-</body>
-</html>
-
 
 </body>
 </html>

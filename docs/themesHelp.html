@@ -449,6 +449,25 @@
       padding: 10px 16px;
       color: var(--text);
     }
+    /* ── TOC ── */
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+    .toc a {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1px solid #0077cc33;
+      background: #0077cc08;
+      transition: background .15s, border-color .15s;
+    }
+    .toc a:hover { background: #0077cc18; border-color: #0077cc66; }
 
     hr { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
 
@@ -769,28 +788,14 @@
   <div class="hero-inner">
     <div class="hero-left">
       <div class="prerelease-badge">Pre-Release — API subject to change</div>
-      <h1>
-        <span class="accent">Pro</span><span class="dim">Controls</span> <span class="dim">for p5.js</span>
-      </h1>
-      <div style="font-size:15px;color:#6688aa;margin-top:-14px;margin-bottom:6px;letter-spacing:.04em;">by David Stein</div>
+      <h1>Themes & Styles</h1>
       <p class="hero-desc">
-        An open source library of hardware-inspired UI controls for p5.js sketches — faders, rotary knobs, XY pads, step-sequencer grids, VU meters, LED displays, ADSR envelopes, menus, dialogs, and more. Built by David Stein and hosted at <a href="https://procontrols.org" style="color:#66bbff;text-decoration:none;border-bottom:1px solid #66bbff44;">procontrols.org</a>. Drop in one script tag, set a style, and your controls wire themselves up — no event handlers, no layout math, no boilerplate. Eight built-in themes (black, stainless, white, brushed, red, blue, yellow, dimpled) plus touch support out of the box.
+        Part of the <a href="help.html" style="color:#66bbff;text-decoration:none;border-bottom:1px solid #66bbff44;">ProControls for p5.js documentation</a>.
       </p>
-      <div class="hero-chips">
-        <span class="chip">ProControls.js</span>
-        <span class="chip">p5.js 1.9+</span>
-        <span class="chip">MIT License</span>
-        <a href="demo.html" class="chip chip-demo" target="_blank">↗ Live Demo</a>
-      </div>
-    </div>
-
-    <div class="hero-callout">
-      <div class="hero-callout-eyebrow">Show us what you made</div>
-      <p>Built something cool with ProControls for p5.js? Send us a link and we'll highlight your project here.</p>
-      <a href="mailto:davidstein@nyu.edu" class="hero-callout-email">davidstein@nyu.edu</a>
     </div>
   </div>
 </div>
+
 <script>
 (function () {
   var cards = [
@@ -807,91 +812,154 @@
       body: 'How is ProControls working for you? Tell us what\'s working, what\'s not, and what you\'d like to see next.',
     }
   ];
-  var c = cards[Math.floor(Math.random() * cards.length)];
-  var el = document.querySelector('.hero-callout');
-  if (el) {
-    el.innerHTML =
-      '<div class="hero-callout-eyebrow">' + c.eyebrow + '</div>' +
-      '<p>' + c.body + '</p>' +
-      '<a href="mailto:davidstein@nyu.edu" class="hero-callout-email">davidstein@nyu.edu</a>';
-  }
-}());
+});
 </script>
 
 
 <!-- ── Content ── -->
 <div class="page">
-  <h2>Documentation Sections</h2>
-  <p class="desc">Choose a section below to dive into the details of each control type.</p>
-  
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 32px;">
-    
-    <!-- Sliders & Dials -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Sliders & Dials</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Vertical and horizontal faders, multi-touch sliders, range sliders, and rotary dials.</p>
-      <a href="slidersHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
+  <!-- Getting Started — moved to gettingStarted.html -->
+  <section id="getting-started">
+    <div class="note" style="margin:0 0 0">
+      <strong>New here?</strong> See the <a href="gettingStarted.html">Getting Started</a> page for
+      HTML setup, script tags, a minimal sketch, and the common options table.
     </div>
-    
-    <!-- Pads -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Pads</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">XY pads, grid pads, and a fully interactive piano keyboard with MIDI support.</p>
-      <a href="buttonsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Buttons -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Buttons</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Icon buttons with customizable symbols and toggle states.</p>
-      <a href="buttonsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Selectors -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Selectors</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Switches, dropdowns, tag selectors, and slider-based selectors for picking from lists.</p>
-      <a href="selectorsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Panels -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Panels</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Container panels, beveled frames, message dialogs, and input dialogs.</p>
-      <a href="panelsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Menus -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Menus</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Context menus and popup menus with keyboard navigation and callbacks.</p>
-      <a href="menusHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Displays -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Displays</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">VU meters, LED displays, ADSR envelopes, graphs, heatmaps, and data views.</p>
-      <a href="displaysHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Themes & Styles -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Themes & Styles</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Eight built-in themes and guide to customizing colors and appearance.</p>
-      <a href="themesHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Events -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Events</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">How ProControls hooks into p5.js events and touch input handling.</p>
-      <a href="eventsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-  </div>
-</div>
+  </section>
 
+  <hr>
+  <!-- TOC -->
+  <div class="toc">
+    <a href="#themes">Themes & Styles</a>
+  </div>
+
+
+
+  <section id="themes">
+    <h2>Themes &amp; Styles</h2>
+    <p class="desc">Set <code>ControlStyle</code> before creating controls. The style is captured at construction time, so controls built before a change keep their original look.</p>
+
+    <pre><code>ControlStyle = <span class="str">'brushed'</span>; <span class="cmt">// before any new controls</span></code></pre>
+
+    <h3>Built-in styles</h3>
+    <div class="swatches">
+      <div class="swatch">
+        <div class="bg-chip" style="background:#1a1a1a"></div>
+        <div class="name">black</div>
+        <div class="label"><span class="accent-chip" style="background:#00ccff"></span>cyan accent</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:linear-gradient(180deg,#d8dfe6 0%,#f0f4f8 22%,#c8d0d8 100%)"></div>
+        <div class="name">stainless</div>
+        <div class="label"><span class="accent-chip" style="background:#005fa3"></span>navy accent · polished chrome texture</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:#e8e8e8;border-color:#ccc"></div>
+        <div class="name">white</div>
+        <div class="label"><span class="accent-chip" style="background:#cc2200"></span>red accent</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:linear-gradient(180deg,#8e9099 0%,#aab0b8 40%,#8e9099 100%)"></div>
+        <div class="name">brushed</div>
+        <div class="label"><span class="accent-chip" style="background:#ff8800"></span>orange accent · sine-wave grain</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:linear-gradient(180deg,#8e9099 0%,#aab0b8 40%,#8e9099 100%)"></div>
+        <div class="name">dimpled</div>
+        <div class="label"><span class="accent-chip" style="background:#0088cc"></span>blue accent · dimpled circle texture</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:#cc0000"></div>
+        <div class="name">red</div>
+        <div class="label"><span class="accent-chip" style="background:#ffdd00"></span>yellow accent</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:#0000cc"></div>
+        <div class="name">blue</div>
+        <div class="label"><span class="accent-chip" style="background:#ffdd00"></span>yellow accent</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:#e0d000"></div>
+        <div class="name">yellow</div>
+        <div class="label"><span class="accent-chip" style="background:#cc0000"></span>red accent · dark text</div>
+      </div>
+    </div>
+
+    <div class="themes-frames">
+      <iframe class="example-frame" src="example.html?c=dialtheme&s=black&lbl=BLACK" width="140" height="140" scrolling="no" frameborder="0" loading="lazy" title="black theme"></iframe>
+      <iframe class="example-frame" src="example.html?c=dialtheme&s=stainless&lbl=STEEL" width="140" height="140" scrolling="no" frameborder="0" loading="lazy" title="stainless theme"></iframe>
+      <iframe class="example-frame" src="example.html?c=dialtheme&s=white&lbl=WHITE" width="140" height="140" scrolling="no" frameborder="0" loading="lazy" title="white theme"></iframe>
+      <iframe class="example-frame" src="example.html?c=dialtheme&s=brushed&lbl=BRUSH" width="140" height="140" scrolling="no" frameborder="0" loading="lazy" title="brushed theme"></iframe>
+      <iframe class="example-frame" src="example.html?c=dialtheme&s=dimpled&lbl=DIMPL" width="140" height="140" scrolling="no" frameborder="0" loading="lazy" title="dimpled theme"></iframe>
+      <iframe class="example-frame" src="example.html?c=dialtheme&s=red&lbl=RED" width="140" height="140" scrolling="no" frameborder="0" loading="lazy" title="red theme"></iframe>
+      <iframe class="example-frame" src="example.html?c=dialtheme&s=blue&lbl=BLUE" width="140" height="140" scrolling="no" frameborder="0" loading="lazy" title="blue theme"></iframe>
+      <iframe class="example-frame" src="example.html?c=dialtheme&s=yellow&lbl=YLW" width="140" height="140" scrolling="no" frameborder="0" loading="lazy" title="yellow theme"></iframe>
+    </div>
+
+    <h3>proControlBackground()</h3>
+    <p class="desc">Use instead of p5's <code>background()</code>. Fills the canvas with the style color. <code>'brushed'</code> and <code>'stainless'</code> also draw per-row texture overlays via the native Canvas 2D API.</p>
+
+    <table class="opts" style="margin-top:10px">
+      <thead><tr><th>Style</th><th>Texture</th></tr></thead>
+      <tbody>
+        <tr><td>black</td><td>Flat fill — <code>#1a1a1a</code>.</td></tr>
+        <tr><td>stainless</td><td>Gaussian highlight profile: sharp specular band near the top third, soft secondary reflection below center, edge darkening, and a thin pure-white specular line at the peak.</td></tr>
+        <tr><td>white</td><td>Flat fill — <code>#e8e8e8</code>.</td></tr>
+        <tr><td>brushed</td><td>Three layered sine-wave frequencies (fine grain, visible stroke bands, slow tonal drift) plus a directional sheen band — simulates brushed aluminum.</td></tr>
+        <tr><td>dimpled</td><td>Brushed aluminum base with a grid of small dimpled circles (12 px spacing) — each dot has a dark outer ring and a lighter inner highlight. Blue accent.</td></tr>
+        <tr><td>red</td><td>Flat fill — <code>#cc0000</code>. Primary red background, darker red controls, yellow accent.</td></tr>
+        <tr><td>blue</td><td>Flat fill — <code>#0000cc</code>. Primary blue background, darker blue controls, yellow accent.</td></tr>
+        <tr><td>yellow</td><td>Flat fill — <code>#e0d000</code>. Warm yellow background, golden controls, red accent · dark text.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Runtime style switching</h3>
+    <p class="desc">Rebuild controls with <code>proControlReset()</code> when switching styles. The <a href="demo.html" target="_blank">Live Demo</a> uses an <code>AnalogSwitch</code> to cycle all four styles.</p>
+    <pre><code><span class="kw">const</span> STYLES = [<span class="str">'black'</span>, <span class="str">'stainless'</span>, <span class="str">'white'</span>, <span class="str">'brushed'</span>, <span class="str">'dimpled'</span>, <span class="str">'red'</span>, <span class="str">'blue'</span>, <span class="str">'yellow'</span>];
+<span class="kw">const</span> LABELS = [<span class="str">'BLACK'</span>, <span class="str">'STEEL'</span>, <span class="str">'WHITE'</span>, <span class="str">'BRUSH'</span>, <span class="str">'DIMPL'</span>, <span class="str">'RED'</span>, <span class="str">'BLUE'</span>, <span class="str">'YLW'</span>];
+<span class="kw">let</span> currentStyle = <span class="str">'black'</span>;
+
+<span class="kw">function</span> <span class="fn">buildControls</span>() {
+  <span class="fn">proControlReset</span>();
+  ControlStyle = currentStyle;
+  mySlider    = <span class="kw">new</span> <span class="fn">AnalogSlider</span>({ value: mySlider?.value ?? <span class="num">0.5</span> });
+  styleSwitch = <span class="kw">new</span> <span class="fn">AnalogSwitch</span>({
+    states: LABELS,
+    state:  STYLES.<span class="fn">indexOf</span>(currentStyle),
+    label:  <span class="str">'STYLE'</span>,
+    <span class="fn">onChange</span>: i => { currentStyle = STYLES[i]; <span class="fn">buildControls</span>(); },
+  });
+}</code></pre>
+
+    <h3>Per-control theme overrides</h3>
+    <p class="desc">Pass a partial <code>theme</code> object to override individual color keys while keeping the rest of the active style.</p>
+    <table class="opts">
+      <thead><tr><th>Key</th><th>Affects</th></tr></thead>
+      <tbody>
+        <tr><td>panel</td><td>Panel background fill.</td></tr>
+        <tr><td>panelStroke</td><td>Panel border and knob outline.</td></tr>
+        <tr><td>track</td><td>Slider groove / dial arc background.</td></tr>
+        <tr><td>capHighlight</td><td>Top gradient color of the fader cap or knob.</td></tr>
+        <tr><td>capShadow</td><td>Bottom gradient color of the fader cap or knob.</td></tr>
+        <tr><td>capIndicator</td><td>Accent line / filled arc color / LED glow color.</td></tr>
+        <tr><td>scaleText</td><td>Scale label text color.</td></tr>
+        <tr><td>scaleTick</td><td>Scale tick mark color.</td></tr>
+        <tr><td>label</td><td>Control label text color.</td></tr>
+        <tr><td>readout</td><td>Readout value text color.</td></tr>
+        <tr><td>readoutBg</td><td>Readout pill background.</td></tr>
+        <tr><td>hoverGlow</td><td>Hover highlight fill (include alpha).</td></tr>
+        <tr><td>disabledOverlay</td><td>Overlay when <code>disabled: true</code>.</td></tr>
+        <tr><td>font</td><td>p5 font object from <code>loadFont()</code>. <code>null</code> = canvas default.</td></tr>
+      </tbody>
+    </table>
+    <pre><code><span class="kw">new</span> <span class="fn">Dial</span>({ label: <span class="str">'MASTER'</span>, theme: { capIndicator: <span class="str">'#ffcc00'</span> } });</code></pre>
+  </section>
+
+  <hr>
+
+  <!-- Events -->
+
+
+</div>
 
 <script>
 (function () {

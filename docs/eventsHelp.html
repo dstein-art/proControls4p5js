@@ -449,6 +449,25 @@
       padding: 10px 16px;
       color: var(--text);
     }
+    /* ── TOC ── */
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+    .toc a {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1px solid #0077cc33;
+      background: #0077cc08;
+      transition: background .15s, border-color .15s;
+    }
+    .toc a:hover { background: #0077cc18; border-color: #0077cc66; }
 
     hr { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
 
@@ -769,28 +788,14 @@
   <div class="hero-inner">
     <div class="hero-left">
       <div class="prerelease-badge">Pre-Release — API subject to change</div>
-      <h1>
-        <span class="accent">Pro</span><span class="dim">Controls</span> <span class="dim">for p5.js</span>
-      </h1>
-      <div style="font-size:15px;color:#6688aa;margin-top:-14px;margin-bottom:6px;letter-spacing:.04em;">by David Stein</div>
+      <h1>Events</h1>
       <p class="hero-desc">
-        An open source library of hardware-inspired UI controls for p5.js sketches — faders, rotary knobs, XY pads, step-sequencer grids, VU meters, LED displays, ADSR envelopes, menus, dialogs, and more. Built by David Stein and hosted at <a href="https://procontrols.org" style="color:#66bbff;text-decoration:none;border-bottom:1px solid #66bbff44;">procontrols.org</a>. Drop in one script tag, set a style, and your controls wire themselves up — no event handlers, no layout math, no boilerplate. Eight built-in themes (black, stainless, white, brushed, red, blue, yellow, dimpled) plus touch support out of the box.
+        Part of the <a href="help.html" style="color:#66bbff;text-decoration:none;border-bottom:1px solid #66bbff44;">ProControls for p5.js documentation</a>.
       </p>
-      <div class="hero-chips">
-        <span class="chip">ProControls.js</span>
-        <span class="chip">p5.js 1.9+</span>
-        <span class="chip">MIT License</span>
-        <a href="demo.html" class="chip chip-demo" target="_blank">↗ Live Demo</a>
-      </div>
-    </div>
-
-    <div class="hero-callout">
-      <div class="hero-callout-eyebrow">Show us what you made</div>
-      <p>Built something cool with ProControls for p5.js? Send us a link and we'll highlight your project here.</p>
-      <a href="mailto:davidstein@nyu.edu" class="hero-callout-email">davidstein@nyu.edu</a>
     </div>
   </div>
 </div>
+
 <script>
 (function () {
   var cards = [
@@ -807,91 +812,45 @@
       body: 'How is ProControls working for you? Tell us what\'s working, what\'s not, and what you\'d like to see next.',
     }
   ];
-  var c = cards[Math.floor(Math.random() * cards.length)];
-  var el = document.querySelector('.hero-callout');
-  if (el) {
-    el.innerHTML =
-      '<div class="hero-callout-eyebrow">' + c.eyebrow + '</div>' +
-      '<p>' + c.body + '</p>' +
-      '<a href="mailto:davidstein@nyu.edu" class="hero-callout-email">davidstein@nyu.edu</a>';
-  }
-}());
+});
 </script>
 
 
 <!-- ── Content ── -->
 <div class="page">
-  <h2>Documentation Sections</h2>
-  <p class="desc">Choose a section below to dive into the details of each control type.</p>
-  
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 32px;">
-    
-    <!-- Sliders & Dials -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Sliders & Dials</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Vertical and horizontal faders, multi-touch sliders, range sliders, and rotary dials.</p>
-      <a href="slidersHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
+  <!-- Getting Started — moved to gettingStarted.html -->
+  <section id="getting-started">
+    <div class="note" style="margin:0 0 0">
+      <strong>New here?</strong> See the <a href="gettingStarted.html">Getting Started</a> page for
+      HTML setup, script tags, a minimal sketch, and the common options table.
     </div>
-    
-    <!-- Pads -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Pads</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">XY pads, grid pads, and a fully interactive piano keyboard with MIDI support.</p>
-      <a href="buttonsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Buttons -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Buttons</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Icon buttons with customizable symbols and toggle states.</p>
-      <a href="buttonsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Selectors -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Selectors</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Switches, dropdowns, tag selectors, and slider-based selectors for picking from lists.</p>
-      <a href="selectorsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Panels -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Panels</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Container panels, beveled frames, message dialogs, and input dialogs.</p>
-      <a href="panelsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Menus -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Menus</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Context menus and popup menus with keyboard navigation and callbacks.</p>
-      <a href="menusHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Displays -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Displays</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">VU meters, LED displays, ADSR envelopes, graphs, heatmaps, and data views.</p>
-      <a href="displaysHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Themes & Styles -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Themes & Styles</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Eight built-in themes and guide to customizing colors and appearance.</p>
-      <a href="themesHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-    <!-- Events -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all .2s;">
-      <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px;">Events</h3>
-      <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">How ProControls hooks into p5.js events and touch input handling.</p>
-      <a href="eventsHelp.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">View documentation →</a>
-    </div>
-    
-  </div>
-</div>
+  </section>
 
+  <hr>
+  <!-- TOC -->
+  <div class="toc">
+    <a href="#touch">Events & Touch</a>
+  </div>
+
+
+
+  <section id="touch">
+    <h2>Touch &amp; Events</h2>
+    <p class="desc">All mouse, wheel, touch events, and rendering are handled automatically by the library. No event functions and no draw loop are needed in your sketch. <code>touch-action: none</code> is applied to the canvas automatically to prevent iOS scroll conflicts.</p>
+
+    <div class="note"><strong>Nothing to wire up.</strong> Just create controls — they start receiving events and drawing themselves immediately. Call <code>.remove()</code> when done.</div>
+
+    <h3>How it works</h3>
+    <p class="desc">Each control self-registers on construction into a shared array. Two <code>p5.prototype.registerMethod</code> hooks handle everything: a <code>'pre'</code> hook fires at the start of every frame to dispatch mouse/wheel/touch events; a <code>'post'</code> hook fires at the end of every frame and draws any control that wasn't already drawn explicitly that frame. This means you can still call <code>c.draw()</code> manually for z-order control — the post hook simply skips controls already rendered.</p>
+
+    <h3>Coexisting with your own handlers</h3>
+    <p class="desc">Registered library methods and sketch-level event functions both fire independently — they don't conflict. You can still define <code>mousePressed()</code> in your sketch for other logic.</p>
+
+    <div class="note"><strong>Multi-touch:</strong> p5.js maps only the first touch to <code>mouseX/mouseY</code>, so only one control can be manipulated at a time. Two-finger gestures are unaffected.</div>
+  </section>
+
+
+</div>
 
 <script>
 (function () {

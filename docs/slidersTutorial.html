@@ -490,94 +490,190 @@
 
     footer a { color: var(--accent); text-decoration: none; }
     footer a:hover { text-decoration: underline; }
+    /* ── Mobile Menu ── */
+    .nav-hamburger {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 5px 8px;
+      line-height: 1;
+      align-items: center;
+    }
+    .nav-hamburger:hover { color: var(--accent); }
+
+    /* ── Mobile Responsive ── */
+    /* ── Mobile Responsive ── */
+    @media (max-width: 900px) {
+      nav {
+        padding: 0 16px;
+        gap: 4px;
+      }
+
+      nav > * {
+        display: none;
+      }
+
+      nav > a:first-child {
+        display: flex;
+      }
+
+      nav > .nav-hamburger {
+        display: flex;
+        margin-right: auto;
+      }
+
+      nav > a:nth-of-type(2) {
+        display: block;
+      }
+      }
+
+      nav.mobile-menu-open {
+        flex-direction: column;
+        align-items: stretch;
+        height: auto;
+        padding: 12px 0;
+        gap: 0;
+      }
+
+      nav.mobile-menu-open > * {
+        display: none;
+      }
+
+      nav.mobile-menu-open > .nav-hamburger {
+        display: flex;
+        padding: 12px 16px;
+      }
+
+      nav.mobile-menu-open > a {
+        display: block;
+        padding: 12px 16px;
+        font-size: 15px;
+      }
+
+      nav.mobile-menu-open > .nav-group {
+        display: block;
+      }
+
+      nav.mobile-menu-open > .nav-group > a:first-child {
+        display: block;
+        padding: 12px 16px;
+        font-size: 15px;
+        color: var(--muted);
+        text-decoration: none;
+        transition: color .15s, background .15s;
+      }
+
+      nav.mobile-menu-open > .nav-group > a:first-child:hover {
+        color: var(--accent);
+        background: #0077cc0a;
+      }
+
+      nav.mobile-menu-open .nav-submenu {
+        display: none !important;
+      }
+    }
+
   </style>
 </head>
 <body>
 
 <nav>
   <a href="../index.html" title="Home" style="padding:5px 8px;font-size:18px;line-height:1;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:20px;">home</span></a>
+  <button class="nav-hamburger" onclick="document.querySelector('nav').classList.toggle('mobile-menu-open')" title="Menu"><span class="material-symbols-outlined">menu</span></button>
   <span class="sep">·</span>
   <a href="gettingStarted.html">Getting Started</a>
   <span class="sep">·</span>
-  <div class="nav-group">
-    <a href="help.html#slider" style="color:var(--accent)">Sliders &amp; Dials</a>
+    <div class="nav-group">
+    <a href="slidersHelp.html">Sliders &amp; Dials</a>
     <div class="nav-submenu">
-      <a href="help.html#slider">AnalogSlider</a>
-      <a href="help.html#multislider">MultiSlider</a>
-      <a href="help.html#rangeslider">RangeSlider</a>
-      <a href="help.html#dial">Dial</a>
-      <a href="help.html#multidial">MultiDial</a>
+      <a href="slidersHelp.html">AnalogSlider</a>
+      <a href="slidersHelp.html#multislider">MultiSlider</a>
+      <a href="slidersHelp.html#rangeslider">RangeSlider</a>
+      <a href="slidersHelp.html#dial">Dial</a>
+      <a href="slidersHelp.html#multidial">MultiDial</a>
       <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
       <a href="slidersTutorial.html">Sliders &amp; Dials Tutorial</a>
     </div>
   </div>
   <span class="sep">·</span>
   <div class="nav-group">
-    <a href="help.html#pads">Pads</a>
+    <a href="buttonsHelp.html">Buttons &amp; Pads</a>
     <div class="nav-submenu">
-      <a href="help.html#xypad">XYPad</a>
-      <a href="help.html#gridpad">GridPad</a>
+      <a href="buttonsHelp.html#xypad">XYPad</a>
+      <a href="buttonsHelp.html#gridpad">GridPad</a>
+      <a href="buttonsHelp.html#piano">PianoPad</a>
       <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
-      <a href="padsTutorial.html">Pads Tutorial</a>
+      <a href="buttonsTutorial.html">Buttons &amp; Pads Tutorial</a>
     </div>
   </div>
   <span class="sep">·</span>
   <div class="nav-group">
-    <a href="help.html#selectors">Selectors</a>
+    <a href="buttonsHelp.html">Buttons</a>
     <div class="nav-submenu">
-      <a href="help.html#switch">Switch</a>
-      <a href="help.html#iconButton">IconButton</a>
-      <a href="help.html#selector">Selector</a>
-      <a href="help.html#tagSelector">TagSelector</a>
-      <a href="help.html#sliderSelector">SliderSelector</a>
+      <a href="buttonsHelp.html#iconButton">IconButton</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="buttonsTutorial.html">Buttons &amp; Pads Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="selectorsHelp.html">Selectors</a>
+    <div class="nav-submenu">
+      <a href="selectorsHelp.html#switch">Switch</a>
+      <a href="selectorsHelp.html#selector">Selector</a>
+      <a href="selectorsHelp.html#tagSelector">TagSelector</a>
+      <a href="selectorsHelp.html#sliderSelector">SliderSelector</a>
       <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
       <a href="selectorsTutorial.html">Selectors Tutorial</a>
     </div>
   </div>
   <span class="sep">·</span>
   <div class="nav-group">
-    <a href="help.html#panel">Panel</a>
+    <a href="panelsHelp.html">Panels</a>
     <div class="nav-submenu">
-      <a href="help.html#panel">Panel</a>
-      <a href="help.html#bevel">Bevel</a>
-      <a href="help.html#messageDialog">MessageDialog</a>
-      <a href="help.html#inputDialog">InputDialog</a>
+      <a href="panelsHelp.html#panel">Panel</a>
+      <a href="panelsHelp.html#bevel">Bevel</a>
+      <a href="panelsHelp.html#messageDialog">MessageDialog</a>
+      <a href="panelsHelp.html#inputDialog">InputDialog</a>
       <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
       <a href="panelsTutorial.html">Panels Tutorial</a>
     </div>
   </div>
   <span class="sep">·</span>
   <div class="nav-group">
-    <a href="help.html#menu">Menus</a>
+    <a href="menusHelp.html">Menus</a>
     <div class="nav-submenu">
-      <a href="help.html#menu">Menu</a>
-      <a href="help.html#popupMenu">PopupMenu</a>
+      <a href="menusHelp.html#menu">Menu</a>
+      <a href="menusHelp.html#popupMenu">PopupMenu</a>
       <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
       <a href="menusTutorial.html">Menus Tutorial</a>
     </div>
   </div>
   <span class="sep">·</span>
   <div class="nav-group">
-    <a href="help.html#displays">Displays</a>
+    <a href="displaysHelp.html">Displays</a>
     <div class="nav-submenu">
-      <a href="help.html#vumeter">VUMeter</a>
-      <a href="help.html#vudial">VUDial</a>
-      <a href="help.html#ledmeter">LEDMeter</a>
-      <a href="help.html#adsr">ADSRDisplay</a>
-      <a href="help.html#markup">Markup</a>
-      <a href="help.html#consolePanel">ConsolePanel</a>
-      <a href="help.html#timeGraphPanel">TimeGraphPanel</a>
-      <a href="help.html#listView">ListView</a>
-      <a href="help.html#gridView">GridView</a>
-      <a href="help.html#heatMapView">HeatMapView</a>
+      <a href="displaysHelp.html#vumeter">VUMeter</a>
+      <a href="displaysHelp.html#vudial">VUDial</a>
+      <a href="displaysHelp.html#ledmeter">LEDMeter</a>
+      <a href="displaysHelp.html#adsr">ADSRDisplay</a>
+      <a href="displaysHelp.html#markup">Markup</a>
+      <a href="displaysHelp.html#consolePanel">ConsolePanel</a>
+      <a href="displaysHelp.html#timeGraphPanel">TimeGraphPanel</a>
+      <a href="displaysHelp.html#listView">ListView</a>
+      <a href="displaysHelp.html#gridView">GridView</a>
+      <a href="displaysHelp.html#heatMapView">HeatMapView</a>
       <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
       <a href="displaysTutorial.html">Displays Tutorial</a>
     </div>
   </div>
   <span class="sep">·</span>
-  <a href="help.html#themes">Themes &amp; Styles</a>
+  <a href="themesHelp.html">Themes &amp; Styles</a>
   <span class="sep">·</span>
-  <a href="help.html#touch">Events</a>
+  <a href="eventsHelp.html">Events</a>
   <span class="sep">·</span>
   <a href="license.html">License</a>
   <a href="help.html" class="docs-link">↗ Docs</a>
@@ -592,7 +688,7 @@
       </div>
       <span class="hero-sub">Step-by-step guide for beginners — all examples are live and editable</span>
     </div>
-    <a href="help.html#slider" class="hero-docs">↗ Full Docs</a>
+    <a href="slidersHelp.html" class="hero-docs">↗ Full Docs</a>
   </div>
 </div>
 
