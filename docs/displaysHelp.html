@@ -1403,7 +1403,7 @@ for (let i = 0; i &lt; 5; i++) console.log('redraw tick');</textarea>
 
   <section id="heatMapView">
     <h2 id="heatMapView">HeatMapView <span class="tag ext">Display</span></h2>
-    <p class="desc">Multidimensional heatmap grid with drill-down navigation. Visualize hierarchical data by grouping and summing a numeric field across dimension levels. Click cells to explore deeper levels; use breadcrumbs or right-click to navigate back. Color intensity reflects the relative magnitude of values at each level.</p>
+    <p class="desc">Multidimensional treemap with drill-down navigation. Visualize hierarchical data by grouping and summing a numeric field across dimension levels. Cell size is driven by <code>areaMetric</code>. An optional <code>colorMetric</code> maps a second field to a color gradient (e.g. red → gray → green for negative / flat / positive change). Click cells to explore deeper levels; use breadcrumbs or right-click to navigate back.</p>
 
     <div class="sig">new HeatMapView(opts)</div>
 
@@ -1417,8 +1417,10 @@ for (let i = 0; i &lt; 5; i++) console.log('redraw tick');</textarea>
         <tr><td>fontSize</td><td>number</td><td>12</td><td>Text size in pixels. Breadcrumb height is <code>fontSize × 1.8</code>.</td></tr>
         <tr><td>padding</td><td>number</td><td>8</td><td>Padding from the panel edges in pixels.</td></tr>
         <tr><td>fields</td><td>array</td><td>[]</td><td>Array of field names defining the drill-down hierarchy. E.g., <code>['product', 'brand', 'trim']</code>.</td></tr>
-        <tr><td>valueField</td><td>string</td><td>null</td><td>Name of the numeric field to sum and visualize. E.g., <code>'quantity'</code> or <code>'revenue'</code>.</td></tr>
-        <tr><td>items</td><td>array</td><td>[]</td><td>Array of objects with keys matching fields and valueField. Trigger re-render by reassigning (e.g., <code>hm.items = newData</code>).</td></tr>
+        <tr><td>areaMetric</td><td>string</td><td>null</td><td>Field to sum for cell sizing. E.g., <code>'quantity'</code> or <code>'revenue'</code>. (<code>valueField</code> is accepted as an alias for backwards compatibility.)</td></tr>
+        <tr><td>colorMetric</td><td>string</td><td>null</td><td>Optional field to sum for cell color. Values are mapped across <code>colorRange</code> — useful for showing change or performance alongside size.</td></tr>
+        <tr><td>colorRange</td><td>string[]</td><td>null</td><td>Color stops for the <code>colorMetric</code> gradient. Any number of CSS color strings, lerped between stops. E.g., <code>['red','gray','green']</code> maps min → red, midpoint → gray, max → green.</td></tr>
+        <tr><td>items</td><td>array</td><td>[]</td><td>Array of objects with keys matching <code>fields</code>, <code>areaMetric</code>, and optionally <code>colorMetric</code>. Trigger re-render by reassigning (e.g., <code>hm.items = newData</code>).</td></tr>
         <tr><td>onSelect</td><td>function</td><td>null</td><td><code>onSelect({path, value, items}[, control])</code> — called when clicking a leaf-level cell. <code>path</code> is an array of values drilled to, <code>value</code> is the sum, <code>items</code> are matching raw rows.</td></tr>
       </tbody>
     </table>
@@ -1445,18 +1447,20 @@ for (let i = 0; i &lt; 5; i++) console.log('redraw tick');</textarea>
     <h3>Example</h3>
     <div class="live-example">
       <textarea class="live-code" spellcheck="false">const sampleData = [
-  {product:'cars', brand:'ford', trim:'Taurus', quantity:1423},
-  {product:'cars', brand:'ford', trim:'Mustang', quantity:2850},
-  {product:'cars', brand:'honda', trim:'Civic', quantity:2100},
-  {product:'trucks', brand:'chevy', trim:'Silverado', quantity:1800},
-  {product:'trucks', brand:'ford', trim:'F-250', quantity:2100},
+  {product:'cars', brand:'ford', trim:'Taurus', quantity:1423, change:-5},
+  {product:'cars', brand:'ford', trim:'Mustang', quantity:2850, change:12},
+  {product:'cars', brand:'honda', trim:'Civic', quantity:2100, change:-2},
+  {product:'trucks', brand:'chevy', trim:'Silverado', quantity:1800, change:3},
+  {product:'trucks', brand:'ford', trim:'F-250', quantity:2100, change:9},
 ];
 
 const hm = new HeatMapView({
   x: 20, y: 15,
   width: 360, height: 260,
   fields: ['product', 'brand', 'trim'],
-  valueField: 'quantity',
+  areaMetric:  'quantity',
+  colorMetric: 'change',
+  colorRange:  ['red', 'gray', 'green'],
   items: sampleData,
   onSelect: ({path, value, items}) => console.log('Leaf:', path.join(' > '), 'Total:', value),
 });</textarea>
@@ -1503,7 +1507,7 @@ const hm = new HeatMapView({
   x: 20, y: 15,
   width: 360, height: 260,
   fields: ['industry', 'company'],
-  valueField: 'quantity',
+  areaMetric: 'quantity',
   items: dowJonesData,
   label: 'Market Cap by Sector',
   onSelect: ({path, value, items}) => console.log(path.join(' > '), '$' + (value / 1e12).toFixed(1) + 'T'),

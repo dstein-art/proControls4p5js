@@ -34,24 +34,26 @@ function setup() {
 
   // HeatMapView test
   const sampleData = [
-    {product:'cars', brand:'ford', trim:'Taurus', quantity:1423},
-    {product:'cars', brand:'ford', trim:'F-150', quantity:3200},
-    {product:'cars', brand:'ford', trim:'Mustang', quantity:2850},
-    {product:'cars', brand:'honda', trim:'Civic', quantity:2100},
-    {product:'cars', brand:'honda', trim:'Accord', quantity:1950},
-    {product:'cars', brand:'toyota', trim:'Camry', quantity:3400},
-    {product:'cars', brand:'toyota', trim:'Corolla', quantity:2650},
-    {product:'trucks', brand:'chevy', trim:'Silverado', quantity:1800},
-    {product:'trucks', brand:'chevy', trim:'Colorado', quantity:950},
-    {product:'trucks', brand:'ford', trim:'F-250', quantity:2100},
-    {product:'trucks', brand:'ram', trim:'1500', quantity:2750},
+    {product:'cars', brand:'ford', trim:'Taurus', quantity:1423, change: -5},
+    {product:'cars', brand:'ford', trim:'F-150', quantity:3200, change: 8},
+    {product:'cars', brand:'ford', trim:'Mustang', quantity:2850, change: 12},
+    {product:'cars', brand:'honda', trim:'Civic', quantity:2100, change: -2},
+    {product:'cars', brand:'honda', trim:'Accord', quantity:1950, change: 0},
+    {product:'cars', brand:'toyota', trim:'Camry', quantity:3400, change: 6},
+    {product:'cars', brand:'toyota', trim:'Corolla', quantity:2650, change: -8},
+    {product:'trucks', brand:'chevy', trim:'Silverado', quantity:1800, change: 3},
+    {product:'trucks', brand:'chevy', trim:'Colorado', quantity:950, change: -10},
+    {product:'trucks', brand:'ford', trim:'F-250', quantity:2100, change: 5},
+    {product:'trucks', brand:'ram', trim:'1500', quantity:2750, change: 9},
   ];
 
   heatmap = new HeatMapView({
     x: 450, y: 10,
     width: 500, height: 360,
     fields: ['product', 'brand', 'trim'],
-    valueField: 'quantity',
+    areaMetric:  'quantity',
+    colorMetric: 'change',
+    colorRange:  ['red', 'gray', 'green'],
     items: sampleData,
     label: 'Sales by Product/Brand/Trim',
     onSelect: (d) => {

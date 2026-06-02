@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-02 — commit 341e3c0
+// Last updated: 2026-06-02 — commit 744691d
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -8975,12 +8975,14 @@ class HeatMapView extends ProControl {
     this.fontSize    = opts.fontSize    ?? 12;
     this.padding     = opts.padding     ?? 8;
     this.fields      = opts.fields      ?? [];
-    this.valueField  = opts.valueField  ?? null;
+    this.areaMetric  = opts.areaMetric  ?? opts.valueField ?? null;  // backwards compat
+    this.colorMetric = opts.colorMetric ?? null;
+    this.colorRange  = opts.colorRange  ?? null;  // e.g. ['red','gray','green']
     this.onSelect    = opts.onSelect    ?? null;
 
     this._items      = [];
     this._drillPath  = [];  // [{field, value}, ...]
-    this._cells      = [];  // [{label, value, t, rawItems}, ...]
+    this._cells      = [];  // [{label, value, colorValue, t, colorT, rawItems}, ...]
     this._crumbs     = [];  // [{label, x, w, depth}, ...]
     this._selectedIdx = -1;
     this._hoverIdx   = -1;
@@ -8992,18 +8994,20 @@ class HeatMapView extends ProControl {
 
   _cloneOpts() {
     return {
-      x:          this._x,
-      y:          this._y,
-      label:      this.label,
-      theme:      Object.assign({}, this.theme),
-      width:      this.width,
-      height:     this.height,
-      fontSize:   this.fontSize,
-      padding:    this.padding,
-      fields:     [...this.fields],
-      valueField: this.valueField,
-      items:      this._items.map(row => ({...row})),
-      onSelect:   this.onSelect,
+      x:           this._x,
+      y:           this._y,
+      label:       this.label,
+      theme:       Object.assign({}, this.theme),
+      width:       this.width,
+      height:      this.height,
+      fontSize:    this.fontSize,
+      padding:     this.padding,
+      fields:      [...this.fields],
+      areaMetric:  this.areaMetric,
+      colorMetric: this.colorMetric,
+      colorRange:  this.colorRange ? [...this.colorRange] : null,
+      items:       this._items.map(row => ({...row})),
+      onSelect:    this.onSelect,
     };
   }
 
@@ -9035,15 +9039,18 @@ class HeatMapView extends ProControl {
 
     const field = this._currentField();
     const grouped = {};
+    const groupedColor = {};
     const rawItemsMap = {};
 
     for (const row of filtered) {
       const key = row[field];
       if (!grouped[key]) {
         grouped[key] = 0;
+        groupedColor[key] = 0;
         rawItemsMap[key] = [];
       }
-      grouped[key] += row[this.valueField] ?? 0;
+      grouped[key] += row[this.areaMetric] ?? 0;
+      if (this.colorMetric) groupedColor[key] += row[this.colorMetric] ?? 0;
       rawItemsMap[key].push(row);
     }
 
@@ -9052,13 +9059,24 @@ class HeatMapView extends ProControl {
     const maxVal = Math.max(...values);
     const range = maxVal - minVal || 1;
 
+    // Compute colorT: 0..1 mapped across min..max of colorMetric, or 0.5 if no colorMetric
+    let colorMin = 0, colorMax = 1;
+    if (this.colorMetric) {
+      const colorValues = Object.values(groupedColor);
+      colorMin = Math.min(...colorValues);
+      colorMax = Math.max(...colorValues);
+    }
+    const colorRange = colorMax - colorMin || 1;
+
     const cells = Object.keys(grouped)
       .sort()
       .map(label => ({
         label,
-        value: grouped[label],
-        t: (grouped[label] - minVal) / range,
-        rawItems: rawItemsMap[label],
+        value:      grouped[label],
+        colorValue: this.colorMetric ? groupedColor[label] : null,
+        t:          (grouped[label] - minVal) / range,
+        colorT:     this.colorMetric ? (groupedColor[label] - colorMin) / colorRange : null,
+        rawItems:   rawItemsMap[label],
       }));
 
     // Compute treemap layout with squarification
@@ -9311,6 +9329,36 @@ class HeatMapView extends ProControl {
     }
   }
 
+  _parseCSSColor(str) {
+    const named = {
+      red:[255,0,0], green:[0,128,0], blue:[0,0,255],
+      gray:[128,128,128], grey:[128,128,128], white:[255,255,255], black:[0,0,0],
+      yellow:[255,255,0], orange:[255,165,0], purple:[128,0,128],
+      cyan:[0,255,255], magenta:[255,0,255], lime:[0,255,0],
+    };
+    const s = str.trim().toLowerCase();
+    if (named[s]) return named[s];
+    let m = s.match(/^#([0-9a-f]{6})$/);
+    if (m) return [parseInt(m[1].slice(0,2),16), parseInt(m[1].slice(2,4),16), parseInt(m[1].slice(4,6),16)];
+    m = s.match(/^#([0-9a-f]{3})$/);
+    if (m) return [parseInt(m[1][0]+m[1][0],16), parseInt(m[1][1]+m[1][1],16), parseInt(m[1][2]+m[1][2],16)];
+    m = s.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+    if (m) return [+m[1], +m[2], +m[3]];
+    return [128,128,128];
+  }
+
+  _colorFromGradient(t) {
+    const stops = this.colorRange ?? ['red', 'gray', 'green'];
+    if (stops.length === 1) return stops[0];
+    const segments = stops.length - 1;
+    const scaled   = t * segments;
+    const seg      = Math.min(Math.floor(scaled), segments - 1);
+    const segT     = scaled - seg;
+    const [r0,g0,b0] = this._parseCSSColor(stops[seg]);
+    const [r1,g1,b1] = this._parseCSSColor(stops[seg + 1]);
+    return `rgb(${Math.round(r0+(r1-r0)*segT)},${Math.round(g0+(g1-g0)*segT)},${Math.round(b0+(b1-b0)*segT)})`;
+  }
+
   _drawCells(gc) {
     if (this._cells.length === 0) return;
 
@@ -9325,14 +9373,21 @@ class HeatMapView extends ProControl {
       const cw = cell.w;
       const ch = cell.h;
 
-      // Heat color: panel + capIndicator gradient by t (heat)
-      const heatColor = lerpColor(
-        color(this.theme.panel),
-        color(this.theme.capIndicator),
-        0.15 + cell.t * 0.75
-      );
+      // Cell color: colorMetric gradient if set, otherwise area heat
+      let cellColor;
+      if (this.colorMetric && cell.colorT !== null) {
+        cellColor = this._colorFromGradient(cell.colorT);
+      } else {
+        const t2 = 0.15 + cell.t * 0.75;
+        const c0 = color(this.theme.panel);
+        const c1 = color(this.theme.capIndicator);
+        const r  = Math.round(red(c0)   + (red(c1)   - red(c0))   * t2);
+        const g  = Math.round(green(c0) + (green(c1) - green(c0)) * t2);
+        const b  = Math.round(blue(c0)  + (blue(c1)  - blue(c0))  * t2);
+        cellColor = `rgb(${r},${g},${b})`;
+      }
 
-      gc.fillStyle = heatColor;
+      gc.fillStyle = cellColor;
       gc.fillRect(cx, cy, cw, ch);
 
       // Border
@@ -9350,15 +9405,24 @@ class HeatMapView extends ProControl {
 
       // Text - only if cell is large enough
       if (cw > 40 && ch > 40) {
-        const labelY = cy + ch / 2 - this.fontSize / 2;
-        const valueY = labelY + this.fontSize + 3;
+        const hasColor = this.colorMetric && cell.colorValue !== null;
+        const lineH    = this.fontSize + 3;
+        const totalLines = hasColor ? 3 : 2;
+        const blockH  = totalLines * lineH;
+        const startY  = cy + ch / 2 - blockH / 2 + this.fontSize / 2;
 
         gc.fillStyle = this.theme.readout;
-        gc.fillText(cell.label, cx + cw / 2, labelY);
+        gc.font = this.theme.font ? `${this.fontSize}px ${this.theme.font}` : `${this.fontSize}px system-ui, Arial, sans-serif`;
+        gc.fillText(cell.label, cx + cw / 2, startY);
 
         gc.fillStyle = this.theme.scaleText;
         gc.font = this.theme.font ? `bold ${this.fontSize * 0.8}px ${this.theme.font}` : `bold ${this.fontSize * 0.8}px system-ui, Arial, sans-serif`;
-        gc.fillText(this._formatValue(cell.value), cx + cw / 2, valueY);
+        gc.fillText(this._formatValue(cell.value), cx + cw / 2, startY + lineH);
+
+        if (hasColor) {
+          gc.fillStyle = this.theme.readout;
+          gc.fillText(this._formatValue(cell.colorValue), cx + cw / 2, startY + lineH * 2);
+        }
 
         // Drill indicator (if not at leaf)
         if (!this._isAtLeaf()) {
