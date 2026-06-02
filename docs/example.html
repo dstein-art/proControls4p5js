@@ -534,7 +534,8 @@ const piano = new PianoKeyboard({
   noteCount: 25,
   highlightedNotes: ['C4', 'E4', 'G4'],
   label: ${label || "'PIANO'"},
-  onSelect: d => console.log(d.note, 'MIDI:', d.midi),
+  onChange: d => console.log(d.note, d.state),
+  onRelease: d => console.log('Released:', d.note),
 });`,
 
   sliderSelector: `\

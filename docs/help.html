@@ -1365,14 +1365,16 @@
         <tr><td>highlightedNotes</td><td>string[]</td><td>[]</td><td>Array of note strings to highlight visually (e.g., ['C4', 'E4', 'G4'] for a C major chord).</td></tr>
         <tr><td>width</td><td>number</td><td>500</td><td>Keyboard width in pixels.</td></tr>
         <tr><td>height</td><td>number</td><td>120</td><td>Keyboard height in pixels.</td></tr>
-        <tr><td>onSelect</td><td>function</td><td>null</td><td><code>onSelect({note, midi, octave}[, control])</code> — called when a key is clicked. <code>note</code> is the note string (e.g., 'C#4'), <code>midi</code> is the MIDI number (0-127), <code>octave</code> is the octave number.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({note, midi, octave, state}[, control])</code> — called when a key's state changes. <code>note</code> is the note string (e.g., 'C#4'), <code>midi</code> is the MIDI number (0-127), <code>octave</code> is the octave number, <code>state</code> is 'on' (pressed), 'off' (released), or 'highlight' (hovered).</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({note, midi, octave, state}[, control])</code> — called when the mouse is released from a pressed key. <code>state</code> is always 'off'.</td></tr>
       </tbody>
     </table>
 
     <h3>Interaction</h3>
     <ul>
-      <li><strong>Click</strong> a key to select it and fire the <code>onSelect</code> callback</li>
-      <li><strong>Hover</strong> over keys to see a subtle tint</li>
+      <li><strong>Hover</strong> over keys to see a subtle tint — fires <code>onChange</code> with <code>state: 'highlight'</code></li>
+      <li><strong>Mouse down</strong> on a key to press it — fires <code>onChange</code> with <code>state: 'on'</code></li>
+      <li><strong>Mouse release</strong> — fires <code>onChange</code> with <code>state: 'off'</code> and also <code>onRelease</code></li>
       <li><strong>Highlighted keys</strong> show in the accent color to indicate chords or scales</li>
     </ul>
 
@@ -1384,7 +1386,7 @@
   width: 500, height: 120,
   firstNote: 'C4',
   noteCount: 25,
-  onSelect: (d) => console.log('Note:', d.note, 'MIDI:', d.midi)
+  onChange: (d) => console.log(d.note, 'state:', d.state)
 });</textarea>
     </div>
 
@@ -1395,7 +1397,8 @@
   firstNote: 'C3',
   noteCount: 25,
   highlightedNotes: ['C3', 'E3', 'G3'], // C major chord
-  onSelect: (d) => console.log(d.note)
+  onChange: (d) => console.log(d.note, d.state),
+  onRelease: (d) => console.log('Released:', d.note, 'state:', d.state)
 });</textarea>
     </div>
 

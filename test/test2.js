@@ -67,8 +67,11 @@ function setup() {
     noteCount: 25,
     highlightedNotes: ['C3', 'E3', 'G3'],
     label: 'Piano Keyboard (C major chord highlighted)',
-    onSelect: (d) => {
-      console.log('Piano:', d.note, 'MIDI:', d.midi, 'Octave:', d.octave);
+    onChange: (d) => {
+      console.log('Piano onChange:', d.note, 'MIDI:', d.midi, 'state:', d.state);
+    },
+    onRelease: (d) => {
+      console.log('Piano onRelease:', d.note, 'MIDI:', d.midi, 'state:', d.state);
     }
   });
 

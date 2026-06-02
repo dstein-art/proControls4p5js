@@ -962,15 +962,16 @@ const seq = new GridPad({
 
     <div class="example-row">
       <div class="example-col">
-        <h3>Respond to Selection</h3>
-        <p>Listen to note selections with the <code>onSelect</code> callback:</p>
+        <h3>Respond to Changes</h3>
+        <p>Listen to key state changes with the <code>onChange</code> and <code>onRelease</code> callbacks:</p>
         <textarea class="live-code" spellcheck="false">const piano = new PianoKeyboard({
   x: 20, y: 20,
   width: 350, height: 110,
-  onSelect: (d) => {
-    console.log('Note:', d.note);
-    console.log('MIDI:', d.midi);
-    console.log('Octave:', d.octave);
+  onChange: (d) => {
+    console.log('Note:', d.note, 'State:', d.state);
+  },
+  onRelease: (d) => {
+    console.log('Released:', d.note, 'State:', d.state);
   }
 });</textarea>
       </div>

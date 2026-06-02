@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-02 — commit 3ba0c91
+// Last updated: 2026-06-02 — commit 2f64fb2 (in progress)
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -9341,7 +9341,8 @@ class PianoKeyboard extends ProControl {
     this.height = opts.height ?? 120;
     this.fontSize = opts.fontSize ?? 12;
     this.padding = opts.padding ?? 8;
-    this.onSelect = opts.onSelect ?? null;
+    this.onChange = opts.onChange ?? null;
+    this.onRelease = opts.onRelease ?? null;
 
     this._firstMidi = this._parseNote(opts.firstNote ?? 'C4');
     this._noteCount = opts.noteCount ?? 25;
@@ -9480,10 +9481,10 @@ class PianoKeyboard extends ProControl {
       }
 
       gc.fillStyle = fillColor.toString('#rrggbb');
-      gc.fillRect(key.x - x, key.y - y, key.w, key.h);
+      gc.fillRect(key.x, key.y, key.w, key.h);
       gc.strokeStyle = '#000000';
       gc.lineWidth = 1;
-      gc.strokeRect(key.x - x, key.y - y, key.w, key.h);
+      gc.strokeRect(key.x, key.y, key.w, key.h);
     }
 
     // Draw black keys on top (foreground layer)
@@ -9502,10 +9503,10 @@ class PianoKeyboard extends ProControl {
       }
 
       gc.fillStyle = fillColor.toString('#rrggbb');
-      gc.fillRect(key.x - x, key.y - y, key.w, key.h);
+      gc.fillRect(key.x, key.y, key.w, key.h);
       gc.strokeStyle = '#111111';
       gc.lineWidth = 1;
-      gc.strokeRect(key.x - x, key.y - y, key.w, key.h);
+      gc.strokeRect(key.x, key.y, key.w, key.h);
     }
 
     // Draw C note labels
@@ -9515,8 +9516,8 @@ class PianoKeyboard extends ProControl {
     gc.textBaseline = 'bottom';
     for (const key of this._keys) {
       if (!key.isBlack && (key.midi % 12) === 0) {
-        const labelX = key.x - x + key.w / 2;
-        const labelY = key.y - y + key.h - 4;
+        const labelX = key.x + key.w / 2;
+        const labelY = key.y + key.h - 4;
         gc.fillText(key.note, labelX, labelY);
       }
     }
@@ -9548,11 +9549,34 @@ class PianoKeyboard extends ProControl {
     const mx = this._mx();
     const my = this._my();
     this._hovered = mx >= this.x && mx <= this.x + this.width && my >= this.y && my <= this.y + this.height;
-    if (this._hovered) {
+
+    const prevHovered = this._hoveredMidi;
+    if (this._hovered && !this._pressedMidi) {
       const midi = this._hitKey(mx, my);
       this._hoveredMidi = midi >= 0 ? midi : null;
     } else {
       this._hoveredMidi = null;
+    }
+
+    // Fire onChange when hover state changes
+    if (prevHovered !== this._hoveredMidi) {
+      if (this._hoveredMidi !== null && this.onChange) {
+        const midi = this._hoveredMidi;
+        this.onChange({
+          note: this._midiToNote(midi),
+          midi,
+          octave: Math.floor(midi / 12) - 1,
+          state: 'highlight'
+        }, this);
+      } else if (prevHovered !== null && this.onChange) {
+        const midi = prevHovered;
+        this.onChange({
+          note: this._midiToNote(midi),
+          midi,
+          octave: Math.floor(midi / 12) - 1,
+          state: 'off'
+        }, this);
+      }
     }
   }
 
@@ -9562,14 +9586,44 @@ class PianoKeyboard extends ProControl {
     const my = this._my();
     const midi = this._hitKey(mx, my);
     if (midi === -1) return;
+
+    // Clear hover when pressing
+    this._hoveredMidi = null;
     this._pressedMidi = midi;
-    if (this.onSelect) {
-      this.onSelect({ note: this._midiToNote(midi), midi, octave: Math.floor(midi / 12) - 1 }, this);
+
+    if (this.onChange) {
+      this.onChange({
+        note: this._midiToNote(midi),
+        midi,
+        octave: Math.floor(midi / 12) - 1,
+        state: 'on'
+      }, this);
     }
   }
 
   mouseReleased() {
-    // Could fire onRelease if needed in future
+    if (this._pressedMidi !== null) {
+      const midi = this._pressedMidi;
+      this._pressedMidi = null;
+
+      if (this.onChange) {
+        this.onChange({
+          note: this._midiToNote(midi),
+          midi,
+          octave: Math.floor(midi / 12) - 1,
+          state: 'off'
+        }, this);
+      }
+
+      if (this.onRelease) {
+        this.onRelease({
+          note: this._midiToNote(midi),
+          midi,
+          octave: Math.floor(midi / 12) - 1,
+          state: 'off'
+        }, this);
+      }
+    }
   }
 
   mouseWheel(e) {
@@ -9589,7 +9643,8 @@ class PianoKeyboard extends ProControl {
       firstNote: this._midiToNote(this._firstMidi),
       noteCount: this._noteCount,
       highlightedNotes: Array.from(this._highlightSet).map(m => this._midiToNote(m)),
-      onSelect: this.onSelect
+      onChange: this.onChange,
+      onRelease: this.onRelease
     };
   }
 }
