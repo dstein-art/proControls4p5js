@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8RE9R8QLJW"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-8RE9R8QLJW');
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProControls — Buttons Tutorial</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #ffffff;
+      --surface:  #f4f4f6;
+      --surface2: #ebebee;
+      --border:   #e0e0e6;
+      --accent:   #0077cc;
+      --accent2:  #cc5500;
+      --text:     #1a1a22;
+      --muted:    #666680;
+      --code-bg:  #1a1a22;
+      --code-text:#d4d4d8;
+      --nav-bg:   #ffffffee;
+      --nav-h:    52px;
+      --max-w:    1100px;
+      --radius:   6px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      font: 15px/1.65 'Inter', 'Segoe UI', system-ui, sans-serif;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    nav, .hero { width: 100%; }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      gap: 4px;
+      overflow-x: clip;
+      overflow-y: visible;
+      white-space: nowrap;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+      flex-shrink: 0;
+    }
+
+    nav a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    nav .docs-link { color: var(--accent2); margin-left: 6px; }
+    nav .docs-link:hover {
+      color: var(--accent2);
+      border-color: #cc550044;
+      background: #cc55000a;
+    }
+
+    nav .sep { color: var(--border); margin: 0 2px; user-select: none; }
+
+    /* ── Nav submenu ── */
+    .nav-group { position: relative; display: flex; align-items: center; }
+    .nav-submenu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px;
+      padding-top: 10px;
+      min-width: 130px;
+      z-index: 200;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(0,0,0,.1);
+      flex-direction: column;
+      gap: 2px;
+    }
+    .nav-group:hover .nav-submenu { display: flex; }
+    .nav-submenu a {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+    }
+    .nav-submenu a:hover {
+      color: var(--accent);
+      border-color: #0077cc44;
+      background: #0077cc0a;
+    }
+
+    /* ── Compact Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #0f1923 0%, #1a2840 50%, #0f2030 100%);
+      padding: 20px 32px 18px;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .hero-left {
+      flex: 1;
+    }
+
+    .hero h1 {
+      color: #fff;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      line-height: 1.2;
+    }
+
+    .hero h1 .accent {
+      color: var(--accent);
+    }
+
+    .hero h1 .dim {
+      color: #aabbcc;
+    }
+
+    .hero-sub {
+      display: block;
+      font-size: 14px;
+      color: #aabbcc;
+      margin-top: 8px;
+      line-height: 1.5;
+      max-width: 600px;
+    }
+
+    .hero-docs {
+      padding: 6px 14px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background .15s;
+      flex-shrink: 0;
+      align-self: center;
+    }
+
+    .hero-docs:hover { background: #0055aa; }
+
+    /* ── Page layout ── */
+    .page {
+      width: 100%;
+      max-width: var(--max-w);
+      padding: 52px 32px 100px;
+    }
+
+    /* ── Tutorial intro ── */
+    .intro {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 48px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #444460;
+    }
+    .intro strong { color: var(--text); }
+    .intro .prereq {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .intro a { color: var(--accent); text-decoration: none; }
+    .intro a:hover { text-decoration: underline; }
+    .intro code {
+      font: 12px/1 'Fira Code', 'Cascadia Code', monospace;
+      background: #e4e4ec;
+      border: 1px solid #d0d0e0;
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent);
+    }
+
+    /* ── TOC ── */
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+    .toc a {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1px solid #0077cc33;
+      background: #0077cc08;
+      transition: background .15s, border-color .15s;
+    }
+    .toc a:hover { background: #0077cc18; border-color: #0077cc66; }
+
+    /* ── Control section ── */
+    .ctrl-section {
+      margin-bottom: 80px;
+      scroll-margin-top: calc(var(--nav-h) + 20px);
+    }
+
+    .ctrl-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .ctrl-header h2 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -.02em;
+    }
+
+    .ctrl-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc12;
+      border: 1px solid #0077cc33;
+      padding: 2px 9px;
+      border-radius: 20px;
+    }
+
+    .ctrl-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 28px;
+      max-width: 720px;
+    }
+
+    /* ── Step ── */
+    .step {
+      margin-bottom: 40px;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin-bottom: 10px;
+    }
+
+    .step-badge {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #0077cc15;
+      border: 1px solid #0077cc44;
+      padding: 3px 10px;
+      border-radius: 20px;
+      flex-shrink: 0;
+    }
+
+    .step-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .step-body {
+      font-size: 14px;
+      color: #555570;
+      line-height: 1.7;
+      margin-bottom: 14px;
+      max-width: 740px;
+    }
+
+    .step-body code {
+      font: 12px/1 'Fira Code', 'Cascadia Code', monospace;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent);
+    }
+
+    /* ── Live examples ── */
+    .example-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin: 0;
+    }
+
+    .live-editor {
+      flex: 1;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,.18);
+    }
+
+    .live-hint {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #aabbcc;
+      background: var(--code-bg);
+      padding: 8px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+
+    .live-code {
+      display: block;
+      background: var(--code-bg);
+      border: none;
+      border-radius: 0 0 6px 6px;
+      padding: 18px 20px;
+      font: 13px/1.65 'Fira Code', 'Cascadia Code', monospace;
+      color: var(--code-text);
+      resize: none;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: pre;
+      field-sizing: content;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .live-code:focus { border-color: #0077cc88; }
+
+    .example-frame {
+      flex-shrink: 0;
+      border-radius: 6px;
+      overflow: hidden;
+      display: block;
+      box-shadow: 0 2px 10px rgba(0,0,0,.18);
+    }
+
+    /* note callout */
+    .note {
+      background: #0077cc0a;
+      border-left: 3px solid var(--accent);
+      padding: 11px 16px;
+      border-radius: 0 6px 6px 0;
+      font-size: 13px;
+      color: #446688;
+      margin: 14px 0 0;
+      line-height: 1.6;
+    }
+    .note strong { color: var(--accent); }
+
+    .tip {
+      background: #22aa4410;
+      border-left: 3px solid #22aa44;
+      padding: 11px 16px;
+      border-radius: 0 6px 6px 0;
+      font-size: 13px;
+      color: #337755;
+      margin: 14px 0 0;
+      line-height: 1.6;
+    }
+    .tip strong { color: #22aa44; }
+
+    code {
+      font: 13px/1 'Fira Code', 'Cascadia Code', monospace;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent);
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 60px 0;
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 0 16px;
+        -webkit-overflow-scrolling: touch;
+      }
+      nav a {
+        font-size: 12px;
+        padding: 5px 8px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .example-row { flex-direction: column; }
+      .example-frame { align-self: center; }
+    }
+
+    /* ── Footer ── */
+    footer {
+      order: 1;
+      width: 100%;
+      margin-top: 80px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" title="Home" style="padding:5px 8px;font-size:18px;line-height:1;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:20px;">home</span></a>
+  <span class="sep">·</span>
+  <a href="gettingStarted.html">Getting Started</a>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#slider">Sliders &amp; Dials</a>
+    <div class="nav-submenu">
+      <a href="help.html#slider">AnalogSlider</a>
+      <a href="help.html#multislider">MultiSlider</a>
+      <a href="help.html#rangeslider">RangeSlider</a>
+      <a href="help.html#dial">Dial</a>
+      <a href="help.html#multidial">MultiDial</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="slidersTutorial.html">Sliders &amp; Dials Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#pads">Pads</a>
+    <div class="nav-submenu">
+      <a href="help.html#xypad">XYPad</a>
+      <a href="help.html#gridpad">GridPad</a>
+      <a href="help.html#piano">Piano</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="padsTutorial.html">Pads Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#buttons" style="color:var(--accent)">Buttons</a>
+    <div class="nav-submenu">
+      <a href="help.html#iconButton">IconButton</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="buttonsTutorial.html">Buttons Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#selectors">Selectors</a>
+    <div class="nav-submenu">
+      <a href="help.html#switch">Switch</a>
+      <a href="help.html#selector">Selector</a>
+      <a href="help.html#tagSelector">TagSelector</a>
+      <a href="help.html#sliderSelector">SliderSelector</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="selectorsTutorial.html">Selectors Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#panel">Panels</a>
+    <div class="nav-submenu">
+      <a href="help.html#panel">Panel</a>
+      <a href="help.html#bevel">Bevel</a>
+      <a href="help.html#messageDialog">MessageDialog</a>
+      <a href="help.html#inputDialog">InputDialog</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="panelsTutorial.html">Panels Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#menu">Menus</a>
+    <div class="nav-submenu">
+      <a href="help.html#menu">Menu</a>
+      <a href="help.html#popupMenu">PopupMenu</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="menusTutorial.html">Menus Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <div class="nav-group">
+    <a href="help.html#displays">Displays</a>
+    <div class="nav-submenu">
+      <a href="help.html#vumeter">VUMeter</a>
+      <a href="help.html#vudial">VUDial</a>
+      <a href="help.html#ledmeter">LEDMeter</a>
+      <a href="help.html#adsr">ADSRDisplay</a>
+      <a href="help.html#markup">Markup</a>
+      <a href="help.html#consolePanel">ConsolePanel</a>
+      <a href="help.html#timeGraphPanel">TimeGraphPanel</a>
+      <a href="help.html#listView">ListView</a>
+      <a href="help.html#gridView">GridView</a>
+      <a href="help.html#heatMapView">HeatMapView</a>
+      <div style="height:2px;margin:5px 8px;background:linear-gradient(to bottom,rgba(0,0,0,0.13) 0,rgba(0,0,0,0.13) 50%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.7) 100%);border-radius:1px;"></div>
+      <a href="displaysTutorial.html">Displays Tutorial</a>
+    </div>
+  </div>
+  <span class="sep">·</span>
+  <a href="help.html#themes">Themes &amp; Styles</a>
+  <span class="sep">·</span>
+  <a href="help.html#touch">Events</a>
+  <span class="sep">·</span>
+  <a href="license.html">License</a>
+  <a href="help.html#buttons" class="docs-link">↗ Docs</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div>
+        <h1><span class="accent">Buttons</span> <span class="dim">Tutorial</span></h1>
+        <div style="font-size:12px;color:#6688aa;margin-top:4px;letter-spacing:.04em;">ProControls for p5.js — by David Stein</div>
+      </div>
+      <span class="hero-sub">Step-by-step guide for beginners — all examples are live and editable</span>
+    </div>
+    <a href="help.html#buttons" class="hero-docs">↗ Full Docs</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- Intro -->
+  <div class="intro">
+    <strong>Welcome!</strong> This tutorial covers button controls in ProControls — specifically the IconButton, which uses Material Design icons for a compact, intuitive interface. IconButtons are perfect for music apps, tools, and game interfaces where you need clickable controls that are small but highly recognizable. You do not need any prior experience — each example is fully explained, and every code block is <strong>live and editable</strong>. Click inside any code box, make a change, and the preview updates automatically.
+    <div class="prereq">
+      <strong>First time here?</strong> Before running these examples in your own project, visit the
+      <a href="gettingStarted.html">Getting Started</a> page to get the HTML setup and script tags
+      you need to load ProControls.
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <a href="#iconbutton">IconButton</a>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  ICONBUTTON                                                     -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <div class="ctrl-section" id="iconbutton">
+    <div class="ctrl-header">
+      <h2>IconButton</h2>
+      <span class="ctrl-tag">Button</span>
+    </div>
+    <p class="ctrl-desc">
+      A square button with a Material Design icon and optional toggle state. Perfect for compact
+      interfaces — music apps, tools, playback controls, and game UIs. The button responds to
+      clicks with <code>onClick</code> callback and can be toggled between active/inactive states.
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 1</span>
+        <span class="step-title">Your first IconButton</span>
+      </div>
+      <p class="step-body">
+        Create an IconButton with just a position and an icon name. The button uses Material Design
+        icons — a huge library of recognizable symbols. Click the button and check the browser console
+        to see the event fire. <a href="https://fonts.google.com/icons" target="_blank">Browse available icons →</a>
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const play = new IconButton({
+  x: 85, y: 40,
+  icon: 'play_arrow',
+  size: 52,
+  onClick: () => console.log('Play pressed!'),
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=iconButton" width="220" height="180" scrolling="no" frameborder="0" loading="lazy" title="IconButton basic"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 2</span>
+        <span class="step-title">Toggle state with active property</span>
+      </div>
+      <p class="step-body">
+        Add the <code>toggle</code> property to make the button switch between two states. When toggled,
+        the button glows with the style's accent color. The <code>active</code> property sets the starting
+        state — <code>true</code> means glowing at start, <code>false</code> means off.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const mute = new IconButton({
+  x: 85, y: 40,
+  icon: 'volume_off',
+  size: 52,
+  toggle: true,
+  active: false,
+  onClick: (s) => console.log('Muted:', s),
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=iconButton" width="220" height="180" scrolling="no" frameborder="0" loading="lazy" title="IconButton toggle"></iframe>
+      </div>
+      <div class="note">
+        <strong>Icon feedback:</strong> When <code>toggle: true</code>, clicking the button automatically
+        flips <code>active</code> and fires the callback with the new state.
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 3</span>
+        <span class="step-title">Multiple buttons in a row</span>
+      </div>
+      <p class="step-body">
+        Arrange multiple IconButtons by offsetting their x positions. This pattern is common in music
+        production interfaces (transport controls) and game UIs (action buttons). ProControls handles
+        the click and keyboard events for each button independently.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const skip_prev = new IconButton({
+  x: 20, y: 40, icon: 'skip_previous', size: 48,
+  onClick: () => console.log('Previous'),
+});
+
+const play = new IconButton({
+  x: 84, y: 40, icon: 'play_arrow', size: 48,
+  onClick: () => console.log('Play'),
+});
+
+const skip_next = new IconButton({
+  x: 148, y: 40, icon: 'skip_next', size: 48,
+  onClick: () => console.log('Next'),
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=iconButton" width="220" height="180" scrolling="no" frameborder="0" loading="lazy" title="IconButton row"></iframe>
+      </div>
+      <div class="tip">
+        <strong>Spacing tip:</strong> For a 48px icon button, add 64px between left edges to get
+        even spacing with a 16px gap. Adjust size and spacing to suit your layout.
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 4</span>
+        <span class="step-title">Label and theme customization</span>
+      </div>
+      <p class="step-body">
+        Add a <code>label</code> below the button to identify its function. Customize the appearance
+        with <code>ControlStyle</code> themes (like <code>black</code>, <code>red</code>, <code>blue</code>)
+        to match your interface design. The label appears below the button.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — changes update the preview</div>
+          <textarea class="live-code" spellcheck="false">const loop = new IconButton({
+  x: 80, y: 22,
+  icon: 'loop',
+  size: 52,
+  toggle: true,
+  label: 'LOOP',
+  onClick: s => console.log('loop', s),
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=iconButton" width="220" height="180" scrolling="no" frameborder="0" loading="lazy" title="IconButton with label"></iframe>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>
