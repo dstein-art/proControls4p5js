@@ -1380,33 +1380,36 @@
 
     <h3>Examples</h3>
 
-    <div class="example">
-      <textarea class="live-code" spellcheck="false">const piano = new PianoKeyboard({
+    <div class="example-row">
+      <div class="example-col">
+        <h4>Basic Piano</h4>
+        <p>Simple keyboard with default settings:</p>
+        <textarea class="live-code" spellcheck="false">const piano = new PianoKeyboard({
   x: 20, y: 20,
-  width: 500, height: 120,
+  width: 340, height: 110,
   firstNote: 'C4',
   noteCount: 25,
   onChange: (d) => console.log(d.note, 'state:', d.state)
 });</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=piano&s=stainless" width="380" height="160" scrolling="no" frameborder="0" loading="lazy" title="Piano basic"></iframe>
     </div>
 
-    <div class="example">
-      <textarea class="live-code" spellcheck="false">const piano = new PianoKeyboard({
+    <div class="example-row">
+      <div class="example-col">
+        <h4>Piano with Chord</h4>
+        <p>Highlight notes to show chords or scales:</p>
+        <textarea class="live-code" spellcheck="false">const piano = new PianoKeyboard({
   x: 20, y: 20,
-  width: 500, height: 120,
+  width: 340, height: 110,
   firstNote: 'C3',
   noteCount: 25,
-  highlightedNotes: ['C3', 'E3', 'G3'], // C major chord
+  highlightedNotes: ['C3', 'E3', 'G3'], // C major
   onChange: (d) => console.log(d.note, d.state),
-  onRelease: (d) => console.log('Released:', d.note, 'state:', d.state)
+  onRelease: (d) => console.log('Released:', d.note)
 });</textarea>
-    </div>
-
-    <h3>Updating Highlighted Notes</h3>
-    <p>Change the highlighted notes dynamically using the <code>highlightedNotes</code> setter:</p>
-    <div class="example">
-      <textarea class="live-code" spellcheck="false">const piano = new PianoKeyboard({...});
-piano.highlightedNotes = ['C4', 'F4', 'G4']; // F major</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=piano&s=stainless" width="380" height="160" scrolling="no" frameborder="0" loading="lazy" title="Piano chord"></iframe>
     </div>
   </section>
 
