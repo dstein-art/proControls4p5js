@@ -47,6 +47,7 @@ const SIZES = {
   gridpad_toggle:        [160, 155],
   gridpad_percent:       [160, 155],
   gridpad_colorselect:   [160, 155],
+  piano:           [380, 160],
   adsr:            [260, 160],
   tagSelector:     [260, 130],
   sliderSelector:  [260, 160],
@@ -523,6 +524,17 @@ const seq = new GridPad({
     { color: '#22aa44', value: 'green' },
   ],
   onChange: v => console.log(v),
+});`,
+
+  piano: `\
+const piano = new PianoKeyboard({
+  x: 20, y: 22,
+  width: 340, height: 110,
+  firstNote: 'C4',
+  noteCount: 25,
+  highlightedNotes: ['C4', 'E4', 'G4'],
+  label: ${label || "'PIANO'"},
+  onSelect: d => console.log(d.note, 'MIDI:', d.midi),
 });`,
 
   sliderSelector: `\
