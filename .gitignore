@@ -14,3 +14,7 @@ npm-debug.log*
 
 # Local dev server logs
 *.log
+
+# Local scratch / temporary files
+/tmp/*
+!/tmp/.gitkeep

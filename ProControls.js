@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-02 — commit 2f64fb2 (in progress)
+// Last updated: 2026-06-02 — commit d09536a
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -9052,7 +9052,7 @@ class HeatMapView extends ProControl {
     const maxVal = Math.max(...values);
     const range = maxVal - minVal || 1;
 
-    this._cells = Object.keys(grouped)
+    const cells = Object.keys(grouped)
       .sort()
       .map(label => ({
         label,
@@ -9061,25 +9061,83 @@ class HeatMapView extends ProControl {
         rawItems: rawItemsMap[label],
       }));
 
+    // Compute treemap layout with squarification
+    this._computeTreemapLayout(cells);
+    this._cells = cells;
     this._selectedIdx = -1;
   }
 
-  _cellLayout() {
-    const n = this._cells.length;
-    if (n === 0) return { cols: 0, rows: 0, cellW: 0, cellH: 0, gridX: this.x, gridY: this.y };
-
+  _computeTreemapLayout(cells) {
     const gridY = this.y + this.padding + this._breadcrumbH;
     const gridH = this.height - this.padding * 2 - this._breadcrumbH;
     const gridW = this.width - this.padding * 2;
+    const gridX = this.x + this.padding;
 
-    const cols = Math.max(1, Math.ceil(Math.sqrt(n)));
-    const rows = Math.ceil(n / cols);
+    const totalValue = cells.reduce((sum, cell) => sum + cell.value, 0);
+    if (totalValue === 0 || cells.length === 0) return;
 
-    const cellGap = 2;
-    const cellW = (gridW - cellGap * (cols - 1)) / cols;
-    const cellH = (gridH - cellGap * (rows - 1)) / rows;
+    // Sort cells by value descending (largest first)
+    const sortedCells = cells.slice().sort((a, b) => b.value - a.value);
 
-    return { cols, rows, cellW, cellH, gridX: this.x + this.padding, gridY, gridW, gridH };
+    // Map sorted cells back to original indices
+    const layoutData = sortedCells.map((cell, idx) => ({
+      ...cell,
+      originalIdx: cells.indexOf(cell)
+    }));
+
+    this._sliceDiceLayout(layoutData, gridX, gridY, gridW, gridH, totalValue);
+
+    // Update original cells with layout data
+    for (const layoutCell of layoutData) {
+      const originalCell = cells[layoutCell.originalIdx];
+      originalCell.x = layoutCell.x;
+      originalCell.y = layoutCell.y;
+      originalCell.w = layoutCell.w;
+      originalCell.h = layoutCell.h;
+    }
+  }
+
+  _sliceDiceLayout(cells, x, y, w, h, totalValue) {
+    if (cells.length === 0 || w <= 0 || h <= 0) return;
+
+    // Take the first (largest) cell
+    const cell = cells[0];
+    const cellValue = cell.value;
+    const cellProportion = cellValue / totalValue;
+
+    if (cells.length === 1) {
+      // Last cell takes all remaining space
+      cell.x = x;
+      cell.y = y;
+      cell.w = w;
+      cell.h = h;
+      return;
+    }
+
+    // Decide orientation based on which dimension is larger
+    if (w >= h) {
+      // Width is larger: slice vertically (take a vertical strip)
+      const cellWidth = cellProportion * w;
+      cell.x = x;
+      cell.y = y;
+      cell.w = cellWidth;
+      cell.h = h;
+
+      // Recurse on remaining width
+      const remainingValue = totalValue - cellValue;
+      this._sliceDiceLayout(cells.slice(1), x + cellWidth, y, w - cellWidth, h, remainingValue);
+    } else {
+      // Height is larger: slice horizontally (take a horizontal strip)
+      const cellHeight = cellProportion * h;
+      cell.x = x;
+      cell.y = y;
+      cell.w = w;
+      cell.h = cellHeight;
+
+      // Recurse on remaining height
+      const remainingValue = totalValue - cellValue;
+      this._sliceDiceLayout(cells.slice(1), x, y + cellHeight, w, h - cellHeight, remainingValue);
+    }
   }
 
   _formatValue(v) {
@@ -9089,22 +9147,14 @@ class HeatMapView extends ProControl {
   }
 
   _hitCell(mx, my) {
-    const layout = this._cellLayout();
-    if (layout.cols === 0) return -1;
-
-    const relX = mx - layout.gridX;
-    const relY = my - layout.gridY;
-
-    if (relX < 0 || relY < 0 || relX > layout.gridW || relY > layout.gridH) return -1;
-
-    const cellGap = 2;
-    const col = Math.floor(relX / (layout.cellW + cellGap));
-    const row = Math.floor(relY / (layout.cellH + cellGap));
-
-    if (col >= layout.cols || row >= layout.rows) return -1;
-
-    const idx = row * layout.cols + col;
-    return idx < this._cells.length ? idx : -1;
+    for (let i = 0; i < this._cells.length; i++) {
+      const cell = this._cells[i];
+      if (mx >= cell.x && mx <= cell.x + cell.w &&
+          my >= cell.y && my <= cell.y + cell.h) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   _hitCrumb(mx, my) {
@@ -9162,6 +9212,7 @@ class HeatMapView extends ProControl {
     const y = this.y + this.padding;
     let x = this.x + this.padding;
     const h = this._breadcrumbH;
+    const maxX = this.x + this.width - this.padding;
 
     gc.font = this.theme.font ? `${this.fontSize}px ${this.theme.font}` : `${this.fontSize}px system-ui, Arial, sans-serif`;
     gc.textBaseline = 'middle';
@@ -9181,8 +9232,67 @@ class HeatMapView extends ProControl {
     this._crumbs.push({ label: 'All', x, w: allW, depth: 0 });
     x += allW + 4;
 
-    // Path crumbs
+    // Pre-calculate all path crumbs with widths
+    const pathCrumbs = [];
     for (let i = 0; i < this._drillPath.length; i++) {
+      const sep = ' › ';
+      const sepW = gc.measureText(sep).width;
+      const label = this._drillPath[i].value;
+      const metrics = gc.measureText(label);
+      const labelW = metrics.width + 8;
+      pathCrumbs.push({ label, labelW, sepW, depth: i + 1, index: i });
+    }
+
+    // Check if all crumbs fit
+    let totalWidth = x;
+    for (const crumb of pathCrumbs) {
+      totalWidth += crumb.sepW + crumb.labelW + 4;
+    }
+
+    let startIdx = 0;
+    if (totalWidth > maxX && pathCrumbs.length > 0) {
+      // Need truncation - find last crumb that fits with ellipsis
+      const ellipsisText = ' › ... › ';
+      const ellipsisW = gc.measureText(ellipsisText).width;
+
+      // Start from the end and work backwards to find what fits
+      let fitWidth = x + ellipsisW;
+      for (let i = pathCrumbs.length - 1; i >= 0; i--) {
+        const crumbW = pathCrumbs[i].sepW + pathCrumbs[i].labelW + 4;
+        if (fitWidth + crumbW <= maxX) {
+          startIdx = i + 1;
+          break;
+        }
+      }
+
+      // Draw ellipsis
+      gc.fillStyle = this.theme.readout;
+      gc.fillText(ellipsisText, x, y + h / 2);
+      this._crumbs.push({ label: '...', x, w: ellipsisW, depth: startIdx });
+      x += ellipsisW;
+    }
+
+    // Draw remaining path crumbs
+    for (let i = startIdx; i < pathCrumbs.length; i++) {
+      const crumb = pathCrumbs[i];
+      const sep = ' › ';
+
+      gc.fillStyle = this.theme.readout;
+      gc.fillText(sep, x, y + h / 2);
+      x += crumb.sepW;
+
+      gc.fillStyle = i === pathCrumbs.length - 1 ? this.theme.capIndicator : this.theme.readout;
+      gc.fillText(crumb.label, x + 4, y + h / 2);
+
+      this._crumbs.push({ label: crumb.label, x, w: crumb.labelW, depth: crumb.depth });
+      x += crumb.labelW + 4;
+
+      if (x > maxX) break;
+    }
+
+    // Draw selected cell crumb (if one is selected at leaf level)
+    if (this._isAtLeaf() && this._selectedIdx >= 0 && this._selectedIdx < this._cells.length) {
+      const selectedCell = this._cells[this._selectedIdx];
       const sep = ' › ';
       const sepW = gc.measureText(sep).width;
 
@@ -9190,25 +9300,19 @@ class HeatMapView extends ProControl {
       gc.fillText(sep, x, y + h / 2);
       x += sepW;
 
-      const label = this._drillPath[i].value;
-      const metrics = gc.measureText(label);
-      const labelW = metrics.width + 8;
+      const selectedLabel = `${selectedCell.label} (${this._formatValue(selectedCell.value)})`;
+      const selectedMetrics = gc.measureText(selectedLabel);
+      const selectedW = selectedMetrics.width + 8;
 
-      gc.fillStyle = i === this._drillPath.length - 1 ? this.theme.capIndicator : this.theme.readout;
-      gc.fillText(label, x + 4, y + h / 2);
+      gc.fillStyle = this.theme.capIndicator;
+      gc.fillText(selectedLabel, x + 4, y + h / 2);
 
-      this._crumbs.push({ label, x, w: labelW, depth: i + 1 });
-      x += labelW + 4;
-
-      if (x > this.x + this.width - this.padding) break;
+      this._crumbs.push({ label: selectedLabel, x, w: selectedW, depth: -1 });
     }
   }
 
   _drawCells(gc) {
     if (this._cells.length === 0) return;
-
-    const layout = this._cellLayout();
-    const cellGap = 2;
 
     gc.font = this.theme.font ? `${this.fontSize}px ${this.theme.font}` : `${this.fontSize}px system-ui, Arial, sans-serif`;
     gc.textBaseline = 'middle';
@@ -9216,11 +9320,10 @@ class HeatMapView extends ProControl {
 
     for (let idx = 0; idx < this._cells.length; idx++) {
       const cell = this._cells[idx];
-      const col = idx % layout.cols;
-      const row = Math.floor(idx / layout.cols);
-
-      const cx = layout.gridX + col * (layout.cellW + cellGap);
-      const cy = layout.gridY + row * (layout.cellH + cellGap);
+      const cx = cell.x;
+      const cy = cell.y;
+      const cw = cell.w;
+      const ch = cell.h;
 
       // Heat color: panel + capIndicator gradient by t (heat)
       const heatColor = lerpColor(
@@ -9230,7 +9333,7 @@ class HeatMapView extends ProControl {
       );
 
       gc.fillStyle = heatColor;
-      gc.fillRect(cx, cy, layout.cellW, layout.cellH);
+      gc.fillRect(cx, cy, cw, ch);
 
       // Border
       if (idx === this._selectedIdx) {
@@ -9243,26 +9346,28 @@ class HeatMapView extends ProControl {
         gc.strokeStyle = this.theme.panelStroke;
         gc.lineWidth = 1;
       }
-      gc.strokeRect(cx, cy, layout.cellW, layout.cellH);
+      gc.strokeRect(cx, cy, cw, ch);
 
-      // Text
-      const labelY = cy + layout.cellH / 2 - this.fontSize / 2;
-      const valueY = labelY + this.fontSize + 3;
+      // Text - only if cell is large enough
+      if (cw > 40 && ch > 40) {
+        const labelY = cy + ch / 2 - this.fontSize / 2;
+        const valueY = labelY + this.fontSize + 3;
 
-      gc.fillStyle = this.theme.readout;
-      gc.fillText(cell.label, cx + layout.cellW / 2, labelY);
+        gc.fillStyle = this.theme.readout;
+        gc.fillText(cell.label, cx + cw / 2, labelY);
 
-      gc.fillStyle = this.theme.scaleText;
-      gc.font = this.theme.font ? `bold ${this.fontSize * 0.8}px ${this.theme.font}` : `bold ${this.fontSize * 0.8}px system-ui, Arial, sans-serif`;
-      gc.fillText(this._formatValue(cell.value), cx + layout.cellW / 2, valueY);
+        gc.fillStyle = this.theme.scaleText;
+        gc.font = this.theme.font ? `bold ${this.fontSize * 0.8}px ${this.theme.font}` : `bold ${this.fontSize * 0.8}px system-ui, Arial, sans-serif`;
+        gc.fillText(this._formatValue(cell.value), cx + cw / 2, valueY);
 
-      // Drill indicator (if not at leaf)
-      if (!this._isAtLeaf()) {
-        gc.fillStyle = this.theme.capIndicator;
-        gc.font = this.theme.font ? `${this.fontSize + 2}px ${this.theme.font}` : `${this.fontSize + 2}px system-ui, Arial, sans-serif`;
-        gc.textBaseline = 'bottom';
-        gc.textAlign = 'right';
-        gc.fillText('›', cx + layout.cellW - 4, cy + layout.cellH - 2);
+        // Drill indicator (if not at leaf)
+        if (!this._isAtLeaf()) {
+          gc.fillStyle = this.theme.capIndicator;
+          gc.font = this.theme.font ? `${this.fontSize + 2}px ${this.theme.font}` : `${this.fontSize + 2}px system-ui, Arial, sans-serif`;
+          gc.textBaseline = 'bottom';
+          gc.textAlign = 'right';
+          gc.fillText('›', cx + cw - 4, cy + ch - 2);
+        }
       }
     }
   }

@@ -1392,7 +1392,7 @@
   onChange: (d) => console.log(d.note, 'state:', d.state)
 });</textarea>
       </div>
-      <iframe class="example-frame" src="example.html?c=piano&s=stainless" width="380" height="160" scrolling="no" frameborder="0" loading="lazy" title="Piano basic"></iframe>
+      <iframe class="example-frame" src="example.html?c=piano_basic&s=stainless" width="380" height="160" scrolling="no" frameborder="0" loading="lazy" title="Piano basic"></iframe>
     </div>
 
     <div class="example-row">
@@ -1409,7 +1409,7 @@
   onRelease: (d) => console.log('Released:', d.note)
 });</textarea>
       </div>
-      <iframe class="example-frame" src="example.html?c=piano&s=stainless" width="380" height="160" scrolling="no" frameborder="0" loading="lazy" title="Piano chord"></iframe>
+      <iframe class="example-frame" src="example.html?c=piano_chord&s=stainless" width="380" height="160" scrolling="no" frameborder="0" loading="lazy" title="Piano chord"></iframe>
     </div>
   </section>
 
@@ -2783,6 +2783,54 @@ const hm = new HeatMapView({
   onSelect: ({path, value, items}) => console.log('Leaf:', path.join(' > '), 'Total:', value),
 });</textarea>
       <iframe class="example-frame" src="example.html?c=heatMapView&s=black" width="420" height="300" scrolling="no" frameborder="0" loading="lazy" title="HeatMapView live example"></iframe>
+    </div>
+
+    <h3>Dow Jones Market Cap Example</h3>
+    <p>Explore market data organized by industry sector and company:</p>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const dowJonesData = [
+  { industry: 'Technology', company: 'NVIDIA', quantity: 5472364760000 },
+  { industry: 'Technology', company: 'Apple', quantity: 4510682158630 },
+  { industry: 'Technology', company: 'Microsoft', quantity: 3428571400000 },
+  { industry: 'Consumer Discretionary', company: 'Amazon', quantity: 2840941240000 },
+  { industry: 'Consumer Staples', company: 'Walmart', quantity: 916685400000 },
+  { industry: 'Financials', company: 'JPMorgan Chase', quantity: 820814808000 },
+  { industry: 'Financials', company: 'Visa', quantity: 661678500000 },
+  { industry: 'Healthcare', company: 'Johnson & Johnson', quantity: 546526652000 },
+  { industry: 'Technology', company: 'Cisco', quantity: 483136060000 },
+  { industry: 'Industrials', company: 'Caterpillar', quantity: 403084688000 },
+  { industry: 'Energy', company: 'Chevron', quantity: 369039797000 },
+  { industry: 'Healthcare', company: 'UnitedHealth Group', quantity: 345672600000 },
+  { industry: 'Consumer Staples', company: 'Coca-Cola', quantity: 339252960000 },
+  { industry: 'Consumer Staples', company: 'Procter & Gamble', quantity: 326655864634 },
+  { industry: 'Financials', company: 'Goldman Sachs', quantity: 322962640000 },
+  { industry: 'Consumer Discretionary', company: 'Home Depot', quantity: 309447240000 },
+  { industry: 'Technology', company: 'IBM', quantity: 305081833284 },
+  { industry: 'Healthcare', company: 'Merck', quantity: 284449677876 },
+  { industry: 'Financials', company: 'American Express', quantity: 215088440000 },
+  { industry: 'Communication Services', company: 'Verizon', quantity: 200943300000 },
+  { industry: 'Consumer Discretionary', company: "McDonald's", quantity: 197004485000 },
+  { industry: 'Technology', company: 'Salesforce', quantity: 182561600000 },
+  { industry: 'Communication Services', company: 'Walt Disney', quantity: 182250200000 },
+  { industry: 'Healthcare', company: 'Amgen', quantity: 179046720000 },
+  { industry: 'Industrials', company: 'Boeing', quantity: 176816212843 },
+  { industry: 'Industrials', company: 'Honeywell', quantity: 149884308768 },
+  { industry: 'Industrials', company: '3M', quantity: 79857063000 },
+  { industry: 'Materials', company: 'Sherwin-Williams', quantity: 73154766000 },
+  { industry: 'Consumer Discretionary', company: 'Nike', quantity: 68049888000 },
+  { industry: 'Financials', company: 'Travelers', quantity: 63102312000 }
+];
+
+const hm = new HeatMapView({
+  x: 20, y: 15,
+  width: 360, height: 260,
+  fields: ['industry', 'company'],
+  valueField: 'quantity',
+  items: dowJonesData,
+  label: 'Market Cap by Sector',
+  onSelect: ({path, value, items}) => console.log(path.join(' > '), '$' + (value / 1e12).toFixed(1) + 'T'),
+});</textarea>
+      <iframe class="example-frame" src="example.html?c=heatMapView_dow&s=black" width="420" height="300" scrolling="no" frameborder="0" loading="lazy" title="HeatMapView Dow Jones example"></iframe>
     </div>
   </section>
 

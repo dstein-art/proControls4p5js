@@ -47,7 +47,8 @@ const SIZES = {
   gridpad_toggle:        [160, 155],
   gridpad_percent:       [160, 155],
   gridpad_colorselect:   [160, 155],
-  piano:           [380, 160],
+  piano_basic:     [380, 160],
+  piano_chord:     [380, 160],
   adsr:            [260, 160],
   tagSelector:     [260, 130],
   sliderSelector:  [260, 160],
@@ -72,6 +73,7 @@ const SIZES = {
   listView:        [300, 220],
   gridView:        [420, 220],
   heatMapView:     [380, 260],
+  heatMapView_dow: [380, 260],
 };
 
 const [W, H] = SIZES[CTRL] || [300, 200];
@@ -526,13 +528,23 @@ const seq = new GridPad({
   onChange: v => console.log(v),
 });`,
 
-  piano: `\
+  piano_basic: `\
 const piano = new PianoKeyboard({
   x: 20, y: 22,
   width: 340, height: 110,
   firstNote: 'C4',
   noteCount: 25,
-  highlightedNotes: ['C4', 'E4', 'G4'],
+  label: ${label || "'PIANO'"},
+  onChange: d => console.log(d.note, d.state),
+});`,
+
+  piano_chord: `\
+const piano = new PianoKeyboard({
+  x: 20, y: 22,
+  width: 340, height: 110,
+  firstNote: 'C3',
+  noteCount: 25,
+  highlightedNotes: ['C3', 'E3', 'G3'],
   label: ${label || "'PIANO'"},
   onChange: d => console.log(d.note, d.state),
   onRelease: d => console.log('Released:', d.note),
@@ -888,6 +900,50 @@ const hm = new HeatMapView({
   valueField: 'quantity',
   items: sampleData,
   onSelect: ({path, value, items}) => console.log('Selected:', path.join(' > '), 'Total:', value),
+});`,
+
+  heatMapView_dow: `\
+const dowData = [
+  { industry: 'Technology', company: 'NVIDIA', quantity: 5472364760000 },
+  { industry: 'Technology', company: 'Apple', quantity: 4510682158630 },
+  { industry: 'Technology', company: 'Microsoft', quantity: 3428571400000 },
+  { industry: 'Consumer Discretionary', company: 'Amazon', quantity: 2840941240000 },
+  { industry: 'Consumer Staples', company: 'Walmart', quantity: 916685400000 },
+  { industry: 'Financials', company: 'JPMorgan Chase', quantity: 820814808000 },
+  { industry: 'Financials', company: 'Visa', quantity: 661678500000 },
+  { industry: 'Healthcare', company: 'Johnson & Johnson', quantity: 546526652000 },
+  { industry: 'Technology', company: 'Cisco', quantity: 483136060000 },
+  { industry: 'Industrials', company: 'Caterpillar', quantity: 403084688000 },
+  { industry: 'Energy', company: 'Chevron', quantity: 369039797000 },
+  { industry: 'Healthcare', company: 'UnitedHealth Group', quantity: 345672600000 },
+  { industry: 'Consumer Staples', company: 'Coca-Cola', quantity: 339252960000 },
+  { industry: 'Consumer Staples', company: 'Procter & Gamble', quantity: 326655864634 },
+  { industry: 'Financials', company: 'Goldman Sachs', quantity: 322962640000 },
+  { industry: 'Consumer Discretionary', company: 'Home Depot', quantity: 309447240000 },
+  { industry: 'Technology', company: 'IBM', quantity: 305081833284 },
+  { industry: 'Healthcare', company: 'Merck', quantity: 284449677876 },
+  { industry: 'Financials', company: 'American Express', quantity: 215088440000 },
+  { industry: 'Communication Services', company: 'Verizon', quantity: 200943300000 },
+  { industry: 'Consumer Discretionary', company: "McDonald's", quantity: 197004485000 },
+  { industry: 'Technology', company: 'Salesforce', quantity: 182561600000 },
+  { industry: 'Communication Services', company: 'Walt Disney', quantity: 182250200000 },
+  { industry: 'Healthcare', company: 'Amgen', quantity: 179046720000 },
+  { industry: 'Industrials', company: 'Boeing', quantity: 176816212843 },
+  { industry: 'Industrials', company: 'Honeywell', quantity: 149884308768 },
+  { industry: 'Industrials', company: '3M', quantity: 79857063000 },
+  { industry: 'Materials', company: 'Sherwin-Williams', quantity: 73154766000 },
+  { industry: 'Consumer Discretionary', company: 'Nike', quantity: 68049888000 },
+  { industry: 'Financials', company: 'Travelers', quantity: 63102312000 }
+];
+
+const hm = new HeatMapView({
+  x: 10, y: 10,
+  width: 360, height: 240,
+  fields: ['industry', 'company'],
+  valueField: 'quantity',
+  items: dowData,
+  label: 'Market Cap by Sector',
+  onSelect: ({path, value, items}) => console.log(path.join(' > '), '$' + (value / 1e12).toFixed(1) + 'T'),
 });`,
 };
 
