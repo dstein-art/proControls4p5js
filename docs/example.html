@@ -50,7 +50,7 @@ const SIZES = {
   piano_basic:     [300, 140],
   piano_chord:     [300, 140],
   adsr:            [260, 160],
-  tagSelector:     [260, 130],
+  tagSelector:     [260, 160],
   sliderSelector:  [260, 160],
   rangeslider:     [110, 265],
   rangeslider_h:   [260, 80],
@@ -72,8 +72,8 @@ const SIZES = {
   timeGraphPanel:  [360, 200],
   listView:        [300, 220],
   gridView:        [420, 220],
-  heatMapView:     [380, 260],
-  heatMapView_dow: [380, 260],
+  heatMapView:     [320, 220],
+  heatMapView_dow: [320, 220],
 };
 
 const [W, H] = SIZES[CTRL] || [300, 200];
@@ -561,8 +561,9 @@ const sel = new SliderSelector({
 
   tagSelector: `\
 const tags = new TagSelector({
-  x: 20, y: 22,
+  x: 20, y: 12,
   width: 220,
+  height: 120,
   words: ['REVERB', 'DELAY', 'CHORUS', 'FLANGER', 'PHASER',
           'DISTORT', 'COMPRESS', 'EQ', 'GATE', 'LIMITER'],
   label: ${label || "'FX'"},
@@ -895,7 +896,7 @@ const sampleData = [
 
 const hm = new HeatMapView({
   x: 10, y: 10,
-  width: 360, height: 240,
+  width: 300, height: 190,
   fields: ['product', 'brand', 'trim'],
   valueField: 'quantity',
   items: sampleData,
@@ -938,7 +939,7 @@ const dowData = [
 
 const hm = new HeatMapView({
   x: 10, y: 10,
-  width: 360, height: 240,
+  width: 300, height: 190,
   fields: ['industry', 'company'],
   valueField: 'quantity',
   items: dowData,
