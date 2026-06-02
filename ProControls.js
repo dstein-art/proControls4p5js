@@ -9388,7 +9388,9 @@ class PianoKeyboard extends ProControl {
     const blackKeyH = availableH * 0.60;
     const gap = 1;
 
+    // Build white keys
     let whiteIndex = 0;
+    const whiteKeyMap = {}; // midi -> {x, y, w, h} for white keys
     for (let i = 0; i < this._noteCount; i++) {
       const midi = this._firstMidi + i;
       const semitone = midi % 12;
@@ -9399,40 +9401,47 @@ class PianoKeyboard extends ProControl {
         const y = this.y + padding;
         const w = whiteKeyW - gap;
         const h = availableH;
+        whiteKeyMap[midi] = { x, y, w, h };
         this._keys.push({ midi, isBlack: false, x, y, w, h, note: this._midiToNote(midi) });
         whiteIndex++;
       }
     }
 
-    // Add black keys
-    whiteIndex = 0;
+    // Build black keys positioned relative to white keys
     for (let i = 0; i < this._noteCount; i++) {
       const midi = this._firstMidi + i;
       const semitone = midi % 12;
       const isBlack = !_WHITE_SEMITONES.has(semitone);
 
       if (isBlack) {
-        // Black keys: C#/Db D#/Eb F#/Gb G#/Ab A#/Bb
-        // Position: after C (0.6), after D (1.6), after F (3.6), after G (4.6), after A (5.6)
-        let blackOffset = 0;
-        if (semitone === 1) blackOffset = 0.62;      // C#
-        else if (semitone === 3) blackOffset = 1.62; // D#
-        else if (semitone === 6) blackOffset = 3.62; // F#
-        else if (semitone === 8) blackOffset = 4.62; // G#
-        else if (semitone === 10) blackOffset = 5.62; // A#
-
-        // Count white keys before this black key
-        let whitesBefore = 0;
-        for (let j = 0; j < i; j++) {
+        // Black keys sit between white keys; find the white key to the right
+        let rightWhiteMidi = null;
+        for (let j = i + 1; j < this._noteCount; j++) {
           const testMidi = this._firstMidi + j;
-          if (_WHITE_SEMITONES.has(testMidi % 12)) whitesBefore++;
+          if (_WHITE_SEMITONES.has(testMidi % 12)) {
+            rightWhiteMidi = testMidi;
+            break;
+          }
+        }
+        // If no white key found after, try before
+        if (!rightWhiteMidi) {
+          for (let j = i - 1; j >= 0; j--) {
+            const testMidi = this._firstMidi + j;
+            if (_WHITE_SEMITONES.has(testMidi % 12)) {
+              rightWhiteMidi = testMidi;
+              break;
+            }
+          }
         }
 
-        const x = this.x + padding + whiteKeyW * whitesBefore + blackKeyW * 0.19;
-        const y = this.y + padding;
-        const w = blackKeyW;
-        const h = blackKeyH;
-        this._keys.push({ midi, isBlack: true, x, y, w, h, note: this._midiToNote(midi) });
+        if (rightWhiteMidi && whiteKeyMap[rightWhiteMidi]) {
+          const rightKey = whiteKeyMap[rightWhiteMidi];
+          const x = rightKey.x - blackKeyW * 0.38; // center black key between white keys
+          const y = this.y + padding;
+          const w = blackKeyW;
+          const h = blackKeyH;
+          this._keys.push({ midi, isBlack: true, x, y, w, h, note: this._midiToNote(midi) });
+        }
       }
     }
   }
