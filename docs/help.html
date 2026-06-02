@@ -1598,7 +1598,7 @@ const loop = new IconButton({
     <hr>
 
     <h2 id="sliderSelector">SliderSelector <span class="tag ext">Input</span></h2>
-    <p class="desc">A vertical fader that snaps to discrete string options. It looks and behaves like an <a href="#slider">AnalogSlider</a> — same panel, track, and brushed-metal cap — but instead of a continuous numeric range the slider clicks into one of the provided option strings. Tick marks at each position are drawn to the right of the track, and the active option's tick and label are highlighted in the accent colour. Scroll-wheel steps through options when hovering.</p>
+    <p class="desc">A vertical fader that snaps to discrete string options. It looks and behaves like an <a href="#slider">AnalogSlider</a> — same panel, track, and brushed-metal cap — but instead of a continuous numeric range the slider clicks into one of the provided option strings. Tick marks at each position are drawn to the right of the track, and the active option's tick and label are highlighted in the accent colour. Scroll-wheel steps through options when hovering. Double-click the cap to reset to the initial state.</p>
 
     <div class="sig">new SliderSelector(opts)</div>
 
@@ -1635,6 +1635,7 @@ const loop = new IconButton({
       <thead><tr><th>Gesture</th><th>Effect</th></tr></thead>
       <tbody>
         <tr><td>Drag cap</td><td>Moves the cap; snaps to the nearest option tick as you drag.</td></tr>
+        <tr><td>Double-click cap</td><td>Reset to the initial <code>state</code>. Fires <code>onChange</code> and <code>onRelease</code> if the state changes.</td></tr>
         <tr><td>Scroll wheel</td><td>Steps one option up or down when hovering over the control.</td></tr>
       </tbody>
     </table>
@@ -2098,7 +2099,7 @@ pnl.add(new Dial({ x: 125, y: 95, size: 65, label: 'RETURN', readout: 'raw', dec
   <!-- Displays: VUMeter, VUDial, LEDMeter, ADSRDisplay -->
   <section id="displays">
     <h2>Displays</h2>
-    <p class="desc">Read-only meters and display panels. Assign <code>.value</code> (or individual properties) each frame to drive them — no event wiring required.</p>
+    <p class="desc">Read-only meters and animated displays driven by assigning <code>.value</code> each frame, plus interactive data views (<a href="#listView">ListView</a>, <a href="#gridView">GridView</a>, <a href="#heatMapView">HeatMapView</a>) for browsing and selecting structured data.</p>
 
     <h2 id="vumeter">VUMeter <span class="tag ext">Display</span></h2>
     <p class="desc">Extends <strong>AnalogSlider</strong>. Overlays a segmented LED column (green → yellow → red) with peak hold on top of the fader track. Drive it each frame by assigning <code>.value</code> from audio analysis.</p>
@@ -2551,7 +2552,8 @@ for (let i = 0; i &lt; 5; i++) console.log('redraw tick');</textarea>
         <tr><td>fontSize</td><td>number</td><td>12</td><td>Text size in pixels. Row height is computed as <code>fontSize × 1.6</code>.</td></tr>
         <tr><td>padding</td><td>number</td><td>8</td><td>Padding from the panel edges in pixels.</td></tr>
         <tr><td>items</td><td>array</td><td>[]</td><td>Array of strings to display. Trigger re-render by reassigning (e.g., <code>lv.items = newList</code>).</td></tr>
-        <tr><td>onSelect</td><td>function</td><td>null</td><td><code>onSelect({item, index}[, control])</code> — called on row click and release.</td></tr>
+        <tr><td>onSelect</td><td>function</td><td>null</td><td><code>onSelect({item, index}[, control])</code> — called when a row is clicked.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({item, index}[, control])</code> — called on mouse/touch release after a row click.</td></tr>
 </tbody>
     </table>
 
@@ -2604,7 +2606,8 @@ for (let i = 0; i &lt; 5; i++) console.log('redraw tick');</textarea>
         <tr><td>fontSize</td><td>number</td><td>12</td><td>Text size in pixels. Header height is <code>fontSize × 1.8</code>; row height is <code>fontSize × 1.6</code>.</td></tr>
         <tr><td>padding</td><td>number</td><td>8</td><td>Padding from the panel edges and between cells in pixels.</td></tr>
         <tr><td>items</td><td>array</td><td>[]</td><td>Array of objects. All items must have the same keys. Column names and widths are derived from the first object. Assign to trigger re-render.</td></tr>
-        <tr><td>onSelect</td><td>function</td><td>null</td><td><code>onSelect({item, index}[, control])</code> — called on row click and release. <code>item</code> is the row object.</td></tr>
+        <tr><td>onSelect</td><td>function</td><td>null</td><td><code>onSelect({item, index}[, control])</code> — called when a row is clicked. <code>item</code> is the row object.</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({item, index}[, control])</code> — called on mouse/touch release after a row click.</td></tr>
 </tbody>
     </table>
 
@@ -2898,6 +2901,7 @@ const hm = new HeatMapView({
     Another David Stein Production:
     <a href="https://instructor.cc" target="_blank">instructor.cc</a> ·
     <a href="https://procontrols.org" target="_blank">procontrols.org</a> ·
+    <a href="https://supermod3l.com" target="_blank">supermod3l.com</a> ·
     <a href="https://indienewyork.com" target="_blank">indienewyork.com</a> ·
     <a href="https://indieboston.com" target="_blank">indieboston.com</a>
   </span>

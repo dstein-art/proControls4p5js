@@ -833,7 +833,7 @@ const lv = new ListView({
   fontSize: 13,
   items: ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta',
           'Iota', 'Kappa', 'Lambda', 'Mu', 'Nu', 'Xi', 'Omicron'],
-  onSelect: (item, i) => console.log('selected:', i, item),
+  onSelect: ({item, index}) => console.log('selected:', index, item),
 });`,
 
   gridView: `\
@@ -850,7 +850,7 @@ const gv = new GridView({
     { name: 'Zeta',    type: 'square', freq: 330, amp: 0.7 },
     { name: 'Eta',     type: 'saw',    freq: 550, amp: 0.3 },
   ],
-  onSelect: (item, i) => console.log('selected row', i, item),
+  onSelect: ({item, index}) => console.log('selected row', index, item),
 });`,
 
   heatMapView: `\
