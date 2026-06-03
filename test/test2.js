@@ -6,6 +6,7 @@ let myPanel;
 
 let mySlider;
 let heatmap;
+let myModal;
 
 function setupPanel(p) {
   p.add(new XYPad({x:10,y:10,springBack:true,springDuration:30,min:-40,max:40}));
@@ -21,6 +22,7 @@ function setupPanel(p) {
 
 function setup() {
   createCanvas(1000, 600);
+  openStatusPanel();
   openConsolePanel();
 
   myPanel = new Panel();
@@ -32,34 +34,38 @@ function setup() {
 
   mySlider=new AnalogSlider();
 
-  // HeatMapView test
-  const sampleData = [
-    {product:'cars', brand:'ford', trim:'Taurus', quantity:1423, change: -5},
-    {product:'cars', brand:'ford', trim:'F-150', quantity:3200, change: 8},
-    {product:'cars', brand:'ford', trim:'Mustang', quantity:2850, change: 12},
-    {product:'cars', brand:'honda', trim:'Civic', quantity:2100, change: -2},
-    {product:'cars', brand:'honda', trim:'Accord', quantity:1950, change: 0},
-    {product:'cars', brand:'toyota', trim:'Camry', quantity:3400, change: 6},
-    {product:'cars', brand:'toyota', trim:'Corolla', quantity:2650, change: -8},
-    {product:'trucks', brand:'chevy', trim:'Silverado', quantity:1800, change: 3},
-    {product:'trucks', brand:'chevy', trim:'Colorado', quantity:950, change: -10},
-    {product:'trucks', brand:'ford', trim:'F-250', quantity:2100, change: 5},
-    {product:'trucks', brand:'ram', trim:'1500', quantity:2750, change: 9},
+  // HeatMapView test — sector size by value, color by % change
+  const portfolio = [
+    {sector:'Technology', stock:'AAPL', value:3000, change:  5},
+    {sector:'Technology', stock:'MSFT', value:2800, change: -2},
+    {sector:'Technology', stock:'NVDA', value:1500, change: 18},
+    {sector:'Energy',     stock:'XOM',  value: 450, change: -9},
+    {sector:'Energy',     stock:'CVX',  value: 300, change:-14},
+    {sector:'Energy',     stock:'COP',  value: 150, change: -6},
+    {sector:'Healthcare', stock:'JNJ',  value: 500, change:  2},
+    {sector:'Healthcare', stock:'PFE',  value: 350, change: -7},
+    {sector:'Finance',    stock:'JPM',  value: 600, change:  5},
+    {sector:'Finance',    stock:'GS',   value: 280, change:  8},
   ];
 
   heatmap = new HeatMapView({
     x: 450, y: 10,
     width: 500, height: 360,
-    fields: ['product', 'brand', 'trim'],
-    areaMetric:  'quantity',
+    fields: ['sector', 'stock'],
+    areaMetric:  'value',
     colorMetric: 'change',
     colorRange:  ['red', 'gray', 'green'],
-    items: sampleData,
-    label: 'Sales by Product/Brand/Trim',
+    items: portfolio,
+    label: 'Portfolio by Sector',
     onSelect: (d) => {
       console.log('Selected:', d.path.join(' > '), 'Value:', d.value, 'Items:', d.items.length);
     }
   });
+
+  // ModalPanel test
+  myModal = new ModalPanel({ label: 'Settings', width: 340 });
+  myModal.add(new AnalogSlider({ name: 'volume', label: 'Volume', value: 75, min: 0, max: 100 }));
+  myModal.add(new Switch({ name: 'muted', label: 'Muted', state: 0 }));
 
   // PianoPad test
   let piano = new PianoPad({
@@ -95,6 +101,16 @@ function panelChanged(value,o) {
   }
 }
 
+
+async function mousePressed() {
+  if (myModal.isOpen) return;
+  const result = await myModal.show();
+  if (result !== null) {
+    console.log('Modal saved:', result);
+  } else {
+    console.log('Modal cancelled');
+  }
+}
 
 function draw() {
   background(220);

@@ -733,6 +733,7 @@
     <a href="panelsHelp.html">Panel</a>
     <div class="nav-submenu">
       <a href="panelsHelp.html">Panel</a>
+      <a href="panelsHelp.html#modalPanel">ModalPanel</a>
       <a href="panelsHelp.html#bevel">Bevel</a>
       <a href="panelsHelp.html#messageDialog">MessageDialog</a>
       <a href="panelsHelp.html#inputDialog">InputDialog</a>
@@ -825,6 +826,7 @@
   <!-- TOC -->
   <div class="toc">
     <a href="#panel">Panel</a>
+    <a href="#modalPanel">ModalPanel</a>
     <a href="#bevel">Bevel</a>
     <a href="#messageDialog">MessageDialog</a>
     <a href="#inputDialog">InputDialog</a>
@@ -862,7 +864,7 @@
       <table>
         <thead><tr><th>Name</th><th>Description</th></tr></thead>
         <tbody>
-          <tr><td><code>.add(control)</code></td><td>Attach a ProControl to the panel. The control is removed from the global registry and managed by the panel from that point on. Returns <code>this</code> for chaining.</td></tr>
+          <tr><td><code>.add(control)</code></td><td>Attach a ProControl to the panel. The control is removed from the global registry and managed by the panel from that point on. Returns the <code>control</code> so you can capture it: <code>const s = pnl.add(new AnalogSlider(…))</code>.</td></tr>
           <tr><td><code>.onChange</code></td><td>Callback fired as <code>onChange(snapshot[, panel])</code> whenever any child changes. Can be set at construction or assigned later.</td></tr>
           <tr><td><code>.onRelease</code></td><td>Callback fired as <code>onRelease(snapshot[, panel])</code> when the user releases any child control. Can be set at construction or assigned later.</td></tr>
           <tr><td><code>.values</code></td><td>Read-only getter. Returns a fresh <code>{ fieldName: value, … }</code> snapshot of every child control's current value — same object shape as the <code>onChange</code> and <code>onRelease</code> arguments. Useful for polling the panel state without setting up a callback.</td></tr>
@@ -984,6 +986,81 @@ for (let i = 0; i &lt; 4; i++) {
   }));
 }</textarea>
       <iframe class="example-frame" src="example.html?c=panel_scroll" width="260" height="200" scrolling="no" frameborder="0" loading="lazy" title="Panel scrollable live example"></iframe>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ModalPanel -->
+  <section id="modalPanel">
+    <h2>ModalPanel <span class="tag ext">Container</span></h2>
+    <p class="desc">A promise-based modal dialog that blocks all other controls while open. Add any ProControls to it with <code>.add()</code>, then call <code>await modal.show()</code> from an <code>async</code> function to display it. The canvas dims and all other control events are suspended until the user clicks <strong>Save</strong> (resolves with a values snapshot) or <strong>Cancel</strong> (resolves with <code>null</code>). Options can be re-supplied to <code>show()</code> to change the title or size on each invocation.</p>
+
+    <div class="sig">new ModalPanel(opts)</div>
+
+    <h3>Constructor options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>label</td><td>string</td><td>''</td><td>Title shown in the header bar of the dialog.</td></tr>
+        <tr><td>width</td><td>number</td><td>380</td><td>Dialog width in pixels. Height is computed automatically from the controls added.</td></tr>
+        <tr><td>x, y</td><td>number</td><td>centered</td><td>Dialog position. When omitted the dialog is centered on the canvas each time <code>show()</code> is called.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Methods &amp; properties</h3>
+    <table class="opts">
+      <thead><tr><th>Name</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.add(control)</code></td><td>Adds a ProControl to the modal. The control is detached from the global registry and managed by the modal. Returns the control for chaining. Call this at setup time, not inside <code>show()</code>.</td></tr>
+        <tr><td><code>.show(opts?)</code></td><td>Opens the modal and returns a <code>Promise</code>. Optionally pass <code>{ label, width, x, y }</code> to override constructor values for this invocation. The promise resolves with a <code>{ name: value, … }</code> snapshot when Save is clicked, or <code>null</code> when Cancel is clicked. Must be called with <code>await</code> from an <code>async</code> function.</td></tr>
+        <tr><td><code>.isOpen</code></td><td>Read-only boolean. <code>true</code> while the dialog is visible. Use this to guard against opening a modal that is already showing.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Values snapshot</h3>
+    <p class="desc">When the user clicks Save, <code>show()</code> resolves with an object keyed by each child control's <code>name</code>. Value types follow the same rules as <a href="#panel"><code>Panel.values</code></a>: sliders return a number, switches return their state string, XYPad returns <code>{ x, y }</code>, and so on. Controls without a <code>name</code> are included under an auto-generated key. Display-only controls (Markup, VUMeter, LEDMeter, ADSRDisplay, Menu) are omitted.</p>
+
+    <h3>Async requirement</h3>
+    <div class="note">
+      <strong>Note:</strong> <code>show()</code> returns a <code>Promise</code>. The <code>await</code> keyword only works inside an <code>async</code> function. p5.js event handlers (<code>mousePressed</code>, <code>keyPressed</code>, etc.) support <code>async</code> — just declare them <code>async function mousePressed() { … }</code>. The sketch's <code>draw()</code> loop continues running normally while the modal is open, so animations and meters keep updating behind the backdrop.
+    </div>
+
+    <h3>Example</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — click the canvas to open the modal</div>
+        <textarea class="live-code" spellcheck="false">let modal;
+function setup() {
+  createCanvas(340, 310);
+  modal = new ModalPanel({ label: 'Settings', width: 300 });
+  modal.add(new AnalogSlider({ name: 'volume', label: 'Volume', value: 75, min: 0, max: 100 }));
+  modal.add(new Switch({ name: 'muted', label: 'Muted', states: ['Off', 'On'], state: 0 }));
+}
+function draw() { background(220); }
+async function mousePressed() {
+  if (modal.isOpen) return;
+  const result = await modal.show();
+  if (result) console.log('Saved:', JSON.stringify(result));
+  else        console.log('Cancelled');
+}</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=modalPanel" width="340" height="310" scrolling="no" frameborder="0" loading="lazy" title="ModalPanel live example"></iframe>
+    </div>
+
+    <h3>Re-opening with different options</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const modal = new ModalPanel({ width: 300 });
+modal.add(new AnalogSlider({ name: 'gain', label: 'Gain', value: 80, min: 0, max: 100 }));
+
+// Change the title each time it opens
+let count = 0;
+async function mousePressed() {
+  if (modal.isOpen) return;
+  count++;
+  const result = await modal.show({ label: `Settings (open #${count})` });
+  if (result) console.log('Saved:', result);
+}</textarea>
     </div>
   </section>
 

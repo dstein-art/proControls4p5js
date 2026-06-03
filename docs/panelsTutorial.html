@@ -599,6 +599,7 @@
     <a href="panelsHelp.html">Panels</a>
     <div class="nav-submenu">
       <a href="panelsHelp.html">Panel</a>
+      <a href="panelsHelp.html#modalPanel">ModalPanel</a>
       <a href="panelsHelp.html#bevel">Bevel</a>
       <a href="panelsHelp.html#messageDialog">MessageDialog</a>
       <a href="panelsHelp.html#inputDialog">InputDialog</a>
@@ -650,7 +651,7 @@
         <h1><span class="accent">Panels</span> <span class="dim">Tutorial</span></h1>
         <div style="font-size:12px;color:#6688aa;margin-top:4px;letter-spacing:.04em;">ProControls for p5.js — by David Stein</div>
       </div>
-      <span class="hero-sub">Panel, Bevel, MessageDialog &amp; InputDialog — step-by-step for beginners — all examples live and editable</span>
+      <span class="hero-sub">Panel, ModalPanel, Bevel, MessageDialog &amp; InputDialog — step-by-step for beginners — all examples live and editable</span>
     </div>
     <a href="panelsHelp.html#panel" class="hero-docs">↗ Full Docs</a>
   </div>
@@ -661,7 +662,8 @@
   <!-- Intro -->
   <div class="intro">
     <strong>Welcome!</strong> This tutorial covers the panel and dialog controls in ProControls — the
-    <strong>Panel</strong> (a scrollable container for grouping controls), the <strong>Bevel</strong>
+    <strong>Panel</strong> (a scrollable container for grouping controls), the <strong>ModalPanel</strong>
+    (an await-able dialog that blocks the canvas until the user saves or cancels), the <strong>Bevel</strong>
     (a decorative separator line), the <strong>MessageDialog</strong> (a modal alert with buttons),
     and the <strong>InputDialog</strong> (a modal prompt for collecting text from the user). Each
     control is explained in four steps, from a single line of code up to real-world usage patterns.
@@ -676,6 +678,7 @@
   <!-- TOC -->
   <div class="toc">
     <a href="#panel">Panel</a>
+    <a href="#modalpanel">ModalPanel</a>
     <a href="#bevel">Bevel</a>
     <a href="#messagedialog">MessageDialog</a>
     <a href="#inputdialog">InputDialog</a>
@@ -855,6 +858,191 @@ pnl.add(new AnalogSwitch({
       </div>
     </div>
   </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  MODALPANEL                                                     -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="ctrl-section" id="modalpanel">
+    <div class="ctrl-header">
+      <h2>ModalPanel</h2>
+      <span class="ctrl-tag">Dialog</span>
+    </div>
+    <p class="ctrl-desc">
+      A <strong>ModalPanel</strong> is a promise-based dialog you can fill with any ProControls — sliders,
+      switches, selectors, and more. Call <code>await modal.show()</code> to open it; your code pauses
+      at that line until the user clicks <strong>Save</strong> or <strong>Cancel</strong>. While the
+      dialog is open, a semi-transparent backdrop covers the rest of the canvas and all other control
+      events are blocked. This makes it ideal for collecting a small set of values before proceeding
+      with an action.
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 1</span>
+        <span class="step-title">Create the modal and add controls</span>
+      </div>
+      <p class="step-body">
+        Create a <code>ModalPanel</code> in <code>setup()</code> and call <code>.add()</code> for each
+        control you want inside it. The controls are not shown yet — they appear only when
+        <code>show()</code> is called. Give each control a <code>name</code> so you can read its value
+        from the result later.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — click the canvas to open the modal</div>
+          <textarea class="live-code" spellcheck="false">let modal;
+function setup() {
+  createCanvas(340, 310);
+  modal = new ModalPanel({ label: 'Settings', width: 300 });
+  modal.add(new AnalogSlider({ name: 'volume', label: 'Volume', value: 75, min: 0, max: 100 }));
+  modal.add(new Switch({ name: 'muted', label: 'Muted', states: ['Off', 'On'], state: 0 }));
+}
+function draw() { background(220); }
+async function mousePressed() {
+  if (modal.isOpen) return;
+  const result = await modal.show();
+  if (result) console.log('Saved:', JSON.stringify(result));
+  else        console.log('Cancelled');
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=modalPanel" width="340" height="310" scrolling="no" frameborder="0" loading="lazy" title="ModalPanel basic"></iframe>
+      </div>
+      <div class="note">
+        <strong>Note:</strong> <code>mousePressed</code> must be declared <code>async</code> so that
+        <code>await modal.show()</code> works. p5.js fully supports async event handlers — the
+        <code>draw()</code> loop continues running while the dialog is open.
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 2</span>
+        <span class="step-title">Reading the result</span>
+      </div>
+      <p class="step-body">
+        When the user clicks <strong>Save</strong>, <code>show()</code> resolves with an object
+        containing each control's current value, keyed by its <code>name</code>. When the user
+        clicks <strong>Cancel</strong>, it resolves with <code>null</code>. Always check for
+        <code>null</code> before using the result.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — click canvas, adjust controls, then Save or Cancel</div>
+          <textarea class="live-code" spellcheck="false">let modal;
+function setup() {
+  createCanvas(340, 310);
+  modal = new ModalPanel({ label: 'Audio Settings', width: 300 });
+  modal.add(new AnalogSlider({ name: 'volume',  label: 'Volume',   value: 80,  min: 0, max: 100 }));
+  modal.add(new AnalogSlider({ name: 'pan',     label: 'Pan',      value: 0,   min: -50, max: 50 }));
+  modal.add(new Switch({       name: 'reverb',  label: 'Reverb',   states: ['Off', 'On'], state: 0 }));
+}
+function draw() { background(220); }
+async function mousePressed() {
+  if (modal.isOpen) return;
+  const result = await modal.show();
+  if (result === null) {
+    console.log('User cancelled — no changes.');
+  } else {
+    console.log('Volume:', result.volume);
+    console.log('Pan:',    result.pan);
+    console.log('Reverb:', result.reverb);
+  }
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=modalPanel" width="340" height="310" scrolling="no" frameborder="0" loading="lazy" title="ModalPanel result"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 3</span>
+        <span class="step-title">Changing the title on each open with <code>show(opts)</code></span>
+      </div>
+      <p class="step-body">
+        Pass options to <code>show()</code> to override the constructor values for that particular
+        invocation. This is useful when the same modal serves multiple purposes — for example, an
+        "Edit" dialog that shows the name of the item being edited in the title bar. Options accepted
+        by <code>show()</code> are the same as the constructor: <code>label</code>, <code>width</code>,
+        <code>x</code>, and <code>y</code>.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — click the canvas multiple times to see the counter</div>
+          <textarea class="live-code" spellcheck="false">let modal, openCount = 0;
+function setup() {
+  createCanvas(340, 310);
+  modal = new ModalPanel({ width: 300 });
+  modal.add(new AnalogSlider({ name: 'gain', label: 'Gain', value: 70, min: 0, max: 100 }));
+  modal.add(new Switch({ name: 'bypass', label: 'Bypass', states: ['Off', 'On'], state: 0 }));
+}
+function draw() { background(220); }
+async function mousePressed() {
+  if (modal.isOpen) return;
+  openCount++;
+  const result = await modal.show({ label: `FX Settings (visit ${openCount})` });
+  if (result) console.log('Saved:', result);
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=modalPanel" width="340" height="310" scrolling="no" frameborder="0" loading="lazy" title="ModalPanel show options"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 4</span>
+        <span class="step-title">Practical pattern — edit then apply</span>
+      </div>
+      <p class="step-body">
+        The most common ModalPanel pattern is to open it when the user triggers an "Edit" or "Configure"
+        action, then apply the returned values to the sketch. Because <code>draw()</code> keeps running
+        while the modal is open, you can show live feedback behind the backdrop — for example, an
+        animated waveform that responds to the controls as the user adjusts them.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — click canvas to configure, Save to apply</div>
+          <textarea class="live-code" spellcheck="false">let modal;
+let cfg = { volume: 80, muted: 'Off' };
+
+function setup() {
+  createCanvas(340, 310);
+  modal = new ModalPanel({ label: 'Configure', width: 300 });
+  modal.add(new AnalogSlider({ name: 'volume', label: 'Volume', value: cfg.volume, min: 0, max: 100 }));
+  modal.add(new Switch({ name: 'muted', label: 'Muted', states: ['Off', 'On'],
+                         state: cfg.muted === 'On' ? 1 : 0 }));
+}
+
+function draw() {
+  background(220);
+  // Show current config in the sketch while the modal is open or closed
+  fill(cfg.muted === 'On' ? color(200, 80, 80) : color(80, 160, 80));
+  noStroke();
+  const barW = map(cfg.volume, 0, 100, 0, width - 40);
+  rect(20, height / 2 - 10, barW, 20, 4);
+}
+
+async function mousePressed() {
+  if (modal.isOpen) return;
+  const result = await modal.show();
+  if (result) cfg = result;   // apply saved values
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=modalPanel" width="340" height="310" scrolling="no" frameborder="0" loading="lazy" title="ModalPanel practical"></iframe>
+      </div>
+      <div class="tip">
+        <strong>Tip:</strong> Use <code>modal.isOpen</code> to guard against opening the modal twice.
+        Since <code>mousePressed</code> fires on every click, a second click while the modal is already
+        showing would otherwise try to open it again. The guard <code>if (modal.isOpen) return;</code>
+        prevents this.
+      </div>
+    </div>
+  </div><!-- /ModalPanel -->
 
   <hr>
 

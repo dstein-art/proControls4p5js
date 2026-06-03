@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-02 — commit 744691d
+// Last updated: 2026-06-03 — commit 9fc510a
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -305,6 +305,7 @@ const _drawnThisFrame  = new Set();
 let   _proControlWired      = false;
 let   _proControlWasPressed = false;
 const _analogWheelQ     = [];
+let   _activeModal       = null;
 
 // Touch tracking — populated by native listeners, injected into p5 globals each frame
 let _proTouchActive = false;
@@ -424,23 +425,39 @@ function _proControlPreHook() {
   }
 
   // Dispatch hover / drag (safe to call every frame — uses current mouseX/mouseY)
-  for (const c of _proControlRegistry) c.mouseMoved();
+  if (_activeModal) {
+    _activeModal.mouseMoved();
+  } else {
+    for (const c of _proControlRegistry) c.mouseMoved();
+  }
 
   // Detect press / release edge transitions — union of touch and mouse state
   const down = _proTouchActive || mouseIsPressed;
   if (down && !_proControlWasPressed) {
-    for (const c of _proControlRegistry) c.mousePressed();
+    if (_activeModal) {
+      _activeModal.mousePressed();
+    } else {
+      for (const c of _proControlRegistry) c.mousePressed();
+    }
   } else if (!down && _proControlWasPressed) {
-    for (const c of _proControlRegistry) c.mouseReleased();
+    if (_activeModal) {
+      _activeModal.mouseReleased();
+    } else {
+      for (const c of _proControlRegistry) c.mouseReleased();
+    }
   }
   _proControlWasPressed = down;
 
-  // Advance spring-back animations
+  // Advance spring-back animations (always — so panels don't freeze mid-spring)
   for (const c of _proControlRegistry) c._tickSpring();
 
   // Drain wheel queue
   for (const e of _analogWheelQ) {
-    for (const c of _proControlRegistry) c.mouseWheel(e);
+    if (_activeModal) {
+      _activeModal.mouseWheel(e);
+    } else {
+      for (const c of _proControlRegistry) c.mouseWheel(e);
+    }
   }
   _analogWheelQ.length = 0;
 }
@@ -448,8 +465,13 @@ function _proControlPreHook() {
 function _proControlPostHook() {
   // Auto-draw: render every registered control that wasn't explicitly drawn
   // this frame. Fires after the sketch's draw() so background is already set.
+  // Modal draws over everything (except StatusPanel). StatusPanel draws last.
   for (const c of _proControlRegistry) {
-    if (!_drawnThisFrame.has(c)) c.draw();
+    if (!_drawnThisFrame.has(c) && c !== _globalStatusPanel) c.draw();
+  }
+  if (_activeModal) _activeModal.draw();
+  if (_globalStatusPanel && !_drawnThisFrame.has(_globalStatusPanel)) {
+    _globalStatusPanel.draw();
   }
   _drawnThisFrame.clear();
 }
@@ -5097,7 +5119,7 @@ class Panel extends ProControl {
     control._parentPanel = this;
     this._children.push(control);
     this._attachPanelNotify(control);
-    return this;
+    return control;
   }
 
   get values() { return this._data(); }
@@ -5127,21 +5149,17 @@ class Panel extends ProControl {
   // Field names come from the control's label (spaces/punctuation stripped),
   // or ClassName + counter when there is no label (e.g. AnalogSlider1).
   _data() {
-    const result = {}, counters = {};
+    const result = {};
     for (const c of this._children) {
       const val = this._controlValue(c);
       if (val === undefined) continue;
-      result[this._fieldKey(c, counters)] = val;
+      result[this._fieldKey(c)] = val;
     }
     return result;
   }
 
-  _fieldKey(c, counters) {
-    const lbl = (c.label ?? '').trim();
-    if (lbl) return lbl.replace(/[^a-zA-Z0-9]/g, '');
-    const name = c.constructor.name;
-    counters[name] = (counters[name] ?? 0) + 1;
-    return name + counters[name];
+  _fieldKey(c) {
+    return c.name;
   }
 
   _controlValue(c) {
@@ -7290,12 +7308,395 @@ function _drawTitleLED(x, y, titleH, brightness) {
   pop();
 }
 
+// ─── StatusPanel ──────────────────────────────────────────────────────────────
+// Thin horizontal bar pinned to the bottom of the canvas showing live
+// performance metrics. Use openStatusPanel() / closeStatusPanel() to manage it.
+// Metrics: FPS, average deltaTime (red when lagging), ProControl count, JS heap.
+//
+// opts: height(24), width(canvas width), visible, theme
+
+class StatusPanel extends ProControl {
+  constructor(opts = {}) {
+    const h = opts.height ?? 24;
+    super(Object.assign({ min: 0, max: 1, value: 0, x: 0, y: 0 }, opts));
+    this.height      = h;
+    this.width       = opts.width ?? (typeof width !== 'undefined' ? width : 400);
+    this._visible    = opts.visible !== false;
+    this._autoBottom = opts.x === undefined && opts.y === undefined;
+
+    this._dtHistory = [];
+    this._dtMax     = 90;
+    this._dtAvg     = 1000 / 60;
+    this._fps       = 0;
+    this._memory    = null;
+    this._hasMemory = typeof performance !== 'undefined' && !!performance.memory;
+  }
+
+  get visible()  { return this._visible; }
+  set visible(v) { this._visible = !!v; }
+
+  _resolveAutoPos() {
+    const cvH = typeof height !== 'undefined' ? height : 400;
+    const cvW = typeof width  !== 'undefined' ? width  : 400;
+    this._x = 0;
+    this._y = cvH - this.height;
+    this.width = cvW;
+  }
+
+  _updateMetrics() {
+    if (typeof deltaTime !== 'undefined' && deltaTime > 0) {
+      this._dtHistory.push(deltaTime);
+      if (this._dtHistory.length > this._dtMax) this._dtHistory.shift();
+      const sum = this._dtHistory.reduce((a, b) => a + b, 0);
+      this._dtAvg = sum / this._dtHistory.length;
+    }
+    if (typeof frameRate === 'function') this._fps = frameRate();
+    if (this._hasMemory) this._memory = performance.memory.usedJSHeapSize / 1048576;
+  }
+
+  draw() {
+    if (!this._visible) { this._markDrawn(); return; }
+    this._markDrawn();
+    if (this._autoBottom) this._resolveAutoPos();
+    this._updateMetrics();
+
+    const x = this._x, y = this._y, w = this.width, h = this.height;
+    const gc = drawingContext;
+    gc.save();
+
+    // Gray background
+    gc.fillStyle = '#b8bcc0';
+    gc.fillRect(x, y, w, h);
+
+    // Sunken bevel — top edge only, left/right/bottom are flat
+    gc.lineWidth = 1;
+    gc.strokeStyle = '#505356';
+    gc.beginPath();
+    gc.moveTo(x, y + 0.5); gc.lineTo(x + w, y + 0.5);
+    gc.stroke();
+    gc.strokeStyle = '#8a8d90';
+    gc.beginPath();
+    gc.moveTo(x, y + 2.5); gc.lineTo(x + w, y + 2.5);
+    gc.stroke();
+
+    // Metrics — dark text for contrast on gray
+    const fs = 11;
+    gc.textBaseline = 'middle';
+    const textY = y + h / 2;
+    const expectedDt = 1000 / 60;
+    const dtWarn = this._dtAvg > expectedDt + 0.3;
+
+    // Count all controls recursively — registry (top-level) + panel children
+    let ctrlCount = 0;
+    const _countAll = (list) => {
+      ctrlCount += list.length;
+      for (const c of list) { if (c._children?.length) _countAll(c._children); }
+    };
+    _countAll(_proControlRegistry);
+
+    const metrics = [
+      { label: 'FPS',      value: this._fps.toFixed(1) },
+      { label: 'Δt',  value: this._dtAvg.toFixed(2) + ' ms', warn: dtWarn },
+      { label: 'Controls', value: String(ctrlCount) },
+    ];
+    if (this._memory !== null) {
+      metrics.push({ label: 'Heap', value: this._memory.toFixed(1) + ' MB' });
+    }
+
+    let cx = x + 12;
+    for (const m of metrics) {
+      gc.textAlign = 'left';
+      gc.fillStyle = '#505458';
+      gc.font = `${fs}px 'Courier New', Courier, monospace`;
+      gc.fillText(m.label + ' ', cx, textY);
+      cx += gc.measureText(m.label + ' ').width;
+      gc.fillStyle = m.warn ? '#cc1111' : '#111315';
+      gc.font = `bold ${fs}px 'Courier New', Courier, monospace`;
+      gc.fillText(m.value, cx, textY);
+      cx += gc.measureText(m.value).width + 20;
+    }
+
+    gc.restore();
+  }
+
+  // Non-interactive
+  mouseMoved()    {}
+  mousePressed()  {}
+  mouseDragged()  {}
+  mouseReleased() {}
+  mouseWheel()    {}
+}
+
+window.StatusPanel = StatusPanel;
+
+// ── Global StatusPanel helpers ─────────────────────────────────────────────────
+
+let _globalStatusPanel = null;
+
+window.openStatusPanel = function(opts = {}) {
+  if (!_globalStatusPanel) {
+    _globalStatusPanel = new StatusPanel(opts);
+  } else {
+    _globalStatusPanel.visible = true;
+  }
+  return _globalStatusPanel;
+};
+
+window.closeStatusPanel = function() {
+  if (_globalStatusPanel) _globalStatusPanel.visible = false;
+};
+
+// ─── ModalPanel ───────────────────────────────────────────────────────────────
+// A promise-based modal dialog. Call show() to open; it returns a Promise that
+// resolves with a values object when Save is clicked, or null on Cancel.
+// Usage (requires async function):
+//   async function mousePressed() {
+//     const result = await modal.show();
+//     if (result) console.log(result);
+//   }
+
+class ModalPanel extends ProControl {
+  constructor(opts = {}) {
+    super(Object.assign({ min: 0, max: 1, value: 0, x: 0, y: 0 }, opts));
+    this.label     = opts.label ?? '';
+    this.width     = opts.width ?? 380;
+    this._children = [];
+    this._active   = false;
+    this._resolve  = null;
+    this._titleH   = 28;
+    this._padX     = 14;
+    this._padY     = 10;
+    this._btnH     = 34;
+    this._gap      = 10;
+    this._saveHov   = false;
+    this._cancelHov = false;
+    this._detach();  // not in registry — driven by _activeModal
+  }
+
+  get isOpen() { return this._active; }
+
+  add(control) {
+    control._detach();
+    control._parentPanel = this;
+    this._children.push(control);
+    return control;
+  }
+
+  show(opts = {}) {
+    if (this._active) return Promise.resolve(null);
+    if (opts.label  !== undefined) this.label  = opts.label;
+    if (opts.width  !== undefined) this.width  = opts.width;
+    if (opts.x      !== undefined) { this.x = opts.x; }
+    if (opts.y      !== undefined) { this.y = opts.y; }
+    this._active = true;
+    _activeModal = this;
+    this._placeChildren();
+    return new Promise(resolve => { this._resolve = resolve; });
+  }
+
+  _close(values) {
+    this._active = false;
+    _activeModal = null;
+    const res = this._resolve;
+    this._resolve = null;
+    if (res) res(values);
+  }
+
+  _totalContentH() {
+    let h = 0;
+    for (const c of this._children) {
+      h += (c.height ?? 40) + this._gap;
+    }
+    return h;
+  }
+
+  _totalH() {
+    return this._titleH + this._padY + this._totalContentH() + this._padY + this._btnH + this._padY;
+  }
+
+  _panelRect() {
+    const cvW = typeof width  !== 'undefined' ? width  : 400;
+    const cvH = typeof height !== 'undefined' ? height : 400;
+    const w = this.width;
+    const h = this._totalH();
+    const x = Math.round((cvW - w) / 2);
+    const y = Math.round((cvH - h) / 2);
+    return { x, y, w, h };
+  }
+
+  _placeChildren() {
+    const { x, y, w } = this._panelRect();
+    const innerW = w - this._padX * 2;
+    let cy = y + this._titleH + this._padY;
+    for (const c of this._children) {
+      c.x = x + this._padX;   // setter clears _autoPlacePending
+      c.y = cy;
+      if (c.width !== undefined) c.width = innerW;
+      cy += (c.height ?? 40) + this._gap;
+    }
+  }
+
+  _btnRects() {
+    const { x, y, w, h } = this._panelRect();
+    const btnW  = Math.round((w - this._padX * 2 - this._gap) / 2);
+    const btnY  = y + h - this._btnH - this._padY;
+    const saveX   = x + this._padX;
+    const cancelX = saveX + btnW + this._gap;
+    return {
+      save:   { x: saveX,   y: btnY, w: btnW, h: this._btnH },
+      cancel: { x: cancelX, y: btnY, w: btnW, h: this._btnH },
+    };
+  }
+
+  _inRect(mx, my, r) {
+    return mx >= r.x && mx <= r.x + r.w && my >= r.y && my <= r.y + r.h;
+  }
+
+  _collectValues() {
+    const result = {};
+    for (const c of this._children) {
+      const val = this._controlValue(c);
+      if (val === undefined) continue;
+      result[c.name] = val;
+    }
+    return result;
+  }
+
+  _controlValue(c) {
+    if (c instanceof Markup || c instanceof Menu || c instanceof Panel ||
+        c instanceof VUMeter || c instanceof LEDMeter || c instanceof ADSRDisplay)
+      return undefined;
+    if (c instanceof RangeSlider) return { low: c.valueLow, high: c.valueHigh };
+    if (c instanceof XYPad)       return { x: c.valueX, y: c.valueY };
+    if (c instanceof TagSelector) return [...c.selected];
+    if (c instanceof MultiSlider || c instanceof MultiDial || c instanceof GridPad)
+      return c.values;
+    if (c instanceof Switch)         return c.states?.[c.state] ?? c.state;
+    if (c instanceof Selector)       return c.options?.[c.state] ?? c.state;
+    if (c instanceof SliderSelector) return c.options?.[c.state] ?? c.state;
+    if (c instanceof IconButton)     return c.state;
+    return c.value ?? null;
+  }
+
+  draw() {
+    if (!this._active) return;
+    const gc  = drawingContext;
+    const cvW = typeof width  !== 'undefined' ? width  : 400;
+    const cvH = typeof height !== 'undefined' ? height : 400;
+
+    // Semi-transparent backdrop
+    gc.save();
+    gc.fillStyle = 'rgba(0,0,0,0.45)';
+    gc.fillRect(0, 0, cvW, cvH);
+
+    const { x, y, w, h } = this._panelRect();
+
+    // Drop shadow
+    gc.shadowColor   = 'rgba(0,0,0,0.4)';
+    gc.shadowBlur    = 18;
+    gc.shadowOffsetY = 6;
+
+    // Panel background
+    gc.fillStyle = '#e8eaec';
+    gc.beginPath();
+    gc.roundRect(x, y, w, h, 6);
+    gc.fill();
+    gc.shadowColor = 'transparent';
+    gc.shadowBlur  = 0;
+    gc.shadowOffsetY = 0;
+
+    // Title bar
+    gc.fillStyle = '#505356';
+    gc.beginPath();
+    gc.roundRect(x, y, w, this._titleH, [6, 6, 0, 0]);
+    gc.fill();
+    gc.fillStyle = '#ffffff';
+    gc.font = 'bold 13px "Helvetica Neue", sans-serif';
+    gc.textAlign    = 'center';
+    gc.textBaseline = 'middle';
+    gc.fillText(this.label, x + w / 2, y + this._titleH / 2);
+
+    // Border
+    gc.strokeStyle = '#9ea3a8';
+    gc.lineWidth   = 1;
+    gc.beginPath();
+    gc.roundRect(x + 0.5, y + 0.5, w - 1, h - 1, 6);
+    gc.stroke();
+
+    gc.restore();
+
+    // Draw child controls
+    for (const c of this._children) c.draw();
+
+    // Save / Cancel buttons
+    const btns = this._btnRects();
+    this._drawBtn(btns.save,   'Save',   this._saveHov,   '#3d8b3d', '#2e6b2e');
+    this._drawBtn(btns.cancel, 'Cancel', this._cancelHov, '#7a7d82', '#5a5d62');
+  }
+
+  _drawBtn(r, label, hovered, fill, fillHov) {
+    const gc = drawingContext;
+    gc.save();
+    gc.fillStyle = hovered ? fillHov : fill;
+    gc.beginPath();
+    gc.roundRect(r.x, r.y, r.w, r.h, 4);
+    gc.fill();
+    gc.fillStyle    = '#ffffff';
+    gc.font         = 'bold 13px "Helvetica Neue", sans-serif';
+    gc.textAlign    = 'center';
+    gc.textBaseline = 'middle';
+    gc.fillText(label, r.x + r.w / 2, r.y + r.h / 2);
+    gc.restore();
+  }
+
+  mouseMoved() {
+    if (!this._active) return;
+    const mx = typeof mouseX !== 'undefined' ? mouseX : 0;
+    const my = typeof mouseY !== 'undefined' ? mouseY : 0;
+    const btns = this._btnRects();
+    this._saveHov   = this._inRect(mx, my, btns.save);
+    this._cancelHov = this._inRect(mx, my, btns.cancel);
+    for (const c of this._children) c.mouseMoved();
+  }
+
+  mousePressed() {
+    if (!this._active) return;
+    for (const c of this._children) c.mousePressed();
+  }
+
+  mouseReleased() {
+    if (!this._active) return;
+    const mx = typeof mouseX !== 'undefined' ? mouseX : 0;
+    const my = typeof mouseY !== 'undefined' ? mouseY : 0;
+    const btns = this._btnRects();
+    if (this._inRect(mx, my, btns.save)) {
+      this._close(this._collectValues());
+      return;
+    }
+    if (this._inRect(mx, my, btns.cancel)) {
+      this._close(null);
+      return;
+    }
+    for (const c of this._children) c.mouseReleased();
+  }
+
+  mouseWheel(e) {
+    if (!this._active) return;
+    for (const c of this._children) c.mouseWheel(e);
+  }
+}
+
+window.ModalPanel = ModalPanel;
+
+// ─── ConsolePanel ─────────────────────────────────────────────────────────────
+
 class ConsolePanel extends ProControl {
   constructor(opts = {}) {
     super(Object.assign({ min: 0, max: 1, value: 0, x: 0, y: 0 }, opts));
     this.width       = opts.width       ?? (typeof width !== 'undefined' ? width : 400);
     this.height      = opts.height      ?? 90;
     this.label       = opts.label       ?? 'Console';
+    this._autoBottom = opts.x === undefined && opts.y === undefined;
     this._visible    = opts.visible     !== false;
     this.movable     = opts.movable     !== false;
     this.resizable   = opts.resizable   !== false;
@@ -7546,9 +7947,21 @@ class ConsolePanel extends ProControl {
 
   // ── Drawing ───────────────────────────────────────────────────────────────
 
+  _resolveAutoBottom() {
+    const cvH     = typeof height !== 'undefined' ? height : 400;
+    const cvW     = typeof width  !== 'undefined' ? width  : 400;
+    const statusH = _globalStatusPanel?._visible ? _globalStatusPanel.height : 0;
+    this._x   = 0;
+    this._y   = cvH - this.height - statusH;
+    this.width = cvW;
+    this._initX = this._x;
+    this._initY = this._y;
+  }
+
   draw() {
     if (!this._visible) { this._markDrawn(); return; }
     this._markDrawn();
+    if (this._autoBottom) this._resolveAutoBottom();
     const { x, y, width, theme } = this;
     const drawnH   = this._drawnH();
     const contentY = y + this._titleH;
@@ -7715,6 +8128,7 @@ class ConsolePanel extends ProControl {
     }
 
     if (this._draggingPanel) {
+      this._autoBottom = false;
       this.x = mouseX - this._dragPanelOff.dx;
       this.y = mouseY - this._dragPanelOff.dy;
       return;
