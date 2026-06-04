@@ -833,6 +833,7 @@
     <a href="#markup">Markup</a>
     <a href="#consolePanel">ConsolePanel</a>
     <a href="#timeGraphPanel">TimeGraphPanel</a>
+    <a href="#statusPanel">StatusPanel</a>
     <a href="#listView">ListView</a>
     <a href="#gridView">GridView</a>
     <a href="#heatMapView">HeatMapView</a>
@@ -1277,6 +1278,78 @@ for (let i = 0; i &lt; 5; i++) console.log('redraw tick');</textarea>
 // Pass an object to plot named variables together:
 // g.push({ rpm: 3400, temp: 85, load: 0.72 });</textarea>
     </div>
+  </section>
+
+  <hr>
+
+  <!-- StatusPanel -->
+  <section id="statusPanel">
+    <h2>StatusPanel <span class="tag ext">Display</span></h2>
+    <p class="desc">A compact real-time metrics display showing frame rate, frame time, control count, and JavaScript heap memory usage. Designed for performance monitoring during development and debugging. By default anchors to the bottom of the canvas; provide <code>x</code> and <code>y</code> to position it manually. Visible only when you explicitly create it — useful for identifying bottlenecks or checking that control interactions aren't dragging down frame rate.</p>
+
+    <div class="sig">new StatusPanel(opts)</div>
+
+    <h3>Options</h3>
+    <table class="opts">
+      <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>x, y</td><td>number</td><td>auto</td><td>Canvas position. When both are omitted, the panel anchors to the bottom-left of the canvas and resizes with it. Provide both to position manually.</td></tr>
+        <tr><td>width</td><td>number</td><td>auto</td><td>Panel width in pixels. When using auto-positioning, defaults to canvas width.</td></tr>
+        <tr><td>height</td><td>number</td><td>24</td><td>Panel height in pixels. A minimal bar showing all metrics.</td></tr>
+        <tr><td>visible</td><td>boolean</td><td>true</td><td>Initial visibility. Set to <code>false</code> to hide the panel; toggle with <code>panel.visible = true/false</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Properties &amp; methods</h3>
+    <table class="opts">
+      <thead><tr><th>Name</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>.visible</code></td><td>Get/set panel visibility. When <code>false</code> the panel and all its metrics stop updating.</td></tr>
+        <tr><td><code>.width</code></td><td>Panel width in pixels. Auto-updated when auto-positioning is active and canvas is resized.</td></tr>
+        <tr><td><code>.height</code></td><td>Panel height in pixels — read-only in this version.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Displayed metrics</h3>
+    <ul style="font-size:14px;color:var(--muted);line-height:1.8;padding-left:20px;">
+      <li><strong>FPS</strong> — Current frames per second (rounded to one decimal place).</li>
+      <li><strong>Δt</strong> — Average frame time in milliseconds. Turns red when exceeding ~16.67ms (60 FPS baseline). Useful for spotting frame drops.</li>
+      <li><strong>Controls</strong> — Total count of all ProControls in the sketch, including children nested inside Panels.</li>
+      <li><strong>Heap</strong> — JavaScript heap memory usage in MB (only shown on browsers that support <code>performance.memory</code>).</li>
+    </ul>
+
+    <h3>Example — default position (bottom of canvas)</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">// Auto-positioned at the bottom — will resize with canvas
+const status = new StatusPanel({
+  // x, y omitted — anchors to bottom-left
+});
+
+// Create some controls to see the count increment
+new Dial({ x: 50, y: 50, size: 50, label: 'Freq' });
+new AnalogSlider({ x: 150, y: 50, width: 40, height: 150, label: 'Gain' });</textarea>
+      <iframe class="example-frame" src="example.html?c=statusPanel&s=black" width="380" height="240" scrolling="no" frameborder="0" loading="lazy" title="StatusPanel basic"></iframe>
+    </div>
+
+    <h3>Example — manual position</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">// Position manually
+const status = new StatusPanel({
+  x: 20, y: 20,
+  width: 200, height: 24,
+});
+
+// Can hide/show at runtime
+// status.visible = false;</textarea>
+    </div>
+
+    <h3>Tips</h3>
+    <ul style="font-size:14px;color:var(--muted);line-height:1.8;padding-left:20px;">
+      <li>StatusPanel does not participate in event handling — it's purely informational.</li>
+      <li>Frame time (Δt) varies slightly frame-to-frame. A sustained red warning means your draw() loop or event handlers are doing heavy work.</li>
+      <li>Disable the panel during performance testing to avoid the overhead of rendering its own text — set <code>status.visible = false</code>.</li>
+      <li>Heap memory grows as you create more controls; it resets when you reload the page.</li>
+    </ul>
   </section>
 
   <section id="listView">

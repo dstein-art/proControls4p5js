@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-03 — commit 9fc510a
+// Last updated: 2026-06-04 — commit b4ef4bc
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)

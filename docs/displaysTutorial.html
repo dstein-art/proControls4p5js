@@ -667,7 +667,7 @@
         <h1><span class="accent">Displays</span> <span class="dim">Tutorial</span></h1>
         <div style="font-size:12px;color:#6688aa;margin-top:4px;letter-spacing:.04em;">ProControls for p5.js — by David Stein</div>
       </div>
-      <span class="hero-sub">VUMeter, VUDial, LEDMeter, ADSRDisplay, Markup, ConsolePanel, TimeGraphPanel — all examples live and editable</span>
+      <span class="hero-sub">VUMeter, VUDial, LEDMeter, ADSRDisplay, Markup, ConsolePanel, TimeGraphPanel, StatusPanel — all examples live and editable</span>
     </div>
     <a href="displaysHelp.html" class="hero-docs">↗ Full Docs</a>
   </div>
@@ -697,6 +697,7 @@
     <a href="#markup">Markup</a>
     <a href="#consolepanel">ConsolePanel</a>
     <a href="#timegraphpanel">TimeGraphPanel</a>
+    <a href="#statuspanel">StatusPanel</a>
     <a href="#listview">ListView</a>
     <a href="#gridview">GridView</a>
     <a href="#heatmapview">HeatMapView</a>
@@ -1667,6 +1668,128 @@ function draw() {
         <strong>Tip:</strong> Call <code>graph.clear()</code> to reset all series, or
         set <code>graph.history</code> (number of data points to keep) to control how far
         back the graph scrolls.
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  STATUSPANEL                                                    -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="ctrl-section" id="statuspanel">
+    <div class="ctrl-header">
+      <h2>StatusPanel</h2>
+      <span class="ctrl-tag">Performance Monitor</span>
+    </div>
+    <p class="ctrl-desc">
+      A <strong>StatusPanel</strong> is a real-time performance meter showing frame rate,
+      frame time, control count, and JavaScript heap memory. It's perfect for monitoring
+      your sketch during development — spot performance bottlenecks, watch how many controls
+      you've created, and ensure your draw loop stays responsive at 60 FPS.
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 1</span>
+        <span class="step-title">Your first StatusPanel</span>
+      </div>
+      <p class="step-body">
+        Create a <code>StatusPanel</code> with no options — it anchors to the bottom of
+        the canvas by default and shows live FPS, frame time (Δt in milliseconds),
+        active control count, and available heap memory.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — panel updates every frame</div>
+          <textarea class="live-code" spellcheck="false">// Auto-anchors to bottom, resizes with canvas
+const status = new StatusPanel();</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=statusPanel" width="320" height="160" scrolling="no" frameborder="0" loading="lazy" title="StatusPanel basic"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 2</span>
+        <span class="step-title">Position it manually</span>
+      </div>
+      <p class="step-body">
+        Provide <code>x</code> and <code>y</code> to place the panel anywhere on the
+        canvas. Set <code>width</code> and <code>height</code> to control its size.
+        When you specify position, it no longer auto-resizes with the canvas.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try different x, y, width, height values</div>
+          <textarea class="live-code" spellcheck="false">const status = new StatusPanel({
+  x: 20, y: 20,
+  width: 280, height: 24,
+});</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=statusPanel" width="320" height="160" scrolling="no" frameborder="0" loading="lazy" title="StatusPanel positioned"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 3</span>
+        <span class="step-title">Monitoring sketch performance</span>
+      </div>
+      <p class="step-body">
+        The Δt (delta time) metric shows average frame time in milliseconds. For 60 FPS,
+        target is ~16.67ms. If Δt turns red and climbs above that, your <code>draw()</code>
+        loop or event handlers are doing heavy work. Watch the <strong>Controls</strong>
+        counter — it increments with each control you add.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — add more controls and watch the counter</div>
+          <textarea class="live-code" spellcheck="false">const status = new StatusPanel({
+  x: 20, y: 20,
+  width: 280,
+});
+
+// Every control you create increments the counter
+new Dial({     x: 20,  y: 50, size: 40, label: 'Freq' });
+new AnalogSlider({ x: 90, y: 50, width: 30, height: 100, label: 'Gain' });
+new Switch({   x: 150, y: 80, width: 50, label: 'Power' });
+new GridPad({  x: 220, y: 50, cols: 4, rows: 4 });</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=statusPanel" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="StatusPanel monitoring"></iframe>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 4</span>
+        <span class="step-title">Toggle visibility at runtime</span>
+      </div>
+      <p class="step-body">
+        Set <code>status.visible = false</code> to hide the panel without destroying it.
+        Turn it back on with <code>status.visible = true</code>. This is useful for hiding
+        debug overlays in production code or toggling the monitor on demand.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — change visible to false to hide it</div>
+          <textarea class="live-code" spellcheck="false">const status = new StatusPanel();
+
+// You can hide/show it anytime
+// status.visible = false;
+
+// Or toggle with a key press in your own code:
+// if (key === 's') status.visible = !status.visible;</textarea>
+        </div>
+      </div>
+      <div class="tip">
+        <strong>Tip:</strong> StatusPanel is invisible by default and consumes minimal
+        resources when hidden. It's safe to leave in production code and toggle on
+        with <code>status.visible = true</code> for debugging when needed.
       </div>
     </div>
   </div>
