@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-04 — commit b4ef4bc
+// Last updated: 2026-06-04 — commit c2df522
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -7330,6 +7330,12 @@ class StatusPanel extends ProControl {
     this._fps       = 0;
     this._memory    = null;
     this._hasMemory = typeof performance !== 'undefined' && !!performance.memory;
+
+    // Smoothed metrics using exponential moving average (α = 1/20)
+    this._fpsSmoothed = 0;
+    this._dtSmoothed = 1000 / 60;
+    this._memorySmoothed = 0;
+    this._ctrlCountSmoothed = 0;
   }
 
   get visible()  { return this._visible; }
@@ -7344,14 +7350,34 @@ class StatusPanel extends ProControl {
   }
 
   _updateMetrics() {
+    const α = 1 / 20; // EMA smoothing factor
+
     if (typeof deltaTime !== 'undefined' && deltaTime > 0) {
       this._dtHistory.push(deltaTime);
       if (this._dtHistory.length > this._dtMax) this._dtHistory.shift();
       const sum = this._dtHistory.reduce((a, b) => a + b, 0);
       this._dtAvg = sum / this._dtHistory.length;
     }
-    if (typeof frameRate === 'function') this._fps = frameRate();
-    if (this._hasMemory) this._memory = performance.memory.usedJSHeapSize / 1048576;
+    this._dtSmoothed = this._dtAvg * α + this._dtSmoothed * (1 - α);
+
+    if (typeof frameRate === 'function') {
+      this._fps = frameRate();
+      this._fpsSmoothed = this._fps * α + this._fpsSmoothed * (1 - α);
+    }
+
+    if (this._hasMemory) {
+      this._memory = performance.memory.usedJSHeapSize / 1048576;
+      this._memorySmoothed = this._memory * α + this._memorySmoothed * (1 - α);
+    }
+
+    // Count controls and smooth the count
+    let ctrlCount = 0;
+    const _countAll = (list) => {
+      ctrlCount += list.length;
+      for (const c of list) { if (c._children?.length) _countAll(c._children); }
+    };
+    _countAll(_proControlRegistry);
+    this._ctrlCountSmoothed = ctrlCount * α + this._ctrlCountSmoothed * (1 - α);
   }
 
   draw() {
@@ -7384,23 +7410,15 @@ class StatusPanel extends ProControl {
     gc.textBaseline = 'middle';
     const textY = y + h / 2;
     const expectedDt = 1000 / 60;
-    const dtWarn = this._dtAvg > expectedDt + 0.3;
-
-    // Count all controls recursively — registry (top-level) + panel children
-    let ctrlCount = 0;
-    const _countAll = (list) => {
-      ctrlCount += list.length;
-      for (const c of list) { if (c._children?.length) _countAll(c._children); }
-    };
-    _countAll(_proControlRegistry);
+    const dtWarn = this._dtSmoothed > expectedDt + 0.3;
 
     const metrics = [
-      { label: 'FPS',      value: this._fps.toFixed(1) },
-      { label: 'Δt',  value: this._dtAvg.toFixed(2) + ' ms', warn: dtWarn },
-      { label: 'Controls', value: String(ctrlCount) },
+      { label: 'FPS',      value: this._fpsSmoothed.toFixed(1) },
+      { label: 'Δt',  value: this._dtSmoothed.toFixed(2) + ' ms', warn: dtWarn },
+      { label: 'Controls', value: Math.round(this._ctrlCountSmoothed) },
     ];
     if (this._memory !== null) {
-      metrics.push({ label: 'Heap', value: this._memory.toFixed(1) + ' MB' });
+      metrics.push({ label: 'Heap', value: this._memorySmoothed.toFixed(1) + ' MB' });
     }
 
     let cx = x + 12;
