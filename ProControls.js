@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-04 — commit c2df522
+// Last updated: 2026-06-04 — commit 3186268
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -7350,7 +7350,7 @@ class StatusPanel extends ProControl {
   }
 
   _updateMetrics() {
-    const α = 1 / 20; // EMA smoothing factor
+    const α = 1 / 60; // EMA smoothing factor
 
     if (typeof deltaTime !== 'undefined' && deltaTime > 0) {
       this._dtHistory.push(deltaTime);
