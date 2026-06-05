@@ -1549,9 +1549,19 @@ function draw() {
       <div class="example-row">
         <div class="live-editor">
           <div class="live-hint">editable — changes update the preview</div>
-          <textarea class="live-code" spellcheck="false">const graph = new TimeGraphPanel();
+          <textarea class="live-code" spellcheck="false">let graph;
+
+function setup() {
+  createCanvas(360, 200);
+  graph = new TimeGraphPanel({
+    x: 0, y: 0,
+    width: 360, height: 200,
+    movable: false, resizable: false, minimizable: false,
+  });
+}
 
 function draw() {
+  proControlBackground();
   graph.push(sin(frameCount * 0.05));
 }</textarea>
         </div>
@@ -1573,16 +1583,21 @@ function draw() {
       <div class="example-row">
         <div class="live-editor">
           <div class="live-hint">editable — try removing min/max to see auto-scaling</div>
-          <textarea class="live-code" spellcheck="false">const graph = new TimeGraphPanel({
-  x: 10, y: 10,
-  width: 320, height: 160,
-  label: 'Signal',
-  min: -1, max: 1,     // fixed vertical range
-  gridLines: 4,        // draw 4 horizontal grid lines
-  movable: false, minimizable: false, resizable: false,
-});
+          <textarea class="live-code" spellcheck="false">let graph;
+
+function setup() {
+  createCanvas(360, 200);
+  graph = new TimeGraphPanel({
+    x: 0, y: 0,
+    width: 360, height: 200,
+    label: 'Signal',
+    min: -1, max: 1,
+    movable: false, minimizable: false, resizable: false,
+  });
+}
 
 function draw() {
+  proControlBackground();
   graph.push(sin(frameCount * 0.06) * 0.8 + noise(frameCount * 0.01) * 0.4 - 0.2);
 }</textarea>
         </div>
@@ -1604,15 +1619,21 @@ function draw() {
       <div class="example-row">
         <div class="live-editor">
           <div class="live-hint">editable — try adding a third series</div>
-          <textarea class="live-code" spellcheck="false">const graph = new TimeGraphPanel({
-  x: 10, y: 10,
-  width: 320, height: 160,
-  label: 'X / Y',
-  min: -1, max: 1,
-  movable: false, minimizable: false, resizable: false,
-});
+          <textarea class="live-code" spellcheck="false">let graph;
+
+function setup() {
+  createCanvas(360, 200);
+  graph = new TimeGraphPanel({
+    x: 0, y: 0,
+    width: 360, height: 200,
+    label: 'X / Y',
+    min: -1, max: 1,
+    movable: false, minimizable: false, resizable: false,
+  });
+}
 
 function draw() {
+  proControlBackground();
   graph.push({
     'X': sin(frameCount * 0.05),
     'Y': cos(frameCount * 0.07),
@@ -1637,25 +1658,31 @@ function draw() {
       <div class="example-row">
         <div class="live-editor">
           <div class="live-hint">editable — drag the slider and watch the graph trace</div>
-          <textarea class="live-code" spellcheck="false">const graph = new TimeGraphPanel({
-  x: 0, y: 0, width: 320, height: 120,
-  label: 'Slider value over time',
-  min: 0, max: 100,
-  movable: false, minimizable: false, resizable: false,
-});
+          <textarea class="live-code" spellcheck="false">let graph, slider;
 
-const slider = new AnalogSlider({
-  x: 28, y: 130,
-  label: 'DRAG ME',
-  min: 0, max: 100, value: 50,
-  readout: 'raw', decimals: 0,
-});
+function setup() {
+  createCanvas(320, 240);
+  graph = new TimeGraphPanel({
+    x: 0, y: 0, width: 320, height: 120,
+    label: 'Slider value over time',
+    min: 0, max: 100,
+    movable: false, minimizable: false, resizable: false,
+  });
+
+  slider = new AnalogSlider({
+    x: 28, y: 130,
+    label: 'DRAG ME',
+    min: 0, max: 100, value: 50,
+    readout: 'raw', decimals: 0,
+  });
+}
 
 function draw() {
+  proControlBackground();
   graph.push(slider.value);
 }</textarea>
         </div>
-        <iframe class="example-frame" src="example.html?c=panel" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="TimeGraphPanel with control"></iframe>
+        <iframe class="example-frame" src="example.html?c=timeGraphPanel_slider" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="TimeGraphPanel with control"></iframe>
       </div>
       <div class="tip">
         <strong>Tip:</strong> Call <code>graph.clear()</code> to reset all series, or
