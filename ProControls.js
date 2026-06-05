@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-04 — commit 3186268
+// Last updated: 2026-06-05 — commit 1aec06e
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -7331,15 +7331,36 @@ class StatusPanel extends ProControl {
     this._memory    = null;
     this._hasMemory = typeof performance !== 'undefined' && !!performance.memory;
 
-    // Smoothed metrics using exponential moving average (α = 1/20)
+    // Smoothed metrics using exponential moving average (α = 1/60)
     this._fpsSmoothed = 0;
     this._dtSmoothed = 1000 / 60;
     this._memorySmoothed = 0;
     this._ctrlCountSmoothed = 0;
+
+    // Custom fields added by user
+    this._customFields = {}; // { label: { value, smoothed } }
   }
 
   get visible()  { return this._visible; }
   set visible(v) { this._visible = !!v; }
+
+  addField(label, initialValue = 0) {
+    if (!this._customFields[label]) {
+      this._customFields[label] = { value: initialValue, smoothed: initialValue };
+    }
+    return this;
+  }
+
+  setField(label, value) {
+    if (this._customFields[label]) {
+      this._customFields[label].value = value;
+    }
+    return this;
+  }
+
+  getField(label) {
+    return this._customFields[label]?.smoothed ?? 0;
+  }
 
   _resolveAutoPos() {
     const cvH = typeof height !== 'undefined' ? height : 400;
@@ -7378,6 +7399,12 @@ class StatusPanel extends ProControl {
     };
     _countAll(_proControlRegistry);
     this._ctrlCountSmoothed = ctrlCount * α + this._ctrlCountSmoothed * (1 - α);
+
+    // Smooth custom fields
+    for (const label in this._customFields) {
+      const field = this._customFields[label];
+      field.smoothed = field.value * α + field.smoothed * (1 - α);
+    }
   }
 
   draw() {
@@ -7419,6 +7446,11 @@ class StatusPanel extends ProControl {
     ];
     if (this._memory !== null) {
       metrics.push({ label: 'Heap', value: this._memorySmoothed.toFixed(1) + ' MB' });
+    }
+    // Add custom fields
+    for (const label in this._customFields) {
+      const field = this._customFields[label];
+      metrics.push({ label, value: String(field.smoothed) });
     }
 
     let cx = x + 12;
