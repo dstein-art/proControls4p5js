@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Home page -->
+  <url>
+    <loc>https://procontrols.org/index.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Getting Started -->
+  <url>
+    <loc>https://procontrols.org/docs/gettingStarted.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Sliders & Dials -->
+  <url>
+    <loc>https://procontrols.org/docs/slidersHelp.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://procontrols.org/docs/slidersTutorial.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Buttons & Pads -->
+  <url>
+    <loc>https://procontrols.org/docs/buttonsHelp.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://procontrols.org/docs/buttonsTutorial.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Selectors -->
+  <url>
+    <loc>https://procontrols.org/docs/selectorsHelp.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://procontrols.org/docs/selectorsTutorial.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Panels -->
+  <url>
+    <loc>https://procontrols.org/docs/panelsHelp.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://procontrols.org/docs/panelsTutorial.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Menus -->
+  <url>
+    <loc>https://procontrols.org/docs/menusHelp.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://procontrols.org/docs/menusTutorial.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Displays -->
+  <url>
+    <loc>https://procontrols.org/docs/displaysHelp.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://procontrols.org/docs/displaysTutorial.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Themes & Styles -->
+  <url>
+    <loc>https://procontrols.org/docs/themesHelp.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Events -->
+  <url>
+    <loc>https://procontrols.org/docs/eventsHelp.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Live Demo -->
+  <url>
+    <loc>https://procontrols.org/docs/demo.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Workshop -->
+  <url>
+    <loc>https://procontrols.org/docs/workshop.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Documentation Index -->
+  <url>
+    <loc>https://procontrols.org/docs/help.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- License -->
+  <url>
+    <loc>https://procontrols.org/docs/license.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>
