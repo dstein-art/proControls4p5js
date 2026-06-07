@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-05 — commit 1aec06e
+// Last updated: 2026-06-07 — commit c78667e
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -649,6 +649,102 @@ class ProControl {
 
   clone() {
     return new this.constructor(this._cloneOpts());
+  }
+
+  // ⚠️ EXPERIMENTAL: bind(dataObj, fieldName)
+  // Two-way data binding with reactive updates.
+  // - Single-data controls: bind(obj, 'fieldName') required
+  // - Multi-data controls: bind(obj) with auto field matching
+  // This API is experimental and subject to change.
+  bind(dataObj, fieldName) {
+    if (!dataObj) return this;
+
+    // Store binding metadata
+    this._boundData = dataObj;
+    this._boundField = fieldName;
+
+    // For multi-data controls with auto field matching (fieldName not provided)
+    if (fieldName === undefined) {
+      // Multi-data control: auto-discover field names from control structure
+      // Subclasses override _getBindingFields() to provide field mappings
+      const fields = this._getBindingFields();
+      if (fields && typeof fields === 'object') {
+        this._boundFields = fields; // {fieldName: controlProperty}
+      }
+    } else {
+      // Single-data control: use provided fieldName
+      // Initialize control with current data value
+      if (dataObj[fieldName] !== undefined && this.value !== undefined) {
+        this.value = dataObj[fieldName];
+      }
+    }
+
+    // Wrap data object in Proxy for reactive updates
+    this._setupReactiveBinding();
+
+    return this;
+  }
+
+  _setupReactiveBinding() {
+    if (!this._boundData) return;
+
+    const self = this;
+    const originalData = this._boundData;
+
+    // Create Proxy to intercept property changes
+    const handler = {
+      set: (target, prop, value) => {
+        target[prop] = value;
+
+        // Update control when bound data changes
+        if (self._boundField && prop === self._boundField) {
+          // Single-data binding
+          if (self.value !== undefined) {
+            self.value = value;
+          }
+        } else if (self._boundFields) {
+          // Multi-data binding: check if this property is bound
+          for (const [field, controlProp] of Object.entries(self._boundFields)) {
+            if (prop === field) {
+              if (controlProp === 'value' && self.value !== undefined) {
+                self.value = value;
+              } else if (typeof self[controlProp] !== 'function') {
+                self[controlProp] = value;
+              }
+            }
+          }
+        }
+
+        return true;
+      }
+    };
+
+    this._boundProxy = new Proxy(originalData, handler);
+    this._boundData = this._boundProxy;
+  }
+
+  _getBindingFields() {
+    // Override in subclasses that support auto field matching (multi-data controls)
+    return null;
+  }
+
+  _updateBoundData() {
+    // Called whenever control value changes - updates bound data object
+    if (!this._boundData) return;
+
+    if (this._boundField && this.value !== undefined) {
+      // Single-data binding
+      this._boundData[this._boundField] = this.value;
+    } else if (this._boundFields) {
+      // Multi-data binding
+      for (const [field, controlProp] of Object.entries(this._boundFields)) {
+        if (controlProp === 'value' && this.value !== undefined) {
+          this._boundData[field] = this.value;
+        } else if (typeof this[controlProp] !== 'function' && this[controlProp] !== undefined) {
+          this._boundData[field] = this[controlProp];
+        }
+      }
+    }
   }
 
   _drawPanel(x, y, w, h, r = 4) {
@@ -1375,6 +1471,7 @@ class AnalogSlider extends ProControl {
       if (this._isDoubleClick()) {
         this._cancelSpring();
         this.value = this._springDefault;
+        this._updateBoundData();
         if (this.onChange) this.onChange(this.value, this);
         if (this.onRelease) this.onRelease(this.value, this);
         return;
@@ -1410,7 +1507,10 @@ class AnalogSlider extends ProControl {
       const startNorm = this._norm(this._dragStart.value);
       const prev      = this.value;
       this.value      = this._fromNorm(startNorm + normDelta);
-      if (this.value !== prev && this.onChange) this.onChange(this.value, this);
+      if (this.value !== prev) {
+        this._updateBoundData();
+        if (this.onChange) this.onChange(this.value, this);
+      }
     }
   }
 
@@ -1420,7 +1520,10 @@ class AnalogSlider extends ProControl {
     const prev    = this.value;
     const newNorm = constrain(this._norm() - delta * 0.001, 0, 1);
     this.value    = this._fromNorm(newNorm);
-    if (this.value !== prev && this.onChange) this.onChange(this.value, this);
+    if (this.value !== prev) {
+      this._updateBoundData();
+      if (this.onChange) this.onChange(this.value, this);
+    }
     return false; // prevent page scroll
   }
 }
