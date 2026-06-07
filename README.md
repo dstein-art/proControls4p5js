@@ -161,7 +161,7 @@ openStatusPanel();    // thin bar: FPS, Δt, control count, heap usage
 | [Panels](https://procontrols.org/docs/panelsHelp.html) | Panel · ModalPanel · Bevel · MessageDialog · InputDialog |
 | [Menus](https://procontrols.org/docs/menusHelp.html) | Menu · PopupMenu |
 | [Displays](https://procontrols.org/docs/displaysHelp.html) | VUMeter · LEDMeter · ADSRDisplay · HeatMapView · and more |
-| [Themes](https://procontrols.org/docs/themesHelp.html) | Theming system and token reference |
+| [Advanced Topics](https://procontrols.org/docs/advancedHelp.html) | Themes & Styles · Events · Data Binding |
 
 ---
 

@@ -388,25 +388,21 @@
     .toc {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
-      margin: 24px 0 40px;
-      padding: 16px;
-      background: var(--surface);
-      border-radius: var(--radius);
+      gap: 8px;
+      margin-bottom: 48px;
     }
-
     .toc a {
+      font-size: 13px;
+      font-weight: 600;
       color: var(--accent);
       text-decoration: none;
-      font-size: 14px;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: background .15s;
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1px solid #0077cc33;
+      background: #0077cc08;
+      transition: background .15s, border-color .15s;
     }
-
-    .toc a:hover {
-      background: #0077cc11;
-    }
+    .toc a:hover { background: #0077cc18; border-color: #0077cc66; }
 
     /* ── HR ── */
     hr {
