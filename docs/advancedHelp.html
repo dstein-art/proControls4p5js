@@ -607,136 +607,15 @@
   <hr>
   <!-- TOC -->
   <div class="toc">
+    <a href="#data-binding">Data Binding</a>
     <a href="#themes">Themes &amp; Styles</a>
     <a href="#events">Events</a>
-    <a href="#data-binding">Data Binding</a>
-  </div>
 
-
-  <!-- ═════════════════════════════════════════════════════════════════════════════════ -->
-  <!-- THEMES & STYLES -->
-  <!-- ═════════════════════════════════════════════════════════════════════════════════ -->
-
-  <section id="themes">
-    <h2>Themes &amp; Styles</h2>
-    <p class="desc">Set <code>ControlStyle</code> before creating controls. The style is captured at construction time, so controls built before a change keep their original look.</p>
-
-    <pre><code>ControlStyle = <span class="str">'brushed'</span>; <span class="cmt">// before any new controls</span></code></pre>
-
-    <h3>Built-in styles</h3>
-    <div class="swatches">
-      <div class="swatch">
-        <div class="bg-chip" style="background:#1a1a1a"></div>
-        <div class="name">black</div>
-        <div class="label"><span class="accent-chip" style="background:#00ccff"></span>cyan accent</div>
-      </div>
-      <div class="swatch">
-        <div class="bg-chip" style="background:linear-gradient(180deg,#d8dfe6 0%,#f0f4f8 22%,#c8d0d8 100%)"></div>
-        <div class="name">stainless</div>
-        <div class="label"><span class="accent-chip" style="background:#005fa3"></span>navy accent · polished chrome</div>
-      </div>
-      <div class="swatch">
-        <div class="bg-chip" style="background:#e8e8e8;border-color:#ccc"></div>
-        <div class="name">white</div>
-        <div class="label"><span class="accent-chip" style="background:#cc2200"></span>red accent</div>
-      </div>
-      <div class="swatch">
-        <div class="bg-chip" style="background:linear-gradient(180deg,#8e9099 0%,#aab0b8 40%,#8e9099 100%)"></div>
-        <div class="name">brushed</div>
-        <div class="label"><span class="accent-chip" style="background:#ff8800"></span>orange accent · grain</div>
-      </div>
-      <div class="swatch">
-        <div class="bg-chip" style="background:#cc0000"></div>
-        <div class="name">red</div>
-        <div class="label"><span class="accent-chip" style="background:#ffdd00"></span>yellow accent</div>
-      </div>
-      <div class="swatch">
-        <div class="bg-chip" style="background:#0000cc"></div>
-        <div class="name">blue</div>
-        <div class="label"><span class="accent-chip" style="background:#ffdd00"></span>yellow accent</div>
-      </div>
-      <div class="swatch">
-        <div class="bg-chip" style="background:#e0d000"></div>
-        <div class="name">yellow</div>
-        <div class="label"><span class="accent-chip" style="background:#cc0000"></span>red accent</div>
-      </div>
-    </div>
-
-    <h3>proControlBackground()</h3>
-    <p class="desc">Use instead of p5's <code>background()</code>. Fills the canvas with the style color. <code>'brushed'</code> and <code>'stainless'</code> also draw per-row texture overlays via the native Canvas 2D API.</p>
-
-    <table class="opts" style="margin-top:10px">
-      <thead><tr><th>Style</th><th>Texture</th></tr></thead>
-      <tbody>
-        <tr><td>black</td><td>Flat fill — <code>#1a1a1a</code>.</td></tr>
-        <tr><td>stainless</td><td>Gaussian highlight profile: sharp specular band near the top third, soft secondary reflection below center, edge darkening, and a thin pure-white specular line at the peak.</td></tr>
-        <tr><td>white</td><td>Flat fill — <code>#e8e8e8</code>.</td></tr>
-        <tr><td>brushed</td><td>Three layered sine-wave frequencies (fine grain, visible stroke bands, slow tonal drift) plus a directional sheen band — simulates brushed aluminum.</td></tr>
-        <tr><td>red</td><td>Flat fill — <code>#cc0000</code>. Primary red background, darker red controls, yellow accent.</td></tr>
-        <tr><td>blue</td><td>Flat fill — <code>#0000cc</code>. Primary blue background, darker blue controls, yellow accent.</td></tr>
-        <tr><td>yellow</td><td>Flat fill — <code>#e0d000</code>. Warm yellow background, golden controls, red accent · dark text.</td></tr>
-      </tbody>
-    </table>
-
-    <h3>Runtime style switching</h3>
-    <p class="desc">Rebuild controls with <code>proControlReset()</code> when switching styles. The <a href="demo.html" target="_blank">Live Demo</a> uses a <code>Selector</code> to cycle all styles.</p>
-    <pre><code><span class="kw">const</span> STYLES = [<span class="str">'black'</span>, <span class="str">'white'</span>, <span class="str">'brushed'</span>, <span class="str">'red'</span>];
-<span class="kw">let</span> currentStyle = <span class="str">'black'</span>;
-
-<span class="kw">function</span> <span class="fn">buildControls</span>() {
-  <span class="fn">proControlReset</span>();
-  ControlStyle = currentStyle;
-  mySlider = <span class="kw">new</span> <span class="fn">AnalogSlider</span>({ value: mySlider?.value ?? <span class="num">0.5</span> });
-}</code></pre>
-
-    <h3>Per-control theme overrides</h3>
-    <p class="desc">Pass a partial <code>theme</code> object to override individual color keys while keeping the rest of the active style.</p>
-    <table class="opts">
-      <thead><tr><th>Key</th><th>Affects</th></tr></thead>
-      <tbody>
-        <tr><td>panel</td><td>Panel background fill.</td></tr>
-        <tr><td>panelStroke</td><td>Panel border and knob outline.</td></tr>
-        <tr><td>track</td><td>Slider groove / dial arc background.</td></tr>
-        <tr><td>capHighlight</td><td>Top gradient color of the fader cap or knob.</td></tr>
-        <tr><td>capShadow</td><td>Bottom gradient color of the fader cap or knob.</td></tr>
-        <tr><td>capIndicator</td><td>Accent line / filled arc color / LED glow color.</td></tr>
-        <tr><td>label</td><td>Control label text color.</td></tr>
-        <tr><td>readout</td><td>Readout value text color.</td></tr>
-        <tr><td>readoutBg</td><td>Readout pill background.</td></tr>
-        <tr><td>hoverGlow</td><td>Hover highlight fill (include alpha).</td></tr>
-        <tr><td>disabledOverlay</td><td>Overlay when <code>disabled: true</code>.</td></tr>
-        <tr><td>font</td><td>p5 font object from <code>loadFont()</code>. <code>null</code> = canvas default.</td></tr>
-      </tbody>
-    </table>
-    <pre><code><span class="kw">new</span> <span class="fn">Dial</span>({ label: <span class="str">'MASTER'</span>, theme: { capIndicator: <span class="str">'#ffcc00'</span> } });</code></pre>
-  </section>
-
-  <hr>
-
-  <!-- ═════════════════════════════════════════════════════════════════════════════════ -->
-  <!-- EVENTS -->
-  <!-- ═════════════════════════════════════════════════════════════════════════════════ -->
-
-  <section id="events">
-    <h2>Events</h2>
-    <p class="desc">All mouse, wheel, touch events, and rendering are handled automatically by the library. No event functions and no draw loop are needed in your sketch. <code>touch-action: none</code> is applied to the canvas automatically to prevent iOS scroll conflicts.</p>
-
-    <div class="note"><strong>Nothing to wire up.</strong> Just create controls — they start receiving events and drawing themselves immediately. Call <code>.remove()</code> when done.</div>
-
-    <h3>How it works</h3>
-    <p class="desc">Each control self-registers on construction into a shared array. Two <code>p5.prototype.registerMethod</code> hooks handle everything: a <code>'pre'</code> hook fires at the start of every frame to dispatch mouse/wheel/touch events; a <code>'post'</code> hook fires at the end of every frame and draws any control that wasn't already drawn explicitly that frame. This means you can still call <code>c.draw()</code> manually for z-order control — the post hook simply skips controls already rendered.</p>
-
-    <h3>Coexisting with your own handlers</h3>
-    <p class="desc">Registered library methods and sketch-level event functions both fire independently — they don't conflict. You can still define <code>mousePressed()</code> in your sketch for other logic.</p>
-
-    <div class="note"><strong>Multi-touch:</strong> p5.js maps only the first touch to <code>mouseX/mouseY</code>, so only one control can be manipulated at a time. Two-finger gestures are unaffected.</div>
-  </section>
-
-  <hr>
 
   <!-- ═════════════════════════════════════════════════════════════════════════════════ -->
   <!-- DATA BINDING -->
-  <!-- ═════════════════════════════════════════════════════════════════════════════════ -->
+
+<!-- ═════════════════════════════════════════════════════════════════════════════════ -->
 
   <section id="data-binding">
     <h2>Data Binding <span class="tag ext">Experimental</span></h2>
@@ -842,7 +721,132 @@ slider.<span class="fn">bind</span>(data, <span class="str">'volume'</span>);
 <span class="cmt">// Multi-data</span>
 panel.<span class="fn">bind</span>(data);
 multiSlider.<span class="fn">bind</span>(data);</code></pre>
+
   </section>
+
+  <hr>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════════════ -->
+  <!-- THEMES & STYLES -->
+  <!-- ═════════════════════════════════════════════════════════════════════════════════ -->
+
+  <section id="themes">
+    <h2>Themes &amp; Styles</h2>
+    <p class="desc">Set <code>ControlStyle</code> before creating controls. The style is captured at construction time, so controls built before a change keep their original look.</p>
+
+    <pre><code>ControlStyle = <span class="str">'brushed'</span>; <span class="cmt">// before any new controls</span></code></pre>
+
+    <h3>Built-in styles</h3>
+    <div class="swatches">
+      <div class="swatch">
+        <div class="bg-chip" style="background:#1a1a1a"></div>
+        <div class="name">black</div>
+        <div class="label"><span class="accent-chip" style="background:#00ccff"></span>cyan accent</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:linear-gradient(180deg,#d8dfe6 0%,#f0f4f8 22%,#c8d0d8 100%)"></div>
+        <div class="name">stainless</div>
+        <div class="label"><span class="accent-chip" style="background:#005fa3"></span>navy accent · polished chrome</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:#e8e8e8;border-color:#ccc"></div>
+        <div class="name">white</div>
+        <div class="label"><span class="accent-chip" style="background:#cc2200"></span>red accent</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:linear-gradient(180deg,#8e9099 0%,#aab0b8 40%,#8e9099 100%)"></div>
+        <div class="name">brushed</div>
+        <div class="label"><span class="accent-chip" style="background:#ff8800"></span>orange accent · grain</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:#cc0000"></div>
+        <div class="name">red</div>
+        <div class="label"><span class="accent-chip" style="background:#ffdd00"></span>yellow accent</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:#0000cc"></div>
+        <div class="name">blue</div>
+        <div class="label"><span class="accent-chip" style="background:#ffdd00"></span>yellow accent</div>
+      </div>
+      <div class="swatch">
+        <div class="bg-chip" style="background:#e0d000"></div>
+        <div class="name">yellow</div>
+        <div class="label"><span class="accent-chip" style="background:#cc0000"></span>red accent</div>
+      </div>
+    </div>
+
+    <h3>proControlBackground()</h3>
+    <p class="desc">Use instead of p5's <code>background()</code>. Fills the canvas with the style color. <code>'brushed'</code> and <code>'stainless'</code> also draw per-row texture overlays via the native Canvas 2D API.</p>
+
+    <table class="opts" style="margin-top:10px">
+      <thead><tr><th>Style</th><th>Texture</th></tr></thead>
+      <tbody>
+        <tr><td>black</td><td>Flat fill — <code>#1a1a1a</code>.</td></tr>
+        <tr><td>stainless</td><td>Gaussian highlight profile: sharp specular band near the top third, soft secondary reflection below center, edge darkening, and a thin pure-white specular line at the peak.</td></tr>
+        <tr><td>white</td><td>Flat fill — <code>#e8e8e8</code>.</td></tr>
+        <tr><td>brushed</td><td>Three layered sine-wave frequencies (fine grain, visible stroke bands, slow tonal drift) plus a directional sheen band — simulates brushed aluminum.</td></tr>
+        <tr><td>red</td><td>Flat fill — <code>#cc0000</code>. Primary red background, darker red controls, yellow accent.</td></tr>
+        <tr><td>blue</td><td>Flat fill — <code>#0000cc</code>. Primary blue background, darker blue controls, yellow accent.</td></tr>
+        <tr><td>yellow</td><td>Flat fill — <code>#e0d000</code>. Warm yellow background, golden controls, red accent · dark text.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Runtime style switching</h3>
+    <p class="desc">Rebuild controls with <code>proControlReset()</code> when switching styles. The <a href="demo.html" target="_blank">Live Demo</a> uses a <code>Selector</code> to cycle all styles.</p>
+    <pre><code><span class="kw">const</span> STYLES = [<span class="str">'black'</span>, <span class="str">'white'</span>, <span class="str">'brushed'</span>, <span class="str">'red'</span>];
+<span class="kw">let</span> currentStyle = <span class="str">'black'</span>;
+
+<span class="kw">function</span> <span class="fn">buildControls</span>() {
+  <span class="fn">proControlReset</span>();
+  ControlStyle = currentStyle;
+  mySlider = <span class="kw">new</span> <span class="fn">AnalogSlider</span>({ value: mySlider?.value ?? <span class="num">0.5</span> });
+}</code></pre>
+
+    <h3>Per-control theme overrides</h3>
+    <p class="desc">Pass a partial <code>theme</code> object to override individual color keys while keeping the rest of the active style.</p>
+    <table class="opts">
+      <thead><tr><th>Key</th><th>Affects</th></tr></thead>
+      <tbody>
+        <tr><td>panel</td><td>Panel background fill.</td></tr>
+        <tr><td>panelStroke</td><td>Panel border and knob outline.</td></tr>
+        <tr><td>track</td><td>Slider groove / dial arc background.</td></tr>
+        <tr><td>capHighlight</td><td>Top gradient color of the fader cap or knob.</td></tr>
+        <tr><td>capShadow</td><td>Bottom gradient color of the fader cap or knob.</td></tr>
+        <tr><td>capIndicator</td><td>Accent line / filled arc color / LED glow color.</td></tr>
+        <tr><td>label</td><td>Control label text color.</td></tr>
+        <tr><td>readout</td><td>Readout value text color.</td></tr>
+        <tr><td>readoutBg</td><td>Readout pill background.</td></tr>
+        <tr><td>hoverGlow</td><td>Hover highlight fill (include alpha).</td></tr>
+        <tr><td>disabledOverlay</td><td>Overlay when <code>disabled: true</code>.</td></tr>
+        <tr><td>font</td><td>p5 font object from <code>loadFont()</code>. <code>null</code> = canvas default.</td></tr>
+      </tbody>
+    </table>
+    <pre><code><span class="kw">new</span> <span class="fn">Dial</span>({ label: <span class="str">'MASTER'</span>, theme: { capIndicator: <span class="str">'#ffcc00'</span> } });</code></pre>
+  </section>
+
+
+  <hr>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════════════ -->
+  <!-- EVENTS -->
+  <!-- ═════════════════════════════════════════════════════════════════════════════════ -->
+
+  <section id="events">
+    <h2>Events</h2>
+    <p class="desc">All mouse, wheel, touch events, and rendering are handled automatically by the library. No event functions and no draw loop are needed in your sketch. <code>touch-action: none</code> is applied to the canvas automatically to prevent iOS scroll conflicts.</p>
+
+    <div class="note"><strong>Nothing to wire up.</strong> Just create controls — they start receiving events and drawing themselves immediately. Call <code>.remove()</code> when done.</div>
+
+    <h3>How it works</h3>
+    <p class="desc">Each control self-registers on construction into a shared array. Two <code>p5.prototype.registerMethod</code> hooks handle everything: a <code>'pre'</code> hook fires at the start of every frame to dispatch mouse/wheel/touch events; a <code>'post'</code> hook fires at the end of every frame and draws any control that wasn't already drawn explicitly that frame. This means you can still call <code>c.draw()</code> manually for z-order control — the post hook simply skips controls already rendered.</p>
+
+    <h3>Coexisting with your own handlers</h3>
+    <p class="desc">Registered library methods and sketch-level event functions both fire independently — they don't conflict. You can still define <code>mousePressed()</code> in your sketch for other logic.</p>
+
+    <div class="note"><strong>Multi-touch:</strong> p5.js maps only the first touch to <code>mouseX/mouseY</code>, so only one control can be manipulated at a time. Two-finger gestures are unaffected.</div>
+  </section>
+
+
 
 
 </div>
