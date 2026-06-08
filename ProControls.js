@@ -657,9 +657,7 @@ class ProControl {
   // - Multi-data controls: bind(obj) with auto field matching
   // This API is experimental and subject to change.
   bind(dataObj, fieldName) {
-    if (!dataObj) return this;
-
-    // Store binding metadata
+    // Store binding metadata even if dataObj is null
     this._boundData = dataObj;
     this._boundField = fieldName;
 
@@ -670,12 +668,16 @@ class ProControl {
       const fields = this._getBindingFields();
       if (fields && typeof fields === 'object') {
         this._boundFields = fields; // {fieldName: controlProperty}
+      } else {
+        // Single-data control with no fieldName: default to 'value'
+        this._boundField = 'value';
       }
-    } else {
-      // Single-data control: use provided fieldName
-      // Initialize control with current data value
-      if (dataObj[fieldName] !== undefined && this.value !== undefined) {
-        this.value = dataObj[fieldName];
+    }
+
+    // Initialize control with current data value (if dataObj is not null)
+    if (dataObj && this._boundField) {
+      if (dataObj[this._boundField] !== undefined && this.value !== undefined) {
+        this.value = dataObj[this._boundField];
       }
     }
 
@@ -686,6 +688,7 @@ class ProControl {
   }
 
   _setupReactiveBinding() {
+    // Only create Proxy if _boundData is not null
     if (!this._boundData) return;
 
     const self = this;
