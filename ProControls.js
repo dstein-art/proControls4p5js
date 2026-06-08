@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-07 — commit 47e6cce
+// Last updated: 2026-06-08 — commit 44e5019
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -4813,11 +4813,12 @@ class RangeSlider extends ProControl {
     this.decimals   = opts.decimals   ?? 2;
     this.horizontal = opts.horizontal ?? false;
     this.showFader  = opts.showFader  ?? true;
+    this.style      = opts.style      ?? 'knob';   // 'knob' | 'button'
 
     this.valueLow  = opts.valueLow  ?? this.min;
     this.valueHigh = opts.valueHigh ?? this.max;
 
-    this._capH     = 24;
+    this._capH     = this.style === 'button' ? 20 : 24;
     this._trackPad = this._capH / 2 + 2;
     this._dragging  = null;   // 'low' | 'high'
     this._dragStart = null;
@@ -4844,6 +4845,7 @@ class RangeSlider extends ProControl {
       decimals:   this.decimals,
       horizontal: this.horizontal,
       showFader:  this.showFader,
+      style:      this.style,
       valueLow:   this.valueLow,
       valueHigh:  this.valueHigh,
       width:      this.width,
@@ -4924,6 +4926,31 @@ class RangeSlider extends ProControl {
     pop();
   }
 
+  _drawCapButton(cx, cy) {
+    const r  = this._capH / 2;
+    const gc = drawingContext;
+    gc.save();
+    const grad = gc.createRadialGradient(
+      cx - r * 0.3, cy - r * 0.35, 0,
+      cx, cy, r
+    );
+    grad.addColorStop(0,    this.theme.capHighlight);
+    grad.addColorStop(0.55, this.theme.capBody);
+    grad.addColorStop(1,    this.theme.capShadow);
+    gc.beginPath();
+    gc.arc(cx, cy, r, 0, Math.PI * 2);
+    gc.fillStyle = grad;
+    gc.fill();
+    gc.strokeStyle = this.theme.panelStroke;
+    gc.lineWidth   = 1;
+    gc.stroke();
+    gc.beginPath();
+    gc.arc(cx, cy, 2.5, 0, Math.PI * 2);
+    gc.fillStyle = this.theme.capIndicator;
+    gc.fill();
+    gc.restore();
+  }
+
   _drawV() {
     const cx = this._trackX();
     const { x, y, width: w, height: h } = this;
@@ -4934,7 +4961,7 @@ class RangeSlider extends ProControl {
       push(); noStroke(); fill(this.theme.hoverGlow); rect(x, y, w, h, 4); pop();
     }
 
-    const trackW = 6;
+    const trackW = this.style === 'button' ? 4 : 6;
     push();
     fill(this.theme.track); stroke(this.theme.trackStroke); strokeWeight(1);
     rect(cx - trackW / 2, this._trackTop(), trackW, this._trackLen(), 2);
@@ -4969,8 +4996,11 @@ class RangeSlider extends ProControl {
     }
 
     if (this.showFader) {
-      this._drawCapV(cx, lowY);   // low cap beneath
-      this._drawCapV(cx, highY);  // high cap on top
+      const drawCap = this.style === 'button'
+        ? (x, y) => this._drawCapButton(x, y)
+        : (x, y) => this._drawCapV(x, y);
+      drawCap(cx, lowY);
+      drawCap(cx, highY);
     }
 
     const readoutTxt = this._fmt(this.valueLow) + ' – ' + this._fmt(this.valueHigh);
@@ -4993,7 +5023,7 @@ class RangeSlider extends ProControl {
       push(); noStroke(); fill(this.theme.hoverGlow); rect(x, y, w, h, 4); pop();
     }
 
-    const trackH = 6;
+    const trackH = this.style === 'button' ? 4 : 6;
     push();
     fill(this.theme.track); stroke(this.theme.trackStroke); strokeWeight(1);
     rect(this._hTrackLeft(), ty - trackH / 2, this._hTrackLen(), trackH, 2);
@@ -5028,8 +5058,11 @@ class RangeSlider extends ProControl {
     }
 
     if (this.showFader) {
-      this._drawCapH(lowX, ty);
-      this._drawCapH(highX, ty);
+      const drawCap = this.style === 'button'
+        ? (x, y) => this._drawCapButton(x, y)
+        : (x, y) => this._drawCapH(x, y);
+      drawCap(lowX, ty);
+      drawCap(highX, ty);
     }
 
     if (this.label) {

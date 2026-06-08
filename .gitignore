@@ -18,3 +18,5 @@ npm-debug.log*
 # Local scratch / temporary files
 /tmp/*
 !/tmp/.gitkeep
+
+/work/*
