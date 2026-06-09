@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-08 — commit 63348ae
+// Last updated: 2026-06-09 — commit 9508b44
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -6713,7 +6713,9 @@ class Menu extends ProControl {
     this._explicitW = opts.width  != null ? opts.width  : null;
   }
 
+  get x() { if (this._autoPlacePending) this._resolveAutoPlace(); return this._x; }
   set x(v) { this._autoPlacePending = false; this._x = v; this._layoutDirty = true; }
+  get y() { if (this._autoPlacePending) this._resolveAutoPlace(); return this._y; }
   set y(v) { this._autoPlacePending = false; this._y = v; this._layoutDirty = true; }
 
   _cloneOpts() {
