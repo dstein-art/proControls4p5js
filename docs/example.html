@@ -886,6 +886,7 @@ const menu = new PopupMenu({
   popupMenuContext: `\
 function setup() {
   createCanvas(300, 200);
+  // Important: prevent default context menu from appearing when right-clicking
   document.oncontextmenu = () => false;
 }
 

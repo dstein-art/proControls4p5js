@@ -1,9 +1,14 @@
 let myData  = {};
-let myPData = {};
+let myPData = {dave1: 0.9631578947368421, dave2: 0.5657894736842106, Selector1: 0};
+
+let myMenu;
 
 function setup() {
   createCanvas(600, 600);
   openConsolePanel();
+  openStatusPanel();
+
+  document.oncontextmenu = () => false;
 
   let myPanel = new Panel({label:"myPanel",resizable:true});
   myPanel.add(new AnalogSlider({name:"dave1"}));
@@ -22,13 +27,36 @@ function setup() {
   new RangeSlider({label:"range button", style:"button", x:380, y:20});
   new RangeSlider({label:"h knob",   style:"knob",   horizontal:true, x:320, y:220});
   new RangeSlider({label:"h button", style:"button", horizontal:true, x:320, y:280});
+
+  myMenu = new PopupMenu({
+    x: 20, y: 20,
+    items: [
+      'File',
+      ['Edit', 'Undo', 'Redo', 'Cut', 'Copy', 'Paste'],
+      'View',
+      ['Help', 'About', 'Docs'],
+    ],
+    onChange: ({label, path}) => console.log(path),
+  });
+  myMenu.draw()
+}
+
+function mousePressed() {
+  myPData.dave1 = mouseX / width;
+  myPData.dave2 = mouseY / height;
 }
 
 function draw() {
   background(220);
+  if (mouseIsPressed && mouseButton === RIGHT) {
+    myMenu.x=mouseX;
+    myMenu.y=mouseY;
+  }
   fill(0);
   noStroke();
   textSize(14);
   text("myPData: " + JSON.stringify(myPData), 10, 400);
   text("myData:  " + JSON.stringify(myData),  10, 420);
+  print(myData);
+  print(myPData);
 }
