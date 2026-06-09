@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-08 — commit 0082e9b
+// Last updated: 2026-06-08 — commit 5837d84
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -684,41 +684,36 @@ class ProControl {
   }
 
   _setupReactiveBinding() {
-    // Only create Proxy if _boundData is not null
     if (!this._boundData) return;
+    const self    = this;
+    const dataObj = this._boundData;
 
-    const self = this;
-    const originalData = this._boundData;
-
-    // Create Proxy to intercept property changes
-    const handler = {
-      set: (target, prop, value) => {
-        target[prop] = value;
-
-        // Only sync data→control when an external caller changed the data (not us)
-        if (!self._syncingToData) {
-          if (self._boundField && prop === self._boundField) {
-            const pp = self._getPrimaryProperty();
-            if (self[pp] !== undefined) self[pp] = value;
-          } else if (self._boundFields) {
-            for (const [field, controlProp] of Object.entries(self._boundFields)) {
-              if (prop === field) {
-                if (controlProp === 'value' && self.value !== undefined) {
-                  self.value = value;
-                } else if (typeof self[controlProp] !== 'function') {
-                  self[controlProp] = value;
-                }
-              }
-            }
-          }
-        }
-
-        return true;
-      }
+    // Install a getter/setter on the original object so writes to the user's
+    // variable (e.g. myData.volume = 0.5) are intercepted without requiring
+    // them to hold a proxy reference.
+    const makeReactive = (field, onSet) => {
+      let _val = dataObj[field];
+      Object.defineProperty(dataObj, field, {
+        get()  { return _val; },
+        set(v) { _val = v; if (!self._syncingToData) onSet(v); },
+        configurable: true,
+        enumerable:   true,
+      });
     };
 
-    this._boundProxy = new Proxy(originalData, handler);
-    this._boundData = this._boundProxy;
+    if (this._boundField) {
+      const pp = this._getPrimaryProperty();
+      makeReactive(this._boundField, v => {
+        if (self[pp] !== undefined) self[pp] = v;
+      });
+    } else if (this._boundFields) {
+      for (const [field, controlProp] of Object.entries(this._boundFields)) {
+        const cp = controlProp;
+        makeReactive(field, v => {
+          if (typeof self[cp] !== 'function') self[cp] = v;
+        });
+      }
+    }
   }
 
   _getBindingFields() {
@@ -3644,6 +3639,22 @@ class MultiSlider extends ProControl {
     }
   }
 
+  _setupReactiveBinding() {
+    if (!this._boundData) return;
+    const self    = this;
+    const dataObj = this._boundData;
+    for (const child of this._children) {
+      const c = child;
+      let _val = dataObj[c.name];
+      Object.defineProperty(dataObj, c.name, {
+        get()  { return _val; },
+        set(v) { _val = v; if (!self._syncingToData) c.value = v; },
+        configurable: true,
+        enumerable:   true,
+      });
+    }
+  }
+
   _updateBoundData() {
     if (!this._boundData || this._syncingToData) return;
     this._syncingToData = true;
@@ -3844,6 +3855,22 @@ class MultiDial extends ProControl {
       } else {
         dataObj[child.name] = child.value;   // control → data
       }
+    }
+  }
+
+  _setupReactiveBinding() {
+    if (!this._boundData) return;
+    const self    = this;
+    const dataObj = this._boundData;
+    for (const child of this._children) {
+      const c = child;
+      let _val = dataObj[c.name];
+      Object.defineProperty(dataObj, c.name, {
+        get()  { return _val; },
+        set(v) { _val = v; if (!self._syncingToData) c.value = v; },
+        configurable: true,
+        enumerable:   true,
+      });
     }
   }
 
