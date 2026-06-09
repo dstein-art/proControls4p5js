@@ -149,6 +149,7 @@ const SIZES = {
   menu_right:      [280, 300],
   menu_popup:      [340, 280],
   popupMenu:       [340, 280],
+  popupMenuContext:[300, 200],
   markup:          [280, 220],
   consolePanel:    [360, 200],
   timeGraphPanel:  [360, 200],
@@ -881,6 +882,35 @@ const menu = new PopupMenu({
   ],
   onChange: (lbl, path) => console.log(path),
 });`,
+
+  popupMenuContext: `\
+function setup() {
+  createCanvas(300, 200);
+  document.oncontextmenu = () => false;
+}
+
+const menu = new PopupMenu({
+  x: -500, y: -500,
+  items: [
+    'Add Shape',
+    ['Color', 'Red', 'Green', 'Blue'],
+    'Clear',
+  ],
+  onChange: ({label}) => print(label),
+});
+
+function draw() {
+  background(245);
+  fill(100); noStroke(); textSize(12); textAlign(CENTER, CENTER);
+  text('Right-click anywhere', width/2, height/2);
+}
+
+function mousePressed() {
+  if (mouseButton === RIGHT) {
+    menu.x = mouseX;
+    menu.y = mouseY;
+  }
+}`,
 
   messageDialog: `\
 const dlg = new MessageDialog({

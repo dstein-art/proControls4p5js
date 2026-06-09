@@ -931,6 +931,41 @@
       </div>
       <iframe class="example-frame" src="example.html?c=popupMenu" width="300" height="200" scrolling="no" frameborder="0" loading="lazy" title="PopupMenu live example"></iframe>
     </div>
+
+    <h3>Right-click context menu</h3>
+    <div class="example-row">
+      <div class="live-editor">
+        <div class="live-hint">editable — changes update the preview</div>
+        <textarea class="live-code" spellcheck="false">function setup() {
+  createCanvas(300, 200);
+  document.oncontextmenu = () => false;
+}
+
+const menu = new PopupMenu({
+  x: -500, y: -500,
+  items: [
+    'Add Shape',
+    ['Color', 'Red', 'Green', 'Blue'],
+    'Clear',
+  ],
+  onChange: ({label}) => print(label),
+});
+
+function draw() {
+  background(245);
+  fill(100); noStroke(); textSize(12); textAlign(CENTER, CENTER);
+  text('Right-click anywhere', width/2, height/2);
+}
+
+function mousePressed() {
+  if (mouseButton === RIGHT) {
+    menu.x = mouseX;
+    menu.y = mouseY;
+  }
+}</textarea>
+      </div>
+      <iframe class="example-frame" src="example.html?c=popupMenuContext" width="300" height="200" scrolling="no" frameborder="0" loading="lazy" title="PopupMenu right-click example"></iframe>
+    </div>
   </section>
 
   <hr>
