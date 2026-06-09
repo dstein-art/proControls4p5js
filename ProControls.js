@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-08 — commit 44e5019
+// Last updated: 2026-06-08 — commit 0082e9b
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -661,24 +661,21 @@ class ProControl {
     this._boundData = dataObj;
     this._boundField = fieldName;
 
-    // For multi-data controls with auto field matching (fieldName not provided)
     if (fieldName === undefined) {
-      // Multi-data control: auto-discover field names from control structure
-      // Subclasses override _getBindingFields() to provide field mappings
       const fields = this._getBindingFields();
       if (fields && typeof fields === 'object') {
         this._boundFields = fields; // {fieldName: controlProperty}
-      } else {
+      } else if (!fields) {
+        // null/undefined → single-field control
         this._boundField = this._getPrimaryProperty();
       }
+      // fields === true → dynamic multi-field; _initSync override handles it
     }
 
-    // Initialize control with current data value (if dataObj is not null)
-    if (dataObj && this._boundField) {
-      if (dataObj[this._boundField] !== undefined && this[this._boundField] !== undefined) {
-        this[this._boundField] = dataObj[this._boundField];
-      }
-    }
+    // Bi-directional init on the raw object BEFORE the Proxy is installed.
+    // Data key present  → copy into control (silent, no onChange).
+    // Data key missing  → copy control value into data object.
+    if (dataObj) this._initSync(dataObj);
 
     // Wrap data object in Proxy for reactive updates
     this._setupReactiveBinding();
@@ -727,6 +724,28 @@ class ProControl {
   _getBindingFields() {
     // Override in subclasses that support auto field matching (multi-data controls)
     return null;
+  }
+
+  _initSync(dataObj) {
+    if (this._boundField) {
+      const field = this._boundField;
+      const pp    = this._getPrimaryProperty();
+      if (dataObj[field] !== undefined) {
+        this[pp] = dataObj[field];         // data → control
+      } else {
+        const v = this[pp];
+        if (v !== undefined) dataObj[field] = v;  // control → data
+      }
+    } else if (this._boundFields) {
+      for (const [field, controlProp] of Object.entries(this._boundFields)) {
+        if (dataObj[field] !== undefined) {
+          if (typeof this[controlProp] !== 'function') this[controlProp] = dataObj[field];
+        } else {
+          const v = this[controlProp];
+          if (typeof v !== 'function' && v !== undefined) dataObj[field] = v;
+        }
+      }
+    }
   }
 
   _getPrimaryProperty() {
@@ -3615,6 +3634,16 @@ class MultiSlider extends ProControl {
 
   _getBindingFields() { return true; }
 
+  _initSync(dataObj) {
+    for (const child of this._children) {
+      if (dataObj[child.name] !== undefined) {
+        child.value = dataObj[child.name];   // data → control
+      } else {
+        dataObj[child.name] = child.value;   // control → data
+      }
+    }
+  }
+
   _updateBoundData() {
     if (!this._boundData || this._syncingToData) return;
     this._syncingToData = true;
@@ -3807,6 +3836,16 @@ class MultiDial extends ProControl {
   }
 
   _getBindingFields() { return true; }
+
+  _initSync(dataObj) {
+    for (const child of this._children) {
+      if (dataObj[child.name] !== undefined) {
+        child.value = dataObj[child.name];   // data → control
+      } else {
+        dataObj[child.name] = child.value;   // control → data
+      }
+    }
+  }
 
   _updateBoundData() {
     if (!this._boundData || this._syncingToData) return;
@@ -5329,8 +5368,9 @@ class Panel extends ProControl {
       child.bind(dataObj);
     } else {
       // Single-data control: write to dataObj[child.name]
-      child._boundData = dataObj;
+      child._boundData  = dataObj;
       child._boundField = child.name;
+      child._initSync(dataObj);
       child._setupReactiveBinding();
     }
   }
