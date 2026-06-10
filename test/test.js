@@ -2,9 +2,11 @@ let myData  = {};
 let myPData = {dave1: 0.9631578947368421, dave2: 0.5657894736842106, Selector1: 0};
 
 let myMenu;
+let myGrid;
+let hlRow = 0, hlCol = 0;
 
 function setup() {
-  createCanvas(600, 600);
+  createCanvas(700, 600);
   openConsolePanel();
   openStatusPanel();
 
@@ -38,7 +40,33 @@ function setup() {
     ],
     onChange: ({label, path}) => console.log(path),
   });
-  myMenu.draw()
+  myMenu.draw();
+
+  // GridPad highlight demo
+  myGrid = new GridPad({ x: 480, y: 20, rows: 5, cols: 5, cellSize: 26, label: 'GridPad highlights' });
+
+  myGrid.highlightRow(hlRow, true);
+  myGrid.highlightCol(hlCol, true);
+  myGrid.highlightCell(2, 2, true);
+
+  new AnalogSlider({
+    label: 'hl row', x: 480, y: 200,
+    min: 0, max: 4, step: 1, value: hlRow,
+    onChange: (v) => {
+      myGrid.highlightRow(hlRow, false);
+      hlRow = Math.round(v);
+      myGrid.highlightRow(hlRow, true);
+    }
+  });
+  new AnalogSlider({
+    label: 'hl col', x: 560, y: 200,
+    min: 0, max: 4, step: 1, value: hlCol,
+    onChange: (v) => {
+      myGrid.highlightCol(hlCol, false);
+      hlCol = Math.round(v);
+      myGrid.highlightCol(hlCol, true);
+    }
+  });
 }
 
 function mousePressed() {
@@ -51,6 +79,12 @@ function draw() {
   if (mouseIsPressed && mouseButton === RIGHT) {
     myMenu.x=mouseX;
     myMenu.y=mouseY;
+  }
+
+  if (mouseX < 300) {
+    myGrid.highlightRow(hlRow, false);
+  } else if ( mouseX > 200) {
+    myGrid.highlightCol(hlCol, true);
   }
   fill(0);
   noStroke();

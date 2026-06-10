@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-09 — commit 9cc072b
+// Last updated: 2026-06-10 — commit 1823304
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -4044,6 +4044,8 @@ class GridPad extends ProControl {
     this._lastCell    = null;
     this._pressedCell = null;  // button mode only
 
+    this._highlights = Array.from({ length: this.rows }, () => Array(this.cols).fill(false));
+
     if (!GridPad._ctxBlocked) {
       GridPad._ctxBlocked = true;
       if (typeof document !== 'undefined') {
@@ -4138,6 +4140,21 @@ class GridPad extends ProControl {
     }
   }
 
+  highlightCell(r, c, on) {
+    if (r < 0 || r >= this.rows || c < 0 || c >= this.cols) return;
+    this._highlights[r][c] = on;
+  }
+
+  highlightRow(r, on) {
+    if (r < 0 || r >= this.rows) return;
+    for (let c = 0; c < this.cols; c++) this._highlights[r][c] = on;
+  }
+
+  highlightCol(c, on) {
+    if (c < 0 || c >= this.cols) return;
+    for (let r = 0; r < this.rows; r++) this._highlights[r][c] = on;
+  }
+
   // ── drawing ───────────────────────────────────────────────────────────────────
 
   draw() {
@@ -4204,6 +4221,22 @@ class GridPad extends ProControl {
       }
     }
     gc.restore();
+
+    // Pass 3: highlight outlines
+    if (this._highlights.some(row => row.some(v => v))) {
+      push();
+      noFill();
+      stroke(this.theme.capIndicator);
+      strokeWeight(2);
+      for (let r = 0; r < this.rows; r++) {
+        for (let c = 0; c < this.cols; c++) {
+          if (this._highlights[r][c]) {
+            rect(this._colX(c) + 1, this._rowY(r) + 1, this.cellSize - 2, this.cellSize - 2, 2);
+          }
+        }
+      }
+      pop();
+    }
 
     this._drawGroupLines();
 
