@@ -941,17 +941,15 @@ panel.onChange = () => localStorage.<span class="fn">setItem</span>(<span class=
 }());
 </script>
 
-<footer>
-  <span>© 2026 David Stein</span>
-  <span class="footer-promo">
-    Another David Stein Production:
-    <a href="https://instructor.cc" target="_blank">instructor.cc</a> ·
-    <a href="https://procontrols.org" target="_blank">procontrols.org</a> ·
-    <a href="https://supermod3l.com" target="_blank">supermod3l.com</a> ·
-    <a href="https://indienewyork.com" target="_blank">indienewyork.com</a> ·
-    <a href="https://indieboston.com" target="_blank">indieboston.com</a>
-  </span>
-</footer>
+<footer id="site-footer"></footer>
+<script>
+fetch('../footer.json').then(r=>r.json()).then(f=>{
+  const sep=' · ';
+  const links=f.links.map(l=>`<a href="${l.url}" target="_blank">${l.label}</a>`).join(sep);
+  document.getElementById('site-footer').innerHTML=
+    `<span>© ${new Date().getFullYear()} David Stein</span><span class="footer-promo">${f.credit}: ${links}</span>`;
+});
+</script>
 
 </body>
 </html>

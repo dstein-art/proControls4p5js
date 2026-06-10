@@ -715,9 +715,15 @@
 </div>
 
 <!-- ── Footer ── -->
-<footer>
-  <p>&copy; 2026 ProControls for p5.js — <a href="https://github.com">GitHub</a> · <a href="mailto:info@example.com">Contact</a></p>
-</footer>
+<footer id="site-footer"></footer>
+<script>
+fetch('../footer.json').then(r=>r.json()).then(f=>{
+  const sep=' · ';
+  const links=f.links.map(l=>`<a href="${l.url}" target="_blank">${l.label}</a>`).join(sep);
+  document.getElementById('site-footer').innerHTML=
+    `<span>© ${new Date().getFullYear()} David Stein</span><span class="footer-promo">${f.credit}: ${links}</span>`;
+});
+</script>
 
 </body>
 </html>
