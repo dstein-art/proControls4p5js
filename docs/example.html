@@ -152,8 +152,9 @@ const SIZES = {
   popupMenuContext:[300, 200],
   markup:          [280, 220],
   consolePanel:    [360, 200],
-  timeGraphPanel:  [360, 200],
+  timeGraphPanel:       [360, 200],
   timeGraphPanel_slider: [320, 240],
+  timeGraphPanel_time:  [360, 200],
   statusPanel:     [360, 200],
   listView:        [300, 220],
   gridView:        [420, 220],
@@ -938,6 +939,25 @@ for (let i = 0; i < 100; i++) {
            ch2: 0.5 + 0.45 * cos(t * 0.71),
            ch3: 0.5 + 0.40 * sin(t * 1.30) });
 }`,
+
+  timeGraphPanel_time: `\
+const g = new TimeGraphPanel({
+  x: 0, y: 0,
+  width: 360, height: 200,
+  label: 'Logged data',
+  min: -1, max: 1,
+  movable: false, resizable: false, minimizable: false,
+});
+
+const log = [
+  {time: 0.0, value:  0.0},
+  {time: 0.5, value:  0.8},
+  {time: 1.0, value:  0.3},
+  {time: 2.5, value: -0.6},
+  {time: 3.0, value:  0.9},
+  {time: 5.0, value: -0.2},
+];
+for (const pt of log) g.push(pt);`,
 
   timeGraphPanel_slider: `\
 const graph = new TimeGraphPanel({

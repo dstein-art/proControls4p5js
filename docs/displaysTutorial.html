@@ -1696,6 +1696,59 @@ function draw() {
         back the graph scrolls.
       </div>
     </div>
+
+    <!-- Step 5 -->
+    <div class="step">
+      <div class="step-header">
+        <span class="step-badge">Step 5</span>
+        <span class="step-title">Custom timestamps</span>
+      </div>
+      <p class="step-body">
+        By default each <code>push()</code> call is stamped with the current wall-clock time.
+        You can override this by including a <code>time</code> field (in seconds) in the data
+        object. This lets you replay pre-recorded data at the correct positions, graph sporadic
+        events that don't arrive every frame, or synchronize multiple graphs to a shared
+        timeline.
+      </p>
+      <div class="example-row">
+        <div class="live-editor">
+          <div class="live-hint">editable — try changing the time values</div>
+          <textarea class="live-code" spellcheck="false">let graph;
+
+function setup() {
+  createCanvas(360, 200);
+  graph = new TimeGraphPanel({
+    x: 0, y: 0,
+    width: 360, height: 200,
+    label: 'Logged data',
+    min: -1, max: 1,
+    movable: false, minimizable: false, resizable: false,
+  });
+
+  // Replay pre-recorded samples — gaps appear where time jumps
+  const log = [
+    {time: 0.0, value:  0.0},
+    {time: 0.5, value:  0.8},
+    {time: 1.0, value:  0.3},
+    {time: 2.5, value: -0.6},
+    {time: 3.0, value:  0.9},
+    {time: 5.0, value: -0.2},
+  ];
+  for (const pt of log) graph.push(pt);
+}
+
+function draw() {
+  proControlBackground();
+}</textarea>
+        </div>
+        <iframe class="example-frame" src="example.html?c=timeGraphPanel_time&s=black" width="360" height="200" scrolling="no" frameborder="0" loading="lazy" title="TimeGraphPanel custom timestamps"></iframe>
+      </div>
+      <div class="tip">
+        <strong>Tip:</strong> For live data that doesn't arrive every frame, use
+        <code>{ time: millis() / 1000, value: v }</code> so the X axis reflects the
+        actual elapsed time between samples rather than frame count.
+      </div>
+    </div>
   </div>
 
   <hr>

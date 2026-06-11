@@ -1251,7 +1251,7 @@ for (let i = 0; i &lt; 5; i++) console.log('redraw tick');</textarea>
     <table class="opts">
       <thead><tr><th>Name</th><th>Description</th></tr></thead>
       <tbody>
-        <tr><td><code>.push(value)</code></td><td>Add a data point. Pass a <code>number</code> for single-variable mode, or a plain object (<code>{key: value, …}</code>) for multi-variable mode. Switching between modes resets the data buffer.</td></tr>
+        <tr><td><code>.push(value)</code></td><td>Add a data point. Pass a <code>number</code> for single-variable mode, or a plain object (<code>{key: value, …}</code>) for multi-variable mode. To supply a custom timestamp, include a <code>time</code> field (in seconds): <code>push({time: 5.2, value: 42})</code> for single-variable or <code>push({time: 5.2, key1: 42, key2: 99})</code> for multi-variable. Without a <code>time</code> field the current wall-clock time is used. Switching between modes resets the data buffer.</td></tr>
         <tr><td><code>.clear()</code></td><td>Remove all data points and reset variable tracking.</td></tr>
         <tr><td><code>.autoAdjustY</code></td><td>Get or set whether the Y axis auto-fits to the data range (<code>true</code>) or uses fixed bounds (<code>false</code>).</td></tr>
         <tr><td><code>.data</code></td><td>Read-only getter. Returns a shallow copy of the current data array.</td></tr>
@@ -1284,6 +1284,21 @@ for (let i = 0; i &lt; 5; i++) console.log('redraw tick');</textarea>
 
 // Pass an object to plot named variables together:
 // g.push({ rpm: 3400, temp: 85, load: 0.72 });</textarea>
+    </div>
+
+    <h3>Example — custom timestamps</h3>
+    <div class="live-example">
+      <textarea class="live-code" spellcheck="false">const g = new TimeGraphPanel({
+  x: 20, y: 18,
+  width: 280, height: 160,
+  label: 'Custom timestamps',
+  min: -1, max: 1,
+});
+
+// Add a 'time' field (seconds) to place each point at an exact X position.
+// Useful for replaying logged data or graphing sporadic events:
+// g.push({ time: 2.5, value: 0.8 });
+// g.push({ time: 5.0, key1: 0.4, key2: -0.3 }); // multi-variable</textarea>
     </div>
   </section>
 

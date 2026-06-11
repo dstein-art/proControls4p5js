@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-10 — commit 1823304
+// Last updated: 2026-06-11 — commit 676b80d
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -8630,6 +8630,9 @@ window.closeConsolePanel = function() {
 // ─── TimeGraphPanel ───────────────────────────────────────────────────────────
 // Scrolling time-series line graph. Push a number for a single variable, or
 // an object {key:value, ...} to graph multiple named variables simultaneously.
+// To supply a custom timestamp (in seconds), include a 'time' field:
+//   push({ time: 5.2, value: 42 })          — single-variable at t=5.2s
+//   push({ time: 5.2, key1: 42, key2: 99 }) — multi-variable at t=5.2s
 //
 // opts: x, y, width, height, label, movable, resizable, minimizable,
 //       maxSamples, min, max, lineWidth, grid, legend, theme
@@ -8723,10 +8726,26 @@ class TimeGraphPanel extends ProControl {
   // ── Public API ────────────────────────────────────────────────────────────
 
   push(value) {
-    if (typeof value === 'object' && value !== null) {
+    let ts, payload;
+
+    if (typeof value === 'object' && value !== null && 'time' in value) {
+      ts = value.time;
+      const { time, ...rest } = value;
+      const restKeys = Object.keys(rest);
+      // {time, value} with a numeric value → scalar mode (no legend label)
+      payload = (restKeys.length === 1 && restKeys[0] === 'value' && typeof rest.value === 'number')
+        ? rest.value
+        : rest;
+    } else {
+      if (this._startTime === null) this._startTime = Date.now();
+      ts = (Date.now() - this._startTime) / 1000;
+      payload = value;
+    }
+
+    if (typeof payload === 'object' && payload !== null) {
       if (!this._isObj) { this._data = []; this._keys = []; this._colorMap = {}; }
       this._isObj = true;
-      for (const k of Object.keys(value)) {
+      for (const k of Object.keys(payload)) {
         if (!this._colorMap[k]) {
           this._colorMap[k] = this._palette[this._keys.length % this._palette.length];
           this._keys.push(k);
@@ -8740,9 +8759,8 @@ class TimeGraphPanel extends ProControl {
         this._keys = ['value'];
       }
     }
-    if (this._startTime === null) this._startTime = Date.now();
-    const ts = (Date.now() - this._startTime) / 1000;
-    this._data.push(value);
+
+    this._data.push(payload);
     this._times.push(ts);
     if (this._data.length  > this._maxSamples) this._data.shift();
     if (this._times.length > this._maxSamples) this._times.shift();
