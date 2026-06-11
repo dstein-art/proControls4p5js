@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-11 — commit 676b80d
+// Last updated: 2026-06-11 — commit 80ed19f
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -8674,6 +8674,7 @@ class TimeGraphPanel extends ProControl {
     this._lineWidth   = opts.lineWidth  ?? 1.5;
     this._showGrid    = opts.grid       !== false;
     this._showLegend  = opts.legend     !== false;
+    this._axisLabels  = opts.axisLabels !== false;
 
     this._data     = [];
     this._keys     = [];
@@ -8720,6 +8721,7 @@ class TimeGraphPanel extends ProControl {
       lineWidth:    this._lineWidth,
       grid:         this._showGrid,
       legend:       this._showLegend,
+      axisLabels:   this._axisLabels,
     };
   }
 
@@ -8810,7 +8812,7 @@ class TimeGraphPanel extends ProControl {
 
   // Plot area: left margin for Y labels, bottom margin for X time labels
   _plotRect() {
-    const labW = 32, xLabH = 14;
+    const labW = this._axisLabels ? 32 : 4, xLabH = 14;
     return {
       px: this.x + labW,
       py: this.y + this._titleH + 4,
@@ -8895,7 +8897,7 @@ class TimeGraphPanel extends ProControl {
 
     gc.restore();
 
-    this._drawYAxis(px, py, pw, ph, ranges, perKey);
+    if (this._axisLabels) this._drawYAxis(px, py, pw, ph, ranges, perKey);
     this._drawXAxis(px, py, pw, ph);
     if (this._showLegend && this._keys.length > 1) this._drawLegend(px, py, pw, ph);
     if (this._hoverFrac !== null && this._data.length >= 2)
