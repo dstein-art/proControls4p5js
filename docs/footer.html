@@ -1,7 +1,7 @@
-<!-- Footer — Last edited: 2026-06-09 — loaded from ../footer.json -->
+<!-- Footer — Last edited: 2026-06-13 — loaded from https://www.davidstein.org/footer.js -->
 <footer id="site-footer"></footer>
 <script>
-fetch('../footer.json').then(r=>r.json()).then(f=>{
+fetch('https://www.davidstein.org/footer.js').then(r=>r.json()).then(f=>{
   const sep=' · ';
   const links=f.links.map(l=>`<a href="${l.url}" target="_blank">${l.label}</a>`).join(sep);
   document.getElementById('site-footer').innerHTML=
