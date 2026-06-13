@@ -163,6 +163,8 @@ openStatusPanel();    // thin bar: FPS, Δt, control count, heap usage
 | [Displays](https://procontrols.org/docs/displaysHelp.html) | VUMeter · LEDMeter · ADSRDisplay · HeatMapView · and more |
 | [Advanced Topics](https://procontrols.org/docs/advancedHelp.html) | Themes & Styles · Events · Data Binding |
 
+**Contributing examples:** See [editingExamples.md](editingExamples.md) for the workflow to add or edit live examples.
+
 ---
 
 ## License
