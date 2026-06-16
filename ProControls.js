@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-14 — commit b1a638c
+// Last updated: 2026-06-16 — commit 4d99c18
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -10343,6 +10343,10 @@ class PianoPad extends ProControl {
     return _PIANO_NOTE_NAMES[semitone] + octave;
   }
 
+  _midiToFreq(midi) {
+    return 440 * Math.pow(2, (midi - 69) / 12);
+  }
+
   _buildKeys() {
     this._keys = [];
     const padding = this.padding;
@@ -10538,6 +10542,7 @@ class PianoPad extends ProControl {
         this.onChange({
           note: this._midiToNote(midi),
           midi,
+          freq: this._midiToFreq(midi),
           octave: Math.floor(midi / 12) - 1,
           state: 'highlight'
         }, this);
@@ -10546,6 +10551,7 @@ class PianoPad extends ProControl {
         this.onChange({
           note: this._midiToNote(midi),
           midi,
+          freq: this._midiToFreq(midi),
           octave: Math.floor(midi / 12) - 1,
           state: 'off'
         }, this);
@@ -10567,6 +10573,7 @@ class PianoPad extends ProControl {
     this._fireChange({
       note: this._midiToNote(midi),
       midi,
+      frequency: this._midiToFreq(midi),
       octave: Math.floor(midi / 12) - 1,
       state: 'on'
     });
@@ -10580,6 +10587,7 @@ class PianoPad extends ProControl {
       this._fireChange({
         note: this._midiToNote(midi),
         midi,
+        freq: this._midiToFreq(midi),
         octave: Math.floor(midi / 12) - 1,
         state: 'off'
       });
@@ -10588,6 +10596,7 @@ class PianoPad extends ProControl {
         this.onRelease({
           note: this._midiToNote(midi),
           midi,
+          freq: this._midiToFreq(midi),
           octave: Math.floor(midi / 12) - 1,
           state: 'off'
         }, this);
