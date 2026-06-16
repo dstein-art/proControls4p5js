@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-16 — commit e915130
+// Last updated: 2026-06-16 — commit 57e1c40
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -4043,6 +4043,7 @@ class GridPad extends ProControl {
     this._dir         = 1;
     this._lastCell    = null;
     this._pressedCell = null;  // button mode only
+    this.lastCell     = null;  // public: { r, c } of the most recently pressed or released cell
 
     this._highlights = Array.from({ length: this.rows }, () => Array(this.cols).fill(false));
 
@@ -4288,6 +4289,7 @@ class GridPad extends ProControl {
       return;
     }
     const { r, c } = cell;
+    this.lastCell = { r, c };
 
     if (this.mode === 'toggle') {
       this._vals[r][c] = this._vals[r][c] ? 0 : 1;
@@ -4338,6 +4340,7 @@ class GridPad extends ProControl {
         const pc = this._pressedCell;
         this._pressedCell = null;
         this._activeCell  = null;
+        if (pc) this.lastCell = { r: pc.r, c: pc.c };
         if (this.onRelease && pc) this.onRelease(pc.r, pc.c, this);
       } else {
         this._activeCell = null;
