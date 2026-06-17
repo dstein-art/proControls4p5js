@@ -1094,11 +1094,12 @@ const seq = new GridPad({
         <span class="step-title">Reading the grid with <code>onChange</code></span>
       </div>
       <p class="step-body">
-        The <code>onChange</code> callback receives the entire grid as a 2-D array — one row per
-        row of cells, one value per column. In toggle mode the values are <code>0</code> or
-        <code>1</code>; in percent mode they are decimals from 0 to 1; in colorselect mode they
-        are the <code>value</code> strings you defined. Click cells below to see the full grid
-        printed to the console.
+        The <code>onChange</code> callback receives an object with five fields: <code>r</code> and
+        <code>c</code> (the row and column of the changed cell), <code>value</code> (that cell's
+        new value), <code>values</code> (the full 2-D grid), and <code>state</code>
+        (<code>'change'</code> for toggle/percent/colorselect, <code>'on'</code>/<code>'off'</code>
+        for button mode, <code>'reset'</code> when the label is double-clicked). Click cells below
+        to see the payload printed to the console.
       </p>
       <div class="example-row">
         <div class="live-editor">
@@ -1112,8 +1113,9 @@ const seq = new GridPad({
   hGroup: 2, vGroup: 2,
   mode: 'toggle',
   label: 'PATTERN',
-  // v is a 2-D array: v[row][col] is 0 or 1
-  onChange: v => console.log(JSON.stringify(v)),
+  onChange: ({r, c, value, values, state}) => {
+    console.log(`[${r},${c}] = ${value}  state: ${state}`);
+  },
 });</textarea>
         </div>
         <iframe class="example-frame" src="example.html?c=panel" width="320" height="240" scrolling="no" frameborder="0" loading="lazy" title="GridPad data handling"></iframe>

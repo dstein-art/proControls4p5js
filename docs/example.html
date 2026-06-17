@@ -583,7 +583,7 @@ const seq = new GridPad({
   cellSize: 20,
   hGroup: 2, vGroup: 2,
   label: ${label || "'PATTERN'"},
-  onChange: v => console.log(v),
+  onChange: ({r, c, value, values, state}) => console.log(r, c, value, state),
 });`,
 
   gridpad_percent: `\
@@ -594,7 +594,7 @@ const vel = new GridPad({
   cellSize: 20,
   hGroup: 2, vGroup: 2,
   label: ${label || "'VELOCITY'"},
-  onChange: v => console.log(v),
+  onChange: ({r, c, value, values, state}) => console.log(r, c, value, state),
 });`,
 
   gridpad_colorselect: `\
@@ -611,7 +611,7 @@ const seq = new GridPad({
     { color: '#0055cc', value: 'blue'  },
     { color: '#22aa44', value: 'green' },
   ],
-  onChange: v => console.log(v),
+  onChange: ({r, c, value, values, state}) => console.log(r, c, value, state),
 });`,
 
   piano_basic: `\

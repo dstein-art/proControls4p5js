@@ -1,6 +1,6 @@
 // ProControls.js — base class + Slider for p5.js
 // Copyright © David Stein 2026
-// Last updated: 2026-06-16 — commit 57e1c40
+// Last updated: 2026-06-16 — commit 0546e3d
 
 // q5 compatibility: Define print() as a console.log wrapper
 // p5.js defines print, but q5 doesn't (and browser's native print opens dialog, not console)
@@ -4274,6 +4274,15 @@ class GridPad extends ProControl {
     pop();
   }
 
+  _cellPayload(r, c, state) {
+    return {
+      r, c,
+      value:  (r !== null && c !== null) ? this._vals[r][c] : null,
+      values: this.values,
+      state
+    };
+  }
+
   // ── input ─────────────────────────────────────────────────────────────────────
 
   mousePressed() {
@@ -4283,8 +4292,8 @@ class GridPad extends ProControl {
       // Label area: double-click resets all cells to initial values
       if (this.label && this._my() >= this.y + this._totalH() - 16 && this._isDoubleClick()) {
         this._vals = this._initVals.map(row => [...row]);
-        this._fireChange(this.values);
-        if (this.onRelease) this.onRelease(this.values, this);
+        this._fireChange(this._cellPayload(null, null, 'reset'));
+        if (this.onRelease) this.onRelease(this._cellPayload(null, null, 'reset'), this);
       }
       return;
     }
@@ -4293,7 +4302,7 @@ class GridPad extends ProControl {
 
     if (this.mode === 'toggle') {
       this._vals[r][c] = this._vals[r][c] ? 0 : 1;
-      this._fireChange(this.values);
+      this._fireChange(this._cellPayload(r, c, 'change'));
       return;
     }
 
@@ -4302,7 +4311,7 @@ class GridPad extends ProControl {
       if (n > 0) {
         const dir = (mouseButton === RIGHT) ? -1 : 1;
         this._vals[r][c] = ((this._vals[r][c] + dir) % n + n) % n;
-        this._fireChange(this.values);
+        this._fireChange(this._cellPayload(r, c, 'change'));
       }
       return;
     }
@@ -4311,6 +4320,7 @@ class GridPad extends ProControl {
       this._pressedCell = { r, c };
       this._active      = true;
       if (this.onPress) this.onPress(r, c);
+      this._fireChange(this._cellPayload(r, c, 'on'));
       return;
     }
 
@@ -4326,7 +4336,7 @@ class GridPad extends ProControl {
       // accumulating between clicks doesn't interfere with snap direction.
       const v0 = this._lastCell.v0;
       this._vals[r][c] = v0 <= 0 ? 1 : v0 >= 1 ? 0 : v0 >= 0.5 ? 1 : 0;
-      this._fireChange(this.values);
+      this._fireChange(this._cellPayload(r, c, 'change'));
       this._lastCell = null; this._active = false; this._activeCell = null;
       return;
     }
@@ -4341,10 +4351,12 @@ class GridPad extends ProControl {
         this._pressedCell = null;
         this._activeCell  = null;
         if (pc) this.lastCell = { r: pc.r, c: pc.c };
-        if (this.onRelease && pc) this.onRelease(pc.r, pc.c, this);
+        if (pc) this._fireChange(this._cellPayload(pc.r, pc.c, 'off'));
+        if (this.onRelease && pc) this.onRelease(this._cellPayload(pc.r, pc.c, 'off'), this);
       } else {
+        const ac = this._activeCell;
         this._activeCell = null;
-        if (this.onRelease) this.onRelease(this.values, this);
+        if (this.onRelease) this.onRelease(this._cellPayload(ac?.r ?? null, ac?.c ?? null, 'change'), this);
       }
     }
   }
@@ -4359,7 +4371,7 @@ class GridPad extends ProControl {
     if (!this._active || !this._activeCell || this.mode !== 'percent') return;
     const { r, c } = this._activeCell;
     this._vals[r][c] = constrain(this._vals[r][c] + this._rate * this._dir, 0, 1);
-    this._fireChange(this.values);
+    this._fireChange(this._cellPayload(r, c, 'change'));
   }
 }
 

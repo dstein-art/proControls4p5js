@@ -998,8 +998,8 @@ const loop = new IconButton({
         <tr><td>rate</td><td>number</td><td>0.02</td><td>Percent change per frame while mouse is held (percent mode only).</td></tr>
         <tr><td>label</td><td>string</td><td>''</td><td>Label drawn below the grid.</td></tr>
         <tr><td>theme</td><td>object</td><td>{}</td><td>Partial theme override. See <a href="#themes">Themes</a>.</td></tr>
-        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange(values[, control])</code> — called with a 2-D copy of values when any cell changes. In colorselect mode the grid contains the semantic <code>value</code> for each cell.</td></tr>
-        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease(values[, control])</code> — toggle/percent: called with the values array on release. Button mode: called with <code>({r, c}[, control])</code> — row and column of the released cell.</td></tr>
+        <tr><td>onChange</td><td>function</td><td>null</td><td><code>onChange({r, c, value, values, state}[, control])</code> — called when any cell changes. <code>r</code>/<code>c</code> are the cell coordinates, <code>value</code> is that cell's new value, <code>values</code> is the full 2-D grid, and <code>state</code> is <code>'change'</code> (toggle/percent/colorselect), <code>'on'</code> (button press), <code>'off'</code> (button release), or <code>'reset'</code> (label double-click).</td></tr>
+        <tr><td>onRelease</td><td>function</td><td>null</td><td><code>onRelease({r, c, value, values, state}[, control])</code> — called on mouse release with the same payload as <code>onChange</code>.</td></tr>
         <tr><td>onPress(row, col)</td><td>function</td><td>null</td><td>Button mode only — called with the row and column of the pressed cell.</td></tr>
 </tbody>
     </table>
@@ -1028,8 +1028,8 @@ const loop = new IconButton({
     <table class="opts">
       <thead><tr><th>Action</th><th>Effect</th></tr></thead>
       <tbody>
-        <tr><td>Press cell</td><td>Cell highlights; <code>onPress(row, col)</code> fires.</td></tr>
-        <tr><td>Release</td><td>Cell returns to default; <code>onRelease({r, c})</code> fires.</td></tr>
+        <tr><td>Press cell</td><td>Cell highlights; <code>onPress(row, col)</code> and <code>onChange({r, c, value, values, state:'on'})</code> fire.</td></tr>
+        <tr><td>Release</td><td>Cell returns to default; <code>onRelease({r, c, value, values, state:'off'})</code> fires.</td></tr>
       </tbody>
     </table>
 
@@ -1064,7 +1064,7 @@ const loop = new IconButton({
   cellSize: 20,
   hGroup: 2, vGroup: 2,
   label: 'PATTERN',
-  onChange: v => console.log(v),
+  onChange: ({r, c, value, values, state}) => console.log(r, c, value, state),
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=gridpad_toggle" width="160" height="155" scrolling="no" frameborder="0" loading="lazy" title="GridPad toggle live example"></iframe>
@@ -1081,7 +1081,7 @@ const loop = new IconButton({
   cellSize: 20,
   hGroup: 2, vGroup: 2,
   label: 'VELOCITY',
-  onChange: v => console.log(v),
+  onChange: ({r, c, value, values, state}) => console.log(r, c, value, state),
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=gridpad_percent" width="160" height="155" scrolling="no" frameborder="0" loading="lazy" title="GridPad percent live example"></iframe>
@@ -1104,7 +1104,7 @@ const loop = new IconButton({
     { color: '#0055cc', value: 'blue'  },
     { color: '#22aa44', value: 'green' },
   ],
-  onChange: v => console.log(v),
+  onChange: ({r, c, value, values, state}) => console.log(r, c, value, state),
 });</textarea>
       </div>
       <iframe class="example-frame" src="example.html?c=gridpad_colorselect" width="160" height="155" scrolling="no" frameborder="0" loading="lazy" title="GridPad colorselect live example"></iframe>
