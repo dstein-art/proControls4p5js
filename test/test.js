@@ -1,30 +1,31 @@
-let myData  = {};
-let myPData = {dave1: 0.9631578947368421, dave2: 0.5657894736842106, Selector1: 0};
+let samples=["https://ihearyoucancode.com/assets/superdirt/000_BD.wav",
+  "https://ihearyoucancode.com/assets/superdirt/001_CB.wav",
+  "https://ihearyoucancode.com/assets/superdirt/002_FX.wav",
+  "https://ihearyoucancode.com/assets/superdirt/003_HH.wav",
+  "https://ihearyoucancode.com/assets/superdirt/004_OH.wav",
+  "https://ihearyoucancode.com/assets/superdirt/005_P1.wav",
+  "https://ihearyoucancode.com/assets/superdirt/006_P2.wav",
+  "https://ihearyoucancode.com/assets/superdirt/007_SN.wav"];
 
 
-
-let myMenu;
-let myGrid;
-let hlRow = 0, hlCol = 0;
-
-function setup() {
-  createCanvas(700, 600);
-  openConsolePanel();
-  openStatusPanel();
-
-  let tgData= [];
-  for (let i = 0; i < 100; i++) {
-    tgData.push({data: Math.sin(i * 0.1)});
+let drums=[];
+function preload() {
+  for (let i = 0; i < samples.length; i++) {
+    drums.push(loadSound(samples[i]));
   }
-
-  let tg = new TimeGraphPanel({axisLabels:true});
-  for (let i = 0; i < 100; i++) {
-    tg.push(Math.sin(i*2*PI/100));
-  }
-
 }
 
+function setup() {
+  print("Started");
+  createCanvas(300, 300);
+  new GridPad({label:"Click To Play",rows:2, cols:4,mode:"button",
+              onRelease: gridChanged});
+}
+
+function gridChanged(data1,data2,data3) {
+  print(data1,data2,data3.lastCell);
+}
 
 function draw() {
-  background(220);
+  background(30);
 }
