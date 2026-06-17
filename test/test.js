@@ -22,8 +22,8 @@ function setup() {
               onRelease: gridChanged});
 }
 
-function gridChanged(data1,data2,data3) {
-  print(data1,data2,data3.lastCell);
+function gridChanged(data1,data2) {
+  print(data1,data2);
 }
 
 function draw() {
